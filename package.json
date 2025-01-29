@@ -1,8 +1,8 @@
 {
   "name": "lithia",
-  "version": "2.0.0",
-  "description": "",
-  "repository": "",
+  "version": "1.0.0",
+  "description": "Next-generation framework for building server-side applications with Node.js & TypeScript 🚀",
+  "repository": "https://github.com/lithiajs/lithia",
   "license": "MIT",
   "type": "module",
   "exports": {
