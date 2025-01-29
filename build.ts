@@ -1,6 +1,6 @@
-import { readFile, writeFile } from 'fs/promises';
 import { globby } from 'globby';
-import { dirname, join, relative } from 'path';
+import { readFile, writeFile } from 'node:fs/promises';
+import { dirname, join, relative } from "node:path";
 import { build } from 'tsup';
 
 const subpaths = ['cli', 'config', 'core', 'meta', 'types'];

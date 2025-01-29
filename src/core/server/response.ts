@@ -1,4 +1,4 @@
-import { OutgoingHttpHeaders, ServerResponse } from 'node:http';
+import { OutgoingHttpHeaders, ServerResponse } from 'http';
 import { LithiaResponse } from 'lithia/types';
 
 export class _LithiaResponse implements LithiaResponse {

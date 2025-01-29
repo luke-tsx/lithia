@@ -1,4 +1,4 @@
-import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'node:http';
+import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
 import { Params, Query } from './route';
 
 export interface LithiaRequest {

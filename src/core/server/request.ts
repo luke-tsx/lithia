@@ -1,6 +1,6 @@
 import { Lithia, LithiaRequest, Params, Query } from 'lithia/types';
-import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
-import { parse } from 'node:url';
+import { IncomingHttpHeaders, IncomingMessage } from 'http';
+import { parse } from "node:url";
 
 export class _LithiaRequest implements LithiaRequest {
   headers: Readonly<IncomingHttpHeaders>;

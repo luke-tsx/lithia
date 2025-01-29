@@ -1,7 +1,7 @@
 import consola from 'consola';
 import { Lithia, RouteModule } from 'lithia/types';
-import { createServer, Server } from 'node:http';
-import { pathToFileURL } from 'node:url';
+import { createServer, Server } from 'http';
+import { pathToFileURL } from "node:url";
 import { _LithiaRequest } from './request';
 import { _LithiaResponse } from './response';
 import { getRoutesFromManifest } from './router';

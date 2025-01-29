@@ -1,6 +1,6 @@
 import CliTable3 from 'cli-table3';
-import { readFileSync } from 'fs';
 import { Lithia, Route } from 'lithia/types';
+import { readFileSync } from 'node:fs';
 import { buildDev } from './dev';
 import { buildProd } from './prod';
 
@@ -14,7 +14,7 @@ export async function build(lithia: Lithia) {
 
 export function printRoutesOverview(routes: Route[]) {
   const table = new CliTable3({
-    head: ['Method', 'Path', 'Environment', 'Length'],
+    head: ['Method', "Path", 'Environment', 'Length'],
     style: {
       head: ['green'],
     },

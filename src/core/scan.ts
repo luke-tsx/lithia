@@ -6,7 +6,7 @@ import {
   MatchedMethodSuffix,
   Route
 } from 'lithia/types';
-import { join, relative } from 'path';
+import { join, relative } from "node:path";
 import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo';
 
 const GLOB_SCAN_PATTERN = '**/*.ts';

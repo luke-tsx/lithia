@@ -4,7 +4,6 @@ import {
   ResolvedConfig,
   WatchConfigOptions,
 } from 'c12';
-import { BuiltinDriverName } from 'unstorage';
 import type { DeepPartial } from './_utils';
 
 export interface LithiaOptions {
@@ -23,10 +22,6 @@ export interface LithiaOptions {
   srcDir: string;
   routesDir: string;
   outputDir: string;
-
-  // Features
-  storage: StorageMounts;
-  devStorage: StorageMounts;
 
   // Router
   router: {
@@ -64,11 +59,3 @@ export interface LoadConfigOptions {
   c12?: WatchConfigOptions;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CustomDriverName = string & { _custom?: any };
-
-export interface StorageMounts {
-  [path: string]: {
-    driver: BuiltinDriverName | CustomDriverName;
-  };
-}

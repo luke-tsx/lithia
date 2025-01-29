@@ -2,7 +2,7 @@ import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import consola from 'consola';
 import esbuild from 'esbuild';
 import { Lithia } from 'lithia/types';
-import path from 'node:path';
+import path from "node:path";
 import { scanServerRoutes } from '../scan';
 import { createRoutesManifest } from '../server/router';
 import { printRoutesOverview } from './build';
