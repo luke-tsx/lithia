@@ -14,6 +14,7 @@ export interface LithiaOptions {
   };
   _env: 'dev' | 'prod';
   _c12: ResolvedConfig<LithiaConfig> | ConfigWatcher<LithiaConfig>;
+  _config: LithiaConfig;
 
   // General
   debug: boolean;
@@ -37,6 +38,7 @@ export interface LithiaOptions {
     port: number;
     host: string;
     request: {
+      maxTimeout: number;
       queryParser: {
         array: {
           enabled: boolean;
@@ -55,7 +57,7 @@ export interface LithiaOptions {
 
 export interface LithiaConfig
   extends DeepPartial<LithiaOptions>,
-    C12InputConfig<LithiaConfig> {}
+  C12InputConfig<LithiaConfig> { }
 
 export interface LoadConfigOptions {
   watch?: boolean;

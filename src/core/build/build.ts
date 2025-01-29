@@ -8,13 +8,13 @@ export async function build(lithia: Lithia) {
   if (lithia.options._cli.command === 'dev') {
     return buildDev(lithia);
   }
-  
+
   return buildProd(lithia);
 }
 
 export function printRoutesOverview(routes: Route[]) {
   const table = new CliTable3({
-    head: ['Method', 'Path', 'Environment', 'Type', 'Length'],
+    head: ['Method', 'Path', 'Environment', 'Length'],
     style: {
       head: ['green'],
     },
@@ -25,7 +25,6 @@ export function printRoutesOverview(routes: Route[]) {
       route.method || 'ALL',
       route.path,
       route.env || 'all',
-      route.type,
       `${readFileSync(route.filePath).length} bytes`,
     ]);
   });

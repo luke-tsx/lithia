@@ -4,7 +4,6 @@ import consola from 'consola';
 import { build, createHttpServer, createLithia, prepare } from 'lithia';
 import { Lithia } from 'lithia/types';
 import lodash from 'lodash';
-import path from 'node:path';
 
 export default defineCommand({
   meta: {
@@ -17,73 +16,67 @@ export default defineCommand({
 
     const setupWatcher = (lithia: Lithia) => {
       const watcher = chokidar.watch(
-        path.join(lithia.options.srcDir, lithia.options.routesDir),
+        lithia.options.srcDir,
         {
           ignoreInitial: true,
           atomic: true
         }
       );
 
-      const debouncedReload = lodash.debounce(async (pathChanged: string) => {
+      const debounceReload = lodash.debounce(async () => {
         if (restartPending) return;
-        
+
         restartPending = true;
-        consola.info(`File changed: ${path.relative(process.cwd(), pathChanged)}`);
         await reload();
         restartPending = false;
       }, 300);
 
       watcher
-        .on('add', debouncedReload)
-        .on('change', debouncedReload)
-        .on('unlink', debouncedReload);
+        .on('add', debounceReload)
+        .on('change', debounceReload)
+        .on('unlink', debounceReload);
 
       return watcher;
     };
 
     const reload = async () => {
       if (lithia) {
-        consola.info('Restarting dev server...');
+        consola.info('Reloading dev server...');
+
+        if ("unwatch" in lithia.options._c12) {
+          await lithia.options._c12.unwatch();
+        }
+
         await lithia.hooks.callHook('close');
       }
 
-      lithia = await createLithia(
-        {
-          _env: 'dev',
-          _cli: {
-            command: 'dev',
+      lithia = await createLithia({
+        _env: 'dev',
+        _cli: {
+          command: 'dev',
+        },
+      }, {
+        watch: true,
+        c12: {
+          async onUpdate({ getDiff }) {
+            const diff = getDiff();
+            if (!diff.length) return;
+            consola.info('Detected changes on `lithia.config.js`, reloading dev server...');
+            await reload();
           },
         },
-        {
-          watch: true,
-          c12: {
-            async onUpdate({ getDiff }) {
-              const diff = getDiff();
-              if (diff.length > 0) {
-                consola.info(
-                  'Config updated:\n' +
-                  diff.map((entry) => `  ${entry.toString()}`).join('\n')
-                );
-                await reload();
-              }
-            },
-          },
-        },
-      );
+      })
 
       const watcher = setupWatcher(lithia);
-      
       await prepare(lithia);
       await build(lithia);
-
       const server = createHttpServer(lithia);
 
-      lithia.hooks.hookOnce('restart', reload);
-      lithia.hooks.hookOnce('close', () => {
-        watcher.close();
+      lithia.hooks.hookOnce('close', async () => {
         server.close();
+        await watcher.close();
       });
-    };
+    }
 
     await reload();
   },

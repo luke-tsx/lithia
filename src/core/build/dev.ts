@@ -25,5 +25,4 @@ export async function buildDev(lithia: Lithia) {
   });
 
   await createRoutesManifest(lithia, routes);
-  lithia.hooks.callHook('restart');
 }

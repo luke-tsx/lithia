@@ -4,17 +4,15 @@ import {
   Lithia,
   MatchedEnvSuffix,
   MatchedMethodSuffix,
-  MatchedTypeSuffix,
-  Route,
+  Route
 } from 'lithia/types';
 import { join, relative } from 'path';
 import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo';
-import { getOutputPath } from './_utils';
 
 const GLOB_SCAN_PATTERN = '**/*.ts';
 
 const suffixRegex =
-  /(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?(\.(?<env>dev|prod))?(\.(?<type>lazy|prerender))?$/;
+  /(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?(\.(?<env>dev|prod))?$/;
 
 export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
   const files = await scanDir({
@@ -37,7 +35,6 @@ export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
     const suffixMatch = path.match(suffixRegex);
     let method: MatchedMethodSuffix | undefined;
     let env: MatchedEnvSuffix | undefined;
-    let type: MatchedTypeSuffix | undefined;
 
     if (suffixMatch?.index && suffixMatch?.index >= 0) {
       path = path.slice(0, suffixMatch.index);
@@ -45,7 +42,6 @@ export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
         | MatchedMethodSuffix
         | undefined;
       env = suffixMatch.groups?.env as MatchedEnvSuffix | undefined;
-      type = suffixMatch.groups?.type as MatchedTypeSuffix | undefined;
     }
 
     path = path.replace(/\/index$/, '') || '/';
@@ -59,8 +55,6 @@ export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
     return {
       env,
       method,
-      type: type || 'lazy',
-      middleware: false,
       path,
       dynamic,
       filePath,

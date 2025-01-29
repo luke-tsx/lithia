@@ -20,5 +20,10 @@ export async function loadOptions(
     ...opts.c12,
   });
 
-  return klona(loadedConfig.config) as LithiaOptions;
+  const options = klona(loadedConfig.config) as LithiaOptions;
+
+  options._config = overrides;
+  options._c12 = loadedConfig;
+
+  return options;
 }

@@ -22,15 +22,3 @@ export function getRoutesFromManifest(lithia: Lithia): Route[] {
     'routes.json',
   ));
 }
-
-export function loadHandlers(lithia: Lithia) {
-  const routes = getRoutesFromManifest(lithia);
-
-  for (const route of routes.filter((r) => r.type === 'prerender')) {
-    const module = importFresh(route.filePath);
-
-    console.log(module);
-  }
-
-  lithia.scannedRoutes = routes;
-}

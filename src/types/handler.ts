@@ -27,3 +27,15 @@ export type LithiaHandler = (
   req: LithiaRequest,
   res: LithiaResponse,
 ) => void | Promise<void>;
+
+export type LithiaMiddleware = (
+  req: LithiaRequest,
+  res: LithiaResponse,
+  next: () => void,
+) => void | Promise<void>;
+
+export type RouteModule = {
+  default: LithiaHandler;
+  middlewares?: LithiaMiddleware[];
+  metadata?: unknown
+}
