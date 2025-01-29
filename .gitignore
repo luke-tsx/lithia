@@ -1,0 +1,7 @@
+dist
+node_modules
+*.d.ts
+!src/**/*.d.ts
+
+.lithia
+.idea

@@ -1,0 +1,29 @@
+import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'node:http';
+import { Params, Query } from './route';
+
+export interface LithiaRequest {
+  pathname: Readonly<string>;
+  method: Readonly<string>;
+  headers: Readonly<IncomingHttpHeaders>;
+  query: Readonly<Query>;
+  params: Readonly<Params>;
+  body: <T>() => Promise<Readonly<T>>;
+  get: <T>(key: string) => T | undefined;
+  set: (key: string, value: unknown) => void;
+}
+
+export interface LithiaResponse {
+  statusCode: Readonly<number>;
+  status: (status: number) => LithiaResponse;
+  headers: () => Readonly<OutgoingHttpHeaders>;
+  addHeader: (name: string, value: string) => LithiaResponse;
+  removeHeader: (name: string) => LithiaResponse;
+  send: (data: unknown) => void;
+  end: () => void;
+  json: (data: object) => void;
+}
+
+export type LithiaHandler = (
+  req: LithiaRequest,
+  res: LithiaResponse,
+) => void | Promise<void>;
