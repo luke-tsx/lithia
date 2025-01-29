@@ -14,7 +14,7 @@ export async function createLithia(
     hooks: createHooks(),
     logger: consola.withTag('lithia'),
     loadedRoutes: [],
-    scannedRoutes: [],
+    scannedRoutes: []
   };
 
   if (lithia.options.debug) {

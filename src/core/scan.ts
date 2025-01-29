@@ -1,6 +1,4 @@
 import { globby } from 'globby';
-import { join, relative } from 'path';
-import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo';
 import {
   FileInfo,
   Lithia,
@@ -9,15 +7,14 @@ import {
   MatchedTypeSuffix,
   Route,
 } from 'lithia/types';
+import { join, relative } from 'path';
+import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo';
+import { getOutputPath } from './_utils';
 
 const GLOB_SCAN_PATTERN = '**/*.ts';
 
 const suffixRegex =
   /(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?(\.(?<env>dev|prod))?(\.(?<type>lazy|prerender))?$/;
-
-export async function scanHandlers(lithia: Lithia) {
-  lithia.scannedRoutes = await scanServerRoutes(lithia);
-}
 
 export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
   const files = await scanDir({
@@ -52,6 +49,7 @@ export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
     }
 
     path = path.replace(/\/index$/, '') || '/';
+    const filePath = file.fullPath;
     const dynamic = path.includes(':');
     const namedRegex = path.replace(/:(\w+)/g, (_, key) => `:${key}`);
     const regex = new RegExp(
@@ -65,7 +63,7 @@ export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
       middleware: false,
       path,
       dynamic,
-      filePath: file.fullPath,
+      filePath,
       regex,
     };
   });

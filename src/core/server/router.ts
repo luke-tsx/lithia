@@ -1,25 +1,36 @@
-import { Lithia } from 'lithia/types';
+import importFresh from 'import-fresh';
+import { Lithia, Route } from 'lithia/types';
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { getOutputPath } from '../_utils';
 
-export function findMatchingRoute(
-  lithia: Lithia,
-  pathname: string,
-  method: string,
-) {
-  const possibleRoutes = lithia.scannedRoutes.filter((route) => {
-    const pass: boolean[] = [];
+export async function createRoutesManifest(lithia: Lithia, routes: Route[]) {
+  for (const route of routes) {
+    route.filePath = getOutputPath(lithia, route.filePath);
+  }
 
-    pass.push(route.regex.test(pathname));
+  await writeFile(
+    `${lithia.options.outputDir}/routes.json`,
+    JSON.stringify(routes, null, 2),
+  );
+}
 
-    if (route.method) {
-      pass.push(route.method === method);
-    }
+export function getRoutesFromManifest(lithia: Lithia): Route[] {
+  return importFresh(path.join(
+    process.cwd(),
+    lithia.options.outputDir,
+    'routes.json',
+  ));
+}
 
-    if (route.env) {
-      pass.push(route.env === lithia.options._env);
-    }
+export function loadHandlers(lithia: Lithia) {
+  const routes = getRoutesFromManifest(lithia);
 
-    return pass.every((p) => p);
-  });
+  for (const route of routes.filter((r) => r.type === 'prerender')) {
+    const module = importFresh(route.filePath);
 
-  return possibleRoutes;
+    console.log(module);
+  }
+
+  lithia.scannedRoutes = routes;
 }

@@ -8,6 +8,6 @@ export type Lithia = {
   options: LithiaOptions;
   hooks: Hookable<LithiaHooks>;
   logger: ConsolaInstance;
-  scannedRoutes: Route[];
   loadedRoutes: LoadedRoute[];
+  scannedRoutes: Route[];
 };
