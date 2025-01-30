@@ -15,13 +15,10 @@ export default defineCommand({
     let restartPending = false;
 
     const setupWatcher = (lithia: Lithia) => {
-      const watcher = chokidar.watch(
-        lithia.options.srcDir,
-        {
-          ignoreInitial: true,
-          atomic: true
-        }
-      );
+      const watcher = chokidar.watch(lithia.options.srcDir, {
+        ignoreInitial: true,
+        atomic: true,
+      });
 
       const debounceReload = lodash.debounce(async () => {
         if (restartPending) return;
@@ -43,29 +40,34 @@ export default defineCommand({
       if (lithia) {
         consola.info('Reloading dev server...');
 
-        if ("unwatch" in lithia.options._c12) {
+        if ('unwatch' in lithia.options._c12) {
           await lithia.options._c12.unwatch();
         }
 
         await lithia.hooks.callHook('close');
       }
 
-      lithia = await createLithia({
-        _env: 'dev',
-        _cli: {
-          command: 'dev',
-        },
-      }, {
-        watch: true,
-        c12: {
-          async onUpdate({ getDiff }) {
-            const diff = getDiff();
-            if (!diff.length) return;
-            consola.info('Detected changes on `lithia.config.js`, reloading dev server...');
-            await reload();
+      lithia = await createLithia(
+        {
+          _env: 'dev',
+          _cli: {
+            command: 'dev',
           },
         },
-      })
+        {
+          watch: true,
+          c12: {
+            async onUpdate({ getDiff }) {
+              const diff = getDiff();
+              if (!diff.length) return;
+              consola.info(
+                'Detected changes on `lithia.config.js`, reloading dev server...',
+              );
+              await reload();
+            },
+          },
+        },
+      );
 
       const watcher = setupWatcher(lithia);
       await prepare(lithia);
@@ -76,7 +78,7 @@ export default defineCommand({
         server.close();
         await watcher.close();
       });
-    }
+    };
 
     await reload();
   },

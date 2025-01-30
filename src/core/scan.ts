@@ -4,9 +4,9 @@ import {
   Lithia,
   MatchedEnvSuffix,
   MatchedMethodSuffix,
-  Route
+  Route,
 } from 'lithia/types';
-import { join, relative } from "node:path";
+import { join, relative } from 'node:path';
 import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo';
 
 const GLOB_SCAN_PATTERN = '**/*.ts';

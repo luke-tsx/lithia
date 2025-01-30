@@ -1,2 +1,2 @@
-export { build } from './build'
-export { prepare } from './prepare'
+export { build } from './build';
+export { prepare } from './prepare';

@@ -30,7 +30,8 @@
   },
   "scripts": {
     "build": "tsx build.ts",
-    "publish": "npm run build && changeset publish"
+    "publish": "npm run build && changeset publish",
+    "format": "prettier --write ."
   },
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",

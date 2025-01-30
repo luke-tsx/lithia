@@ -81,7 +81,7 @@ export function createHttpServer(lithia: Lithia): Server {
         message: error.message,
         ...(lithia.options._env === 'dev' && {
           stack: error.stack,
-        })
+        }),
       });
     }
   });

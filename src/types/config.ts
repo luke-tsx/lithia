@@ -51,10 +51,9 @@ export interface LithiaOptions {
 
 export interface LithiaConfig
   extends DeepPartial<LithiaOptions>,
-  C12InputConfig<LithiaConfig> { }
+    C12InputConfig<LithiaConfig> {}
 
 export interface LoadConfigOptions {
   watch?: boolean;
   c12?: WatchConfigOptions;
 }
-

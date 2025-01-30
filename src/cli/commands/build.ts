@@ -13,7 +13,7 @@ export default defineCommand({
         command: 'build',
       },
     });
-    
+
     await prepare(lithia);
     await build(lithia);
   },

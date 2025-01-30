@@ -37,5 +37,5 @@ export type LithiaMiddleware = (
 export type RouteModule = {
   default: LithiaHandler;
   middlewares?: LithiaMiddleware[];
-  metadata?: unknown
-}
+  metadata?: unknown;
+};

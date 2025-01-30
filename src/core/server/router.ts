@@ -1,7 +1,7 @@
 import { Lithia, Route } from 'lithia/types';
 import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
-import path from "node:path";
+import path from 'node:path';
 import { getOutputPath } from '../_utils';
 
 export async function createRoutesManifest(lithia: Lithia, routes: Route[]) {

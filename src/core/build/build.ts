@@ -14,7 +14,7 @@ export async function build(lithia: Lithia) {
 
 export function printRoutesOverview(routes: Route[]) {
   const table = new CliTable3({
-    head: ['Method', "Path", 'Environment', 'Length'],
+    head: ['Method', 'Path', 'Environment', 'Length'],
     style: {
       head: ['green'],
     },

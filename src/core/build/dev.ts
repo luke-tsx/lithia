@@ -1,9 +1,9 @@
-import { TsconfigPathsPlugin } from "@esbuild-plugins/tsconfig-paths";
+import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import { Lithia } from "lithia/types";
-import path from "path";
-import { scanServerRoutes } from "../scan";
-import { createRoutesManifest } from "../server/router";
+import { Lithia } from 'lithia/types';
+import path from 'path';
+import { scanServerRoutes } from '../scan';
+import { createRoutesManifest } from '../server/router';
 
 export async function buildDev(lithia: Lithia) {
   const routes = await scanServerRoutes(lithia);
