@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "tsx build.ts",
-    "lithia": "node dist/cli/index.js"
+    "publish": "npm run build && changeset publish"
   },
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",

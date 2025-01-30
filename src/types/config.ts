@@ -33,7 +33,6 @@ export interface LithiaOptions {
     port: number;
     host: string;
     request: {
-      maxTimeout: number;
       queryParser: {
         array: {
           enabled: boolean;

@@ -26,13 +26,13 @@ export interface LithiaResponse {
 export type LithiaHandler = (
   req: LithiaRequest,
   res: LithiaResponse,
-) => void | Promise<void>;
+) => Promise<void>;
 
 export type LithiaMiddleware = (
   req: LithiaRequest,
   res: LithiaResponse,
   next: () => void,
-) => void | Promise<void>;
+) => Promise<void>;
 
 export type RouteModule = {
   default: LithiaHandler;

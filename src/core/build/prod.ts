@@ -21,6 +21,7 @@ export async function buildProd(lithia: Lithia) {
     packages: 'external',
     sourcemap: true,
     minify: true,
+    keepNames: true,
     plugins: [
       TsconfigPathsPlugin({
         tsconfig: path.join(process.cwd(), 'tsconfig.json'),

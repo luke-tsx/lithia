@@ -17,6 +17,7 @@ await build({
   target: 'esnext',
   platform: 'node',
   bundle: true,
+  keepNames: true,
   external: [
     'lithia',
     ...subpaths.map((subpath) => `lithia/${subpath}`),

@@ -7,6 +7,7 @@
     "types": ["node"],
     "resolveJsonModule": true,
     "strict": true,
+    "useUnknownInCatchVariables": false,
     "paths": {
       "lithia": ["./src/core"],
       "lithia/cli": ["./src/cli"],

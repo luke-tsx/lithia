@@ -84,9 +84,12 @@ export function parseQuery(url: URLSearchParams, lithia: Lithia) {
       continue;
     }
 
-    if (array.enabled && array.delimiter) {
+    if (array.enabled && array.delimiter && value.includes(array.delimiter)) {
       query[key] = value.split(array.delimiter);
+      continue;
     }
+
+    query[key] = value;
   }
 
   return query;

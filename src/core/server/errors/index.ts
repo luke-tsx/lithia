@@ -1,4 +1,5 @@
 export class HttpError extends Error {
+  public readonly _isHttpError = true;
   public status: number;
   public message: string;
   public data: unknown;
@@ -103,6 +104,25 @@ export class MethodNotAllowedError extends HttpError {
     }
 
     super(405, msg, dt);
+  }
+}
+
+export class RequestTimeoutError extends HttpError {
+  constructor(message: string, data?: unknown);
+  constructor(data: unknown);
+  constructor(messageOrData: string | unknown, data?: unknown) {
+    let msg: string;
+    let dt: unknown;
+
+    if (typeof messageOrData === 'string') {
+      msg = messageOrData;
+      dt = data;
+    } else {
+      msg = 'Request Timeout';
+      dt = messageOrData;
+    }
+
+    super(408, msg, dt);
   }
 }
 
