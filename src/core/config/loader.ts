@@ -13,6 +13,7 @@ export async function loadOptions(
     opts.watch ? watchConfig<LithiaConfig> : loadConfig<LithiaConfig>
   )({
     name: 'lithia',
+    configFile: 'lithia.config',
     cwd: process.cwd(),
     dotenv: true,
     overrides,

@@ -10,10 +10,6 @@ export const LithiaDefaults: LithiaConfig = {
   routesDir: 'routes',
   outputDir: '.lithia',
 
-  // Features
-  storage: {},
-  devStorage: {},
-
   // Router
   router: {
     globalPrefix: '',
@@ -23,7 +19,6 @@ export const LithiaDefaults: LithiaConfig = {
     host: '0.0.0.0',
     port: 3000,
     request: {
-      maxTimeout: 10000,
       queryParser: {
         array: {
           enabled: true,
