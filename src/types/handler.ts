@@ -13,7 +13,6 @@ export interface LithiaRequest {
 }
 
 export interface LithiaResponse {
-  statusCode: Readonly<number>;
   status: (status: number) => LithiaResponse;
   headers: () => Readonly<OutgoingHttpHeaders>;
   addHeader: (name: string, value: string) => LithiaResponse;

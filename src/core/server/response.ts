@@ -2,14 +2,10 @@ import { OutgoingHttpHeaders, ServerResponse } from 'http';
 import { LithiaResponse } from 'lithia/types';
 
 export class _LithiaResponse implements LithiaResponse {
-  statusCode: Readonly<number>;
-
-  constructor(private res: ServerResponse) {
-    this.statusCode = 200;
-  }
+  constructor(private res: ServerResponse) {}
 
   status(status: number): LithiaResponse {
-    this.statusCode = status;
+    this.res.statusCode = status;
     return this;
   }
 
