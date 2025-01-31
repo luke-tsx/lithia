@@ -4,7 +4,7 @@
   "description": "Next-generation framework for building server-side applications with Node.js & TypeScript 🚀",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lithiajs/lithia.git"
+    "url": "git+https://github.com/lithiajs/lithia.git"
   },
   "license": "MIT",
   "type": "module",
