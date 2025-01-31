@@ -1,4 +1,12 @@
-# lithia
+# Lithia.js
+
+## 2.0.4
+
+### Patch Changes
+
+#### Fixed
+
+- Status code now correctly set when using `LithiaResponse.status` method
 
 ## 2.0.3
 
