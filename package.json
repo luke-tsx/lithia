@@ -2,7 +2,10 @@
   "name": "lithia",
   "version": "2.0.3",
   "description": "Next-generation framework for building server-side applications with Node.js & TypeScript 🚀",
-  "repository": "https://github.com/lithiajs/lithia",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lithiajs/lithia.git"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -36,7 +39,7 @@
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
   "bin": {
-    "lithia": "./dist/cli/index.js"
+    "lithia": "dist/cli/index.js"
   },
   "files": [
     "dist",
