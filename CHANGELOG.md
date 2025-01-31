@@ -1,5 +1,17 @@
 # Lithia.js
 
+## 2.0.5
+
+### Patch Changes
+
+#### Fixed
+
+- Resolved build process issue where route directories weren't generated when no `.ts` files existed outside route folders in `routesDir`
+
+#### Added
+
+- New `start` command for production environment execution
+
 ## 2.0.4
 
 ### Patch Changes
