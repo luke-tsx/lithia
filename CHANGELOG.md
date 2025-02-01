@@ -1,5 +1,11 @@
 # Lithia.js
 
+## 2.0.6
+
+### Patch Changes
+
+- Log improvements
+
 ## 2.0.5
 
 ### Patch Changes
