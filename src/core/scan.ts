@@ -29,7 +29,8 @@ export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
       .replace(/\(([^(/\\]+)\)[/\\]/g, '')
       .replace(/\[\.{3}]/g, '**')
       .replace(/\[\.{3}(\w+)]/g, '**:$1')
-      .replace(/\[([^/\]]+)]/g, ':$1');
+      .replace(/\[([^/\]]+)]/g, ':$1')
+      .replace(/\\/g, '/');
 
     path = withLeadingSlash(
       withoutTrailingSlash(withBase(path, lithia.options.router.globalPrefix)),
