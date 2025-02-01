@@ -17,7 +17,6 @@ await build({
   target: 'esnext',
   platform: 'node',
   bundle: true,
-  keepNames: true,
   external: [
     'lithia',
     ...subpaths.map((subpath) => `lithia/${subpath}`),
@@ -69,7 +68,7 @@ await globby('.', {
           let relativePath = relative(
             dirname(fullPath),
             join(process.cwd(), 'dist', resolvedPath, 'index.js'),
-          );
+          ).replace(/\\/g, '/');
 
           if (relativePath[0] !== '.') {
             relativePath = `./${relativePath}`;

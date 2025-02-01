@@ -6,10 +6,8 @@ import {
   MatchedMethodSuffix,
   Route,
 } from 'lithia/types';
-import { join, relative } from 'node:path';
+import nodePath from 'node:path';
 import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo';
-
-const GLOB_SCAN_PATTERN = '**/*.ts';
 
 const suffixRegex =
   /(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?(\.(?<env>dev|prod))?$/;
@@ -17,7 +15,11 @@ const suffixRegex =
 export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
   const files = await scanDir({
     dir: process.cwd(),
-    name: join(lithia.options.srcDir, lithia.options.routesDir),
+    name: nodePath.resolve(
+      process.cwd(),
+      lithia.options.srcDir,
+      lithia.options.routesDir,
+    ),
     ignore: ['**/*.{spec,test}.ts'],
   });
 
@@ -70,7 +72,10 @@ type ScanDirOptions = {
 };
 
 async function scanDir(options: ScanDirOptions): Promise<FileInfo[]> {
-  const fileNames = await globby(join(options.name, GLOB_SCAN_PATTERN), {
+  const normalizedName = options.name.replace(/\\/g, '/');
+  const pattern = `${normalizedName}/**/*.ts`;
+
+  const fileNames = await globby(pattern, {
     cwd: options.dir,
     dot: true,
     ignore: options.ignore,
@@ -79,9 +84,11 @@ async function scanDir(options: ScanDirOptions): Promise<FileInfo[]> {
 
   return fileNames
     .map((fullPath) => {
+      const path = nodePath.relative(normalizedName, fullPath);
+
       return {
         fullPath,
-        path: relative(join(options.dir, options.name), fullPath),
+        path,
       };
     })
     .sort((a, b) => a.path.localeCompare(b.path));
