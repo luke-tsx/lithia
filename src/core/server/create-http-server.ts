@@ -1,4 +1,3 @@
-import consola from 'consola';
 import { createServer, Server } from 'http';
 import { Lithia, RouteModule } from 'lithia/types';
 import { pathToFileURL } from 'node:url';
@@ -6,6 +5,7 @@ import { isAsyncFunction } from 'node:util/types';
 import { _LithiaRequest } from './request';
 import { _LithiaResponse } from './response';
 import { getRoutesFromManifest } from './router';
+import { ready } from '../log';
 
 export function createHttpServer(lithia: Lithia): Server {
   const server = createServer(async (httpReq, httpRes) => {
@@ -87,7 +87,7 @@ export function createHttpServer(lithia: Lithia): Server {
   });
 
   server.listen(lithia.options.server.port, lithia.options.server.host, () => {
-    consola.ready(
+    ready(
       `Server listening on http://${lithia.options.server.host}:${lithia.options.server.port}`,
     );
   });

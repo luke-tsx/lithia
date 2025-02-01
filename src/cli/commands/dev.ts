@@ -1,7 +1,13 @@
 import chokidar from 'chokidar';
 import { defineCommand } from 'citty';
-import consola from 'consola';
-import { build, createHttpServer, createLithia, prepare } from 'lithia';
+import {
+  build,
+  createHttpServer,
+  createLithia,
+  info,
+  prepare,
+  wait,
+} from 'lithia';
 import { Lithia } from 'lithia/types';
 import lodash from 'lodash';
 
@@ -38,7 +44,7 @@ export default defineCommand({
 
     const reload = async () => {
       if (lithia) {
-        consola.info('Reloading dev server...');
+        wait('Reloading dev server...');
 
         if ('unwatch' in lithia.options._c12) {
           await lithia.options._c12.unwatch();
@@ -60,7 +66,7 @@ export default defineCommand({
             async onUpdate({ getDiff }) {
               const diff = getDiff();
               if (!diff.length) return;
-              consola.info(
+              info(
                 'Detected changes on `lithia.config.js`, reloading dev server...',
               );
               await reload();

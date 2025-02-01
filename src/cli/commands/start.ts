@@ -1,6 +1,5 @@
 import { defineCommand } from 'citty';
-import consola from 'consola';
-import { createHttpServer, createLithia } from 'lithia';
+import { createHttpServer, createLithia, error } from 'lithia';
 import { stat } from 'node:fs/promises';
 
 export default defineCommand({
@@ -21,7 +20,7 @@ export default defineCommand({
     );
 
     if (!outputFolderExists) {
-      consola.error(
+      error(
         `The output folder "${lithia.options.outputDir}" does not exist. Did you forget to build your project?`,
       );
       process.exit(1);
