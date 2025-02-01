@@ -1,10 +1,16 @@
 # Lithia.js
 
-## 2.0.6
+## 2.0.7
 
 ### Patch Changes
 
 - Log improvements
+
+## 2.0.6
+
+### Patch Changes
+
+- Now routes works properly on Windows
 
 ## 2.0.5
 
