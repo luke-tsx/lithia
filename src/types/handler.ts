@@ -10,6 +10,10 @@ export interface LithiaRequest {
   body: <T>() => Promise<Readonly<T>>;
   get: <T>(key: string) => T | undefined;
   set: (key: string, value: unknown) => void;
+  on: (
+    event: 'data' | 'end' | 'error',
+    listener: (chunk: unknown) => void,
+  ) => void;
 }
 
 export interface LithiaResponse {
@@ -17,7 +21,7 @@ export interface LithiaResponse {
   headers: () => Readonly<OutgoingHttpHeaders>;
   addHeader: (name: string, value: string) => LithiaResponse;
   removeHeader: (name: string) => LithiaResponse;
-  send: (data: unknown) => void;
+  send: (data?: unknown) => void;
   end: () => void;
   json: (data: object) => void;
 }

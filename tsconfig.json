@@ -14,7 +14,8 @@
       "lithia/config": ["./src/config"],
       "lithia/core": ["./src/core"],
       "lithia/meta": ["./src/meta"],
-      "lithia/types": ["./src/types"]
+      "lithia/types": ["./src/types"],
+      "lithia/studio": ["./src/studio"]
     }
   },
   "exclude": ["node_modules", "dist"]

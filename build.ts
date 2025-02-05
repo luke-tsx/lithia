@@ -1,9 +1,9 @@
 import { globby } from 'globby';
-import { readFile, writeFile } from 'node:fs/promises';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { build } from 'tsup';
 
-const subpaths = ['cli', 'config', 'core', 'meta', 'types'];
+const subpaths = ['cli', 'config', 'core', 'meta', 'studio', 'types'];
 
 await build({
   name: 'lithia',
@@ -12,6 +12,7 @@ await build({
     'src/config/index.ts',
     'src/core/index.ts',
     'src/meta/index.ts',
+    'src/studio/index.ts',
     'src/types/index.ts',
   ],
   target: 'esnext',
@@ -59,6 +60,7 @@ await globby('.', {
             'lithia/config': './config',
             'lithia/core': './core',
             'lithia/meta': './meta',
+            'lithia/studio': './studio',
             'lithia/types': './types',
           };
 
@@ -80,3 +82,5 @@ await globby('.', {
     );
   }
 });
+
+await cp('src/studio/certs', 'dist/studio/certs', { recursive: true });
