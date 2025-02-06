@@ -102,12 +102,27 @@ async function copyCertsDirectory() {
   await cp('src/studio/certs', 'dist/studio/certs', { recursive: true });
 }
 
+async function buildServer() {
+  await build({
+    entryPoints: ['src/server.ts'],
+    target: 'esnext',
+    platform: 'node',
+    bundle: false,
+    external: [],
+    dts: false,
+    minify: false,
+    format: 'esm',
+    clean: false,
+  });
+}
+
 /**
  * Main function to orchestrate the build process.
  */
 async function main() {
   try {
     await buildLithia();
+    await buildServer();
     await processDistFiles();
     await copyCertsDirectory();
   } catch (error) {
