@@ -1,4 +1,4 @@
-import chokidar, { FSWatcher, ChokidarOptions } from 'chokidar';
+import chokidar, { ChokidarOptions, FSWatcher } from 'chokidar';
 import { defineCommand } from 'citty';
 import {
   build,
@@ -7,7 +7,7 @@ import {
   info,
   prepare,
   wait,
-} from 'lithia';
+} from 'lithia/core';
 import type { Lithia } from 'lithia/types';
 import lodash from 'lodash';
 import { setTimeout } from 'node:timers/promises';

@@ -1,5 +1,5 @@
 import { defineCommand } from 'citty';
-import { build, createLithia, prepare } from 'lithia';
+import { build, createLithia, prepare } from 'lithia/core';
 
 export default defineCommand({
   meta: {

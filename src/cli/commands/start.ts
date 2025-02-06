@@ -1,5 +1,5 @@
 import { defineCommand } from 'citty';
-import { createHttpServer, createLithia, error } from 'lithia';
+import { createHttpServer, createLithia, error } from 'lithia/core';
 import { stat } from 'node:fs/promises';
 
 export default defineCommand({

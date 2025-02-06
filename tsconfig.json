@@ -9,7 +9,6 @@
     "strict": true,
     "useUnknownInCatchVariables": false,
     "paths": {
-      "lithia": ["./src/core"],
       "lithia/cli": ["./src/cli"],
       "lithia/config": ["./src/config"],
       "lithia/core": ["./src/core"],

@@ -1,6 +1,6 @@
 {
   "name": "lithia",
-  "version": "2.0.7",
+  "version": "2.1.0",
   "description": "Next-generation framework for building server-side applications with Node.js & TypeScript 🚀",
   "repository": {
     "type": "git",
@@ -10,25 +10,10 @@
   "type": "module",
   "exports": {
     "./package.json": "./package.json",
-    "./cli": {
-      "types": "./cli.d.ts",
-      "import": "./dist/cli/index.js"
-    },
-    "./config": {
-      "types": "./config.d.ts",
-      "import": "./dist/config/index.js"
-    },
-    "./core": {
-      "types": "./core.d.ts",
-      "import": "./dist/core/index.js"
-    },
-    "./meta": {
-      "types": "./meta.d.ts",
-      "import": "./dist/meta/index.js"
-    },
-    "./types": {
-      "types": "./types.d.ts",
-      "import": "./dist/types/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
