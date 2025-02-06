@@ -21,7 +21,6 @@
   },
   "scripts": {
     "build": "tsx build.ts",
-    "publish": "npm run build && changeset publish",
     "format": "prettier --write ."
   },
   "files": [
