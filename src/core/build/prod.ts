@@ -1,12 +1,12 @@
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import path from 'node:path';
 import { Lithia, Route } from 'lithia/types';
+import path from 'node:path';
 import { getOutputPath } from '../_utils';
 import { ready, wait } from '../log';
 import { scanServerRoutes } from '../scan';
-import { printRoutesOverview } from './build';
 import { createRoutesManifest } from '../server';
+import { printRoutesOverview } from './build';
 
 /**
  * Builds the production server entry point.
@@ -23,9 +23,10 @@ async function buildServerEntryPoint(lithia: Lithia): Promise<void> {
     outdir: outputPath,
     platform: 'node',
     format: 'esm',
-    packages: 'external',
+    packages: 'bundle',
     sourcemap: true,
     minify: true,
+    splitting: true,
     keepNames: true,
     banner: {
       js: generateServerBanner(),
@@ -54,6 +55,7 @@ async function buildRouteFiles(lithia: Lithia, routes: Route[]): Promise<void> {
         sourcemap: true,
         minify: true,
         keepNames: true,
+        splitting: true,
         plugins: [
           TsconfigPathsPlugin({
             tsconfig: path.join(process.cwd(), 'tsconfig.json'),
