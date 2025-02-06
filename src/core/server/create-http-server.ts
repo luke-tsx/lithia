@@ -60,7 +60,6 @@ async function handleRequest(
     const route = findMatchingRoute(req, routes, lithia.options._env);
 
     const module = await importRouteModule(route, lithia.options._env);
-    console.log(module);
     validateRouteModule(module);
 
     if (route.dynamic) {
