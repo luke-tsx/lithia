@@ -19,15 +19,19 @@ async function buildServerEntryPoint(lithia: Lithia): Promise<void> {
 
   await esbuild.build({
     entryPoints: [entryPoint],
-    bundle: true,
     outdir: outputPath,
     platform: 'node',
     format: 'esm',
-    packages: 'bundle',
-    sourcemap: true,
+    packages: 'external',
+    bundle: true,
+    sourcemap: false,
     minify: true,
-    splitting: true,
     keepNames: true,
+    plugins: [
+      TsconfigPathsPlugin({
+        tsconfig: path.join(process.cwd(), 'tsconfig.json'),
+      }),
+    ],
     banner: {
       js: generateServerBanner(),
     },
@@ -52,10 +56,10 @@ async function buildRouteFiles(lithia: Lithia, routes: Route[]): Promise<void> {
         platform: 'node',
         format: 'esm',
         packages: 'external',
-        sourcemap: true,
+        sourcemap: false,
         minify: true,
-        keepNames: true,
-        splitting: true,
+        keepNames: false,
+        splitting: false,
         plugins: [
           TsconfigPathsPlugin({
             tsconfig: path.join(process.cwd(), 'tsconfig.json'),
@@ -119,23 +123,15 @@ function generateServerBanner(): string {
 export async function buildProd(lithia: Lithia): Promise<void> {
   try {
     wait('Building your Lithia app for production...');
-
-    // Step 1: Scan server routes
     const routes = await scanServerRoutes(lithia);
 
-    // Step 2: Build server entry point and route files in parallel
     await Promise.all([
       buildServerEntryPoint(lithia),
       buildRouteFiles(lithia, routes),
     ]);
 
-    // Step 3: Create the routes manifest
     await createRoutesManifest(lithia, routes);
-
-    // Step 4: Print routes overview
     printRoutesOverview(routes);
-
-    // Success message
     ready(`${routes.length} routes have been built successfully!`);
   } catch (error) {
     console.error('Error during production build:', error);
