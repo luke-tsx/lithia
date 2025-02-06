@@ -4,6 +4,7 @@ import { Lithia, Route } from 'lithia/types';
 import path from 'node:path';
 import { getOutputPath } from '../_utils';
 import { ready, wait } from '../log';
+import { green } from '../picocolors';
 import { scanServerRoutes } from '../scan';
 import { createRoutesManifest } from '../server';
 import { printRoutesOverview } from './build';
@@ -132,7 +133,9 @@ export async function buildProd(lithia: Lithia): Promise<void> {
 
     await createRoutesManifest(lithia, routes);
     printRoutesOverview(routes);
-    ready(`${routes.length} routes have been built successfully!`);
+    ready(
+      `run: ${green('node ' + path.join(lithia.options.outputDir, 'server.js'))} to start your Lithia app in production mode.`,
+    );
   } catch (error) {
     console.error('Error during production build:', error);
     process.exit(1);
