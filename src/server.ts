@@ -3,9 +3,6 @@ import { stat } from 'node:fs/promises';
 
 const lithia = await createLithia({
   _env: 'prod',
-  _cli: {
-    command: 'start',
-  },
 });
 
 const outputFolderExists = await stat(lithia.options.outputDir).catch(
