@@ -73,17 +73,14 @@ export default defineCommand({
       try {
         if (fullCleanup && state.server) {
           state.server.close();
-          info('Server stopped successfully');
         }
 
         if (state.watcher) {
           await state.watcher.close();
-          info('File watcher stopped');
         }
 
         if (fullCleanup && state.lithia) {
           await state.lithia.hooks.callHook('close');
-          info('Lithia instance cleaned up');
         }
       } catch (error) {
         console.error('Cleanup error:', error);
@@ -190,7 +187,6 @@ export default defineCommand({
 
     // Handlers de processo
     process.on('SIGINT', async () => {
-      info('Shutting down gracefully...');
       await cleanup(true);
       process.exit(0);
     });

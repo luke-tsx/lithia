@@ -1,3 +1,3 @@
-import { defineLithiaConfig } from '../dist/config';
+import { defineLithiaConfig } from '../dist';
 
 export default defineLithiaConfig({});

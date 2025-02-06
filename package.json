@@ -8,23 +8,21 @@
   },
   "license": "MIT",
   "type": "module",
+  "bin": {
+    "lithia": "dist/cli/index.js"
+  },
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     }
   },
   "scripts": {
     "build": "tsx build.ts",
     "publish": "npm run build && changeset publish",
     "format": "prettier --write ."
-  },
-  "main": "./dist/core/index.js",
-  "types": "./dist/core/index.d.ts",
-  "bin": {
-    "lithia": "dist/cli/index.js"
   },
   "files": [
     "dist",
