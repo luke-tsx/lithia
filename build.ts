@@ -3,7 +3,15 @@ import { cp, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { build } from 'tsup';
 
-const subpaths = ['cli', 'config', 'core', 'meta', 'studio', 'types'];
+const subpaths = [
+  'cli',
+  'config',
+  'core',
+  'meta',
+  'studio',
+  'swagger',
+  'types',
+];
 
 /**
  * Builds the Lithia package using tsup.
@@ -73,6 +81,7 @@ async function updateImportPaths(fullPath: string) {
         'lithia/core': './core',
         'lithia/meta': './meta',
         'lithia/studio': './studio',
+        'lithia/swagger': './swagger',
         'lithia/types': './types',
       };
 

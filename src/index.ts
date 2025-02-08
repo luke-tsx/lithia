@@ -5,6 +5,7 @@ export {
   LithiaMiddleware,
   LithiaRequest,
   LithiaResponse,
+  Metadata,
   Params,
   Query,
 } from 'lithia/types';
@@ -25,3 +26,5 @@ export {
   ServiceUnavailableError,
   UnauthorizedError,
 } from 'lithia/core';
+
+export { useSwagger } from 'lithia/swagger';

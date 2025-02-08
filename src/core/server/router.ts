@@ -1,7 +1,8 @@
-import { Lithia, Route } from 'lithia/types';
+import { Lithia, Metadata, Route, RouteModule } from 'lithia/types';
 import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { getOutputPath } from '../_utils';
 
 /**
@@ -70,4 +71,48 @@ function getManifestFilePath(lithia: Lithia): string {
  */
 function parseRoutesFromManifest(manifestContent: string): Route[] {
   return JSON.parse(manifestContent);
+}
+
+/**
+ * Dynamically imports route module with cache control
+ * @async
+ * @param {RouteModule} route - Route configuration
+ * @param {string} env - Current environment
+ * @returns {Promise<RouteModule>} Imported module
+ */
+export async function importRouteModule(
+  route: Route,
+  env: string,
+): Promise<RouteModule> {
+  const cacheBuster = env === 'dev' ? `?updated=${Date.now()}` : '';
+  return import(`${pathToFileURL(route.filePath).href}${cacheBuster}`);
+}
+
+export async function getRouteMetadata(
+  lithia: Lithia,
+  route: Route,
+): Promise<Metadata | undefined> {
+  return importRouteModule(route, lithia.options._env).then(
+    (module) => module.metadata,
+  );
+}
+
+/**
+ * Extracts dynamic parameters from request path
+ * @param {_LithiaRequest} req - Request object
+ * @param {RouteModule} route - Matched route
+ */
+export function extractDynamicParams(pathname: string, route: Route) {
+  const matches = pathname.match(new RegExp(route.regex)) || [];
+  const paramNames = (route.path.match(/:([^/]+)/g) || []).map((p) =>
+    p.slice(1),
+  );
+
+  return paramNames.reduce(
+    (acc, name, index) => ({
+      ...acc,
+      [name]: matches[index + 1],
+    }),
+    {},
+  );
 }

@@ -33,4 +33,6 @@ export const LithiaDefaults: LithiaConfig = {
       },
     },
   },
+
+  globalMiddlewares: [],
 };

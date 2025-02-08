@@ -38,6 +38,8 @@ export class _LithiaRequest implements LithiaRequest {
     this.storage = new Map<string, unknown>();
     this.params = {};
     this.on = this.req.on;
+
+    this.storage.set('lithia', this.lithia);
   }
 
   /**

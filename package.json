@@ -32,6 +32,7 @@
     "@eslint/js": "^9.18.0",
     "@types/lodash": "^4.17.15",
     "@types/node": "^22.10.7",
+    "@types/swagger-ui-dist": "^3.30.5",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
     "prettier": "^3.4.2",
@@ -56,6 +57,8 @@
     "klona": "^2.0.6",
     "lodash": "^4.17.21",
     "std-env": "^3.8.0",
-    "ufo": "^1.5.4"
+    "swagger-ui-dist": "^5.18.3",
+    "ufo": "^1.5.4",
+    "zod": "^3.24.1"
   }
 }

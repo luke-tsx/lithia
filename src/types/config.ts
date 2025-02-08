@@ -5,6 +5,7 @@ import {
   WatchConfigOptions,
 } from 'c12';
 import type { DeepPartial } from './_utils';
+import { LithiaMiddleware } from './handler';
 
 export interface LithiaOptions {
   // Internal
@@ -47,6 +48,8 @@ export interface LithiaOptions {
       };
     };
   };
+
+  globalMiddlewares: LithiaMiddleware[];
 }
 
 export interface LithiaConfig

@@ -4,3 +4,4 @@ export * from './handler';
 export * from './hooks';
 export * from './_utils';
 export * from './route';
+export * from './open-api';

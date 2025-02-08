@@ -9,12 +9,12 @@
     "strict": true,
     "useUnknownInCatchVariables": false,
     "paths": {
-      "lithia": ["./src/core"],
       "lithia/cli": ["./src/cli"],
       "lithia/config": ["./src/config"],
       "lithia/core": ["./src/core"],
       "lithia/meta": ["./src/meta"],
       "lithia/types": ["./src/types"],
+      "lithia/swagger": ["./src/swagger"],
       "lithia/studio": ["./src/studio"]
     }
   },

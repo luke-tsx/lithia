@@ -1,6 +1,5 @@
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
-import { Lithia, Route, RouteModule } from 'lithia/types';
-import { pathToFileURL } from 'node:url';
+import { Lithia, LithiaMiddleware, Route } from 'lithia/types';
 import { isAsyncFunction } from 'node:util/types';
 import { ready } from '../log';
 import {
@@ -11,7 +10,11 @@ import {
 } from './errors';
 import { _LithiaRequest } from './request';
 import { _LithiaResponse } from './response';
-import { getRoutesFromManifest } from './router';
+import {
+  extractDynamicParams,
+  getRoutesFromManifest,
+  importRouteModule,
+} from './router';
 
 type RouteHandler = (
   req: _LithiaRequest,
@@ -56,16 +59,31 @@ async function handleRequest(
   lithia: Lithia,
 ): Promise<void> {
   try {
+    res.addHeader('X-Powered-By', 'Lithia');
+
+    await runMiddleware(lithia.options.globalMiddlewares, req, res);
+
+    if (res._ended) return;
+
     const routes = getRoutesFromManifest(lithia);
     const route = findMatchingRoute(req, routes, lithia.options._env);
 
     const module = await importRouteModule(route, lithia.options._env);
-    validateRouteModule(module);
 
-    if (route.dynamic) {
-      extractDynamicParams(req, route);
+    if (typeof module?.default !== 'function') {
+      throw new InternalServerError(
+        'Route module must export a default function',
+      );
+    }
+    if (!isAsyncFunction(module.default)) {
+      throw new InternalServerError('Route handler must be an async function');
     }
 
+    if (route.dynamic) {
+      req.params = extractDynamicParams(req.pathname, route);
+    }
+
+    await runMiddleware(module.middlewares || [], req, res);
     await executeHandler(module.default, req, res);
   } catch (error) {
     handleError(error, res, lithia.options._env === 'dev');
@@ -99,57 +117,6 @@ function findMatchingRoute(
     );
 
   return matchedRoutes[0];
-}
-
-/**
- * Dynamically imports route module with cache control
- * @async
- * @param {RouteModule} route - Route configuration
- * @param {string} env - Current environment
- * @returns {Promise<RouteModule>} Imported module
- */
-async function importRouteModule(
-  route: Route,
-  env: string,
-): Promise<RouteModule> {
-  const cacheBuster = env === 'dev' ? `?updated=${Date.now()}` : '';
-  return import(`${pathToFileURL(route.filePath).href}${cacheBuster}`);
-}
-
-/**
- * Validates route module structure
- * @param {RouteModule} module - Imported module
- * @throws {HttpError} For invalid module exports
- */
-function validateRouteModule(module: RouteModule): void {
-  if (typeof module?.default !== 'function') {
-    throw new InternalServerError(
-      'Route module must export a default function',
-    );
-  }
-  if (!isAsyncFunction(module.default)) {
-    throw new InternalServerError('Route handler must be an async function');
-  }
-}
-
-/**
- * Extracts dynamic parameters from request path
- * @param {_LithiaRequest} req - Request object
- * @param {RouteModule} route - Matched route
- */
-function extractDynamicParams(req: _LithiaRequest, route: Route): void {
-  const matches = req.pathname.match(new RegExp(route.regex)) || [];
-  const paramNames = (route.path.match(/:([^/]+)/g) || []).map((p) =>
-    p.slice(1),
-  );
-
-  req.params = paramNames.reduce(
-    (acc, name, index) => ({
-      ...acc,
-      [name]: matches[index + 1],
-    }),
-    {},
-  );
 }
 
 /**
@@ -202,4 +169,27 @@ function handleError(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function checkIsHttpError(error: any): error is HttpError {
   return error._isHttpError ? true : false;
+}
+
+async function runMiddleware(
+  middlewares: LithiaMiddleware[],
+  req: _LithiaRequest,
+  res: _LithiaResponse,
+): Promise<void> {
+  const next = async (index: number): Promise<void> => {
+    if (res._ended) return;
+    if (index >= middlewares.length) return;
+
+    if (typeof middlewares[index] !== 'function') {
+      throw new InternalServerError('Middleware must be a function');
+    }
+
+    if (!isAsyncFunction(middlewares[index])) {
+      throw new InternalServerError('Middleware must be an async function');
+    }
+
+    await middlewares[index](req, res, () => next(index + 1));
+  };
+
+  await next(0);
 }

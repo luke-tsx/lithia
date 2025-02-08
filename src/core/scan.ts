@@ -19,7 +19,7 @@ const suffixRegex =
  */
 export async function scanServerRoutes(lithia: Lithia): Promise<Route[]> {
   const files = await scanDirectory(lithia);
-  return files.map((file) => processFile(file, lithia));
+  return await Promise.all(files.map((file) => processFile(file, lithia)));
 }
 
 /**
@@ -47,7 +47,7 @@ async function scanDirectory(lithia: Lithia): Promise<FileInfo[]> {
  * @param {Lithia} lithia - The Lithia instance containing configuration options.
  * @returns {Route} - A Route object representing the processed file.
  */
-function processFile(file: FileInfo, lithia: Lithia): Route {
+async function processFile(file: FileInfo, lithia: Lithia): Promise<Route> {
   let path = transformFilePath(file.path);
   path = normalizePath(path, lithia.options.router.globalPrefix);
 

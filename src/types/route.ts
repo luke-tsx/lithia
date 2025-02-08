@@ -1,5 +1,6 @@
+import { Operation, Parameter } from './open-api';
+
 export type MatchedMethodSuffix =
-  | 'connect'
   | 'delete'
   | 'get'
   | 'head'
@@ -10,6 +11,14 @@ export type MatchedMethodSuffix =
   | 'trace';
 
 export type MatchedEnvSuffix = 'dev' | 'prod';
+
+export type Metadata = {
+  openAPI?: Omit<Operation, 'servers'> & {
+    parameters?: (Omit<Parameter, 'in'> & {
+      in: 'query' | 'header';
+    })[];
+  };
+};
 
 export type Route = {
   method?: MatchedMethodSuffix;

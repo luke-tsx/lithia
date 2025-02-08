@@ -1,5 +1,5 @@
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
-import { Params, Query } from './route';
+import { Metadata, Params, Query } from './route';
 
 /**
  * Represents an incoming HTTP request with enhanced capabilities
@@ -135,9 +135,9 @@ export type LithiaMiddleware = (
  */
 export type RouteModule = {
   /** Required main route handler */
-  default: LithiaHandler;
+  default?: LithiaHandler;
   /** Optional middleware chain */
   middlewares?: LithiaMiddleware[];
   /** Custom route metadata */
-  metadata?: unknown;
+  metadata?: Metadata;
 };
