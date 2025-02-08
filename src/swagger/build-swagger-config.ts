@@ -3,7 +3,14 @@ import {
   getRoutesFromManifest,
   importRouteModule,
 } from 'lithia/core';
-import { Lithia, MatchedMethodSuffix, OpenApiSpec, Route } from 'lithia/types';
+import {
+  DeepPartial,
+  Lithia,
+  MatchedMethodSuffix,
+  OpenApiSpec,
+  Operation,
+  Route,
+} from 'lithia/types';
 
 function replaceDynamicParamsInPath(
   routePath: string,
@@ -56,24 +63,17 @@ async function addRouteToSpec(
   Object.assign(specPaths, { [path]: {} });
 
   for (const method of methodsToProcess) {
-    Object.assign(specPaths[path], {
-      [method]: {
-        ...module.metadata.openAPI,
-        parameters: [
-          ...(module.metadata.openAPI.parameters || []),
-          ...buildPathParameters(dynamicParams),
-        ],
-        requestBody: module.metadata.openAPI.requestBody || {
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-              },
-            },
-          },
-        },
-      },
+    const methodSpec: DeepPartial<Operation> = {};
+
+    Object.assign(methodSpec, module.metadata.openAPI);
+    Object.assign(methodSpec, {
+      parameters: [
+        ...(module.metadata.openAPI?.parameters || []),
+        ...buildPathParameters(dynamicParams),
+      ],
     });
+
+    Object.assign(specPaths[path], { [method]: methodSpec });
   }
 }
 
