@@ -1,6 +1,8 @@
 import { LithiaRequest, LithiaResponse, Metadata } from '../../../dist';
 
 export default async function handler(req: LithiaRequest, res: LithiaResponse) {
+  console.log(await req.body());
+
   res.json({
     message: 'Hello, from Lithia! 🚀',
   });

@@ -63,6 +63,15 @@ async function addRouteToSpec(
           ...(module.metadata.openAPI.parameters || []),
           ...buildPathParameters(dynamicParams),
         ],
+        requestBody: module.metadata.openAPI.requestBody || {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+              },
+            },
+          },
+        },
       },
     });
   }
