@@ -22,10 +22,10 @@ async function buildRouteFiles(lithia: Lithia, routes: Route[]): Promise<void> {
         bundle: true,
         outdir: outputDir,
         platform: 'node',
-        format: 'cjs',
+        format: 'esm',
         packages: 'external',
         sourcemap: false,
-        minify: true,
+        minify: false,
         keepNames: false,
         splitting: false,
         plugins: [
