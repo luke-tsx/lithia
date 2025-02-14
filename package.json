@@ -7,7 +7,6 @@
     "url": "git+https://github.com/lithiajs/lithia.git"
   },
   "license": "MIT",
-  "type": "module",
   "bin": {
     "lithia": "dist/cli/index.js"
   },
@@ -54,6 +53,7 @@
     "esbuild": "^0.24.2",
     "globby": "^14.0.2",
     "hookable": "^5.5.3",
+    "import-fresh": "^3.3.1",
     "klona": "^2.0.6",
     "lodash": "^4.17.21",
     "std-env": "^3.8.0",

@@ -6,6 +6,7 @@ import {
   MatchedMethodSuffix,
   Route,
 } from 'lithia/types';
+import { readdir } from 'node:fs/promises';
 import nodePath from 'node:path';
 import { withBase, withLeadingSlash, withoutTrailingSlash } from 'ufo';
 
@@ -156,13 +157,19 @@ function generateRouteRegex(path: string): string {
  */
 async function scanDir(options: ScanDirOptions): Promise<FileInfo[]> {
   const normalizedName = options.name.replace(/\\/g, '/');
-  const pattern = `${normalizedName}/**/*.ts`;
-  const fileNames = await globby(pattern, {
-    cwd: options.dir,
-    dot: true,
-    ignore: options.ignore,
-    absolute: true,
+  const files = await readdir(normalizedName, {
+    withFileTypes: true,
+    encoding: 'utf-8',
+    recursive: true,
   });
+
+  const fileNames: string[] = [];
+
+  for (const file of files) {
+    if (file.isFile() && file.name.endsWith('.ts')) {
+      fileNames.push(nodePath.join(normalizedName, file.name));
+    }
+  }
 
   return fileNames
     .map((fullPath) => {

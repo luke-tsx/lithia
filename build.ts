@@ -30,8 +30,7 @@ async function buildLithia() {
     dts: true,
     minify: false,
     treeshake: { preset: 'recommended' },
-    format: ['esm'],
-    cjsInterop: false,
+    format: ['cjs'],
     clean: true,
     async onSuccess() {
       await generateSubpathTypeFiles();
@@ -73,8 +72,8 @@ async function processDistFiles() {
 async function updateImportPaths(fullPath: string) {
   const content = await readFile(fullPath, 'utf-8');
   const updatedContent = content.replace(
-    /(import|export)\s*\{([a-zA-Z0-9_,\s$]*)\}\s*from\s*['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]/g,
-    (match, type, items, lithiaPath) => {
+    /require\(['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]\)/g,
+    (items, lithiaPath) => {
       const pathMap: Record<string, string> = {
         'lithia/cli': './cli',
         'lithia/config': './config',
@@ -86,7 +85,7 @@ async function updateImportPaths(fullPath: string) {
       };
 
       const resolvedPath = pathMap[lithiaPath];
-      if (!resolvedPath) return match;
+      if (!resolvedPath) return items;
 
       let relativePath = relative(
         dirname(fullPath),
@@ -97,7 +96,7 @@ async function updateImportPaths(fullPath: string) {
         relativePath = `./${relativePath}`;
       }
 
-      return `${type} {${items}} from "${relativePath}"`;
+      return `require("${relativePath}")`;
     },
   );
 
@@ -111,27 +110,12 @@ async function copyCertsDirectory() {
   await cp('src/studio/certs', 'dist/studio/certs', { recursive: true });
 }
 
-async function buildServer() {
-  await build({
-    entryPoints: ['src/server.ts'],
-    target: 'esnext',
-    platform: 'node',
-    bundle: false,
-    external: [],
-    dts: false,
-    minify: false,
-    format: 'esm',
-    clean: false,
-  });
-}
-
 /**
  * Main function to orchestrate the build process.
  */
 async function main() {
   try {
     await buildLithia();
-    await buildServer();
     await processDistFiles();
     await copyCertsDirectory();
   } catch (error) {

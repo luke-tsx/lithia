@@ -22,12 +22,11 @@ async function buildRouteFiles(lithia: Lithia, routes: Route[]): Promise<void> {
         bundle: true,
         outdir: outputDir,
         platform: 'node',
-        format: 'esm',
+        format: 'cjs',
         packages: 'external',
         sourcemap: false,
-        minify: false,
+        minify: true,
         keepNames: false,
-        splitting: false,
         plugins: [
           TsconfigPathsPlugin({
             tsconfig: path.join(process.cwd(), 'tsconfig.json'),

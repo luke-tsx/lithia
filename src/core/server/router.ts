@@ -1,3 +1,4 @@
+import importFresh from 'import-fresh';
 import { Lithia, Metadata, Route, RouteModule } from 'lithia/types';
 import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
@@ -84,8 +85,11 @@ export async function importRouteModule(
   route: Route,
   env: string,
 ): Promise<RouteModule> {
-  const cacheBuster = env === 'dev' ? `?updated=${Date.now()}` : '';
-  return import(`${pathToFileURL(route.filePath).href}${cacheBuster}`);
+  if (env === 'dev') {
+    return importFresh(route.filePath);
+  }
+
+  return import(pathToFileURL(route.filePath).href).then((m) => m.default);
 }
 
 export async function getRouteMetadata(
