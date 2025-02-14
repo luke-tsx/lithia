@@ -1,5 +1,4 @@
-import { globby } from 'globby';
-import { cp, readFile, writeFile } from 'node:fs/promises';
+import { cp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { build } from 'tsup';
 
@@ -39,14 +38,15 @@ async function buildLithia() {
  * Processes all files in the `dist` directory to update import paths.
  */
 async function processDistFiles() {
-  const distPaths = await globby('.', {
-    cwd: join(process.cwd(), 'dist'),
-    absolute: true,
-    dot: true,
+  const files = await readdir(join(process.cwd(), 'dist'), {
+    withFileTypes: true,
+    recursive: true,
   });
 
-  for (const fullPath of distPaths) {
-    await updateImportPaths(fullPath);
+  for (const file of files) {
+    if (!file.isFile()) continue;
+
+    await updateImportPaths(join(file.parentPath, file.name));
   }
 }
 

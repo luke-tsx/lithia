@@ -1,4 +1,3 @@
-import { globby } from 'globby';
 import {
   FileInfo,
   Lithia,
