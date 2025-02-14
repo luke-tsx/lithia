@@ -32,22 +32,7 @@ async function buildLithia() {
     treeshake: { preset: 'recommended' },
     format: ['cjs'],
     clean: true,
-    async onSuccess() {
-      await generateSubpathTypeFiles();
-    },
   });
-}
-
-/**
- * Generates `.d.ts` files for each subpath in the Lithia package.
- */
-async function generateSubpathTypeFiles() {
-  for (const subpath of subpaths) {
-    await writeFile(
-      `./${subpath}.d.ts`,
-      `export * from "./dist/${subpath}/index"`,
-    );
-  }
 }
 
 /**
