@@ -6,6 +6,11 @@
     "type": "git",
     "url": "git+https://github.com/lithiajs/lithia.git"
   },
+  "homepage": "https://nestjs.com",
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/lithiajs"
+  },
   "license": "MIT",
   "bin": {
     "lithia": "dist/cli/index.js"
@@ -23,8 +28,7 @@
     "format": "prettier --write ."
   },
   "files": [
-    "dist",
-    "*.d.ts"
+    "dist"
   ],
   "devDependencies": {
     "@changesets/cli": "^2.27.12",
