@@ -56,35 +56,68 @@ async function processDistFiles() {
  */
 async function updateImportPaths(fullPath: string) {
   const content = await readFile(fullPath, 'utf-8');
-  const updatedContent = content.replace(
-    /require\(['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]\)/g,
-    (items, lithiaPath) => {
-      const pathMap: Record<string, string> = {
-        'lithia/cli': './cli',
-        'lithia/config': './config',
-        'lithia/core': './core',
-        'lithia/meta': './meta',
-        'lithia/studio': './studio',
-        'lithia/swagger': './swagger',
-        'lithia/types': './types',
-      };
 
-      const resolvedPath = pathMap[lithiaPath];
-      if (!resolvedPath) return items;
+  let updatedContent = '';
 
-      let relativePath = relative(
-        dirname(fullPath),
-        join(process.cwd(), 'dist', resolvedPath, 'index.js'),
-      ).replace(/\\/g, '/');
+  if (fullPath.endsWith('.js')) {
+    updatedContent = content.replace(
+      /require\(['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]\)/g,
+      (items, lithiaPath) => {
+        const pathMap: Record<string, string> = {
+          'lithia/cli': './cli',
+          'lithia/config': './config',
+          'lithia/core': './core',
+          'lithia/meta': './meta',
+          'lithia/studio': './studio',
+          'lithia/swagger': './swagger',
+          'lithia/types': './types',
+        };
 
-      if (relativePath[0] !== '.') {
-        relativePath = `./${relativePath}`;
-      }
+        const resolvedPath = pathMap[lithiaPath];
+        if (!resolvedPath) return items;
 
-      return `require("${relativePath}")`;
-    },
-  );
+        let relativePath = relative(
+          dirname(fullPath),
+          join(process.cwd(), 'dist', resolvedPath, 'index.js'),
+        ).replace(/\\/g, '/');
 
+        if (relativePath[0] !== '.') {
+          relativePath = `./${relativePath}`;
+        }
+
+        return `require("${relativePath}")`;
+      },
+    );
+  } else {
+    updatedContent = content.replace(
+      /(import|export)\s*\{([a-zA-Z0-9_,\s$]*)\}\s*from\s*['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]/g,
+      (match, type, items, lithiaPath) => {
+        const pathMap: Record<string, string> = {
+          'lithia/cli': './cli',
+          'lithia/config': './config',
+          'lithia/core': './core',
+          'lithia/meta': './meta',
+          'lithia/studio': './studio',
+          'lithia/swagger': './swagger',
+          'lithia/types': './types',
+        };
+
+        const resolvedPath = pathMap[lithiaPath];
+        if (!resolvedPath) return match;
+
+        let relativePath = relative(
+          dirname(fullPath),
+          join(process.cwd(), 'dist', resolvedPath, 'index.js'),
+        ).replace(/\\/g, '/');
+
+        if (relativePath[0] !== '.') {
+          relativePath = `./${relativePath}`;
+        }
+
+        return `${type} {${items}} from "${relativePath}"`;
+      },
+    );
+  }
   await writeFile(fullPath, updatedContent);
 }
 
