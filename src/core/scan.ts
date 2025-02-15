@@ -166,7 +166,7 @@ async function scanDir(options: ScanDirOptions): Promise<FileInfo[]> {
 
   for (const file of files) {
     if (file.isFile() && file.name.endsWith('.ts')) {
-      fileNames.push(nodePath.join(normalizedName, file.name));
+      fileNames.push(nodePath.join(file.parentPath, file.name));
     }
   }
 
