@@ -72,7 +72,11 @@ export class _LithiaRequest implements LithiaRequest {
       return {} as T;
     }
 
-    return new Promise((resolve, reject) => {
+    if (this.get('body')) {
+      return this.get('body') as T;
+    }
+
+    const body = await new Promise((resolve, reject) => {
       let body = '';
 
       this.req.on('data', (chunk) => {
@@ -102,6 +106,10 @@ export class _LithiaRequest implements LithiaRequest {
         reject(new Error(`Request stream error: ${error.message}`));
       });
     });
+
+    this.set('body', body);
+
+    return body as T;
   }
 
   /**

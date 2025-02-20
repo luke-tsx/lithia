@@ -1,23 +1,26 @@
-import { LithiaMiddleware, UnauthorizedError } from 'lithia';
+import { z } from 'zod';
+import { BadRequestError, LithiaMiddleware } from '../../../dist';
 
-export function auth(): LithiaMiddleware {
-  return async function auth(req, res, next) {
-    const token = req.headers.authorization;
+export function validateRequestBody<T extends z.ZodRawShape>(
+  schema: z.ZodObject<T>,
+): LithiaMiddleware {
+  return async (req, _, next) => {
+    const body = await req.body<T>().then((body) => schema.safeParse(body));
 
-    if (!token) {
-      throw new UnauthorizedError('No token provided');
+    if (!body.success) {
+      const issues = body.error.errors.map((error) => {
+        return {
+          field: error.path.join('.'),
+          message:
+            error.message === 'Required' ? 'Campo obrigatório' : error.message,
+        };
+      });
+
+      throw new BadRequestError(issues);
     }
 
-    console.log('Token:', token);
+    console.log(body.data);
 
-    // try {
-    //   const decoded = jwt.verify(tokenValue, process.env.JWT_SECRET);
-    //   req.set('user', decoded);
-    //   next();
-    // } catch {
-    //   throw new UnauthorizedError('Invalid token');
-    // }
-
-    return next();
+    next();
   };
 }

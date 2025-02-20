@@ -188,7 +188,7 @@ async function runMiddleware(
       throw new InternalServerError('Middleware must be an async function');
     }
 
-    await middlewares[index](req, res, () => next(index + 1));
+    await middlewares[index](req, res, async () => await next(index + 1));
   };
 
   await next(0);
