@@ -54,6 +54,9 @@ export interface LithiaRequest {
  * Represents the HTTP response interface with chainable methods
  */
 export interface LithiaResponse {
+  /** Current HTTP status code */
+  statusCode: number;
+
   /**
    * Sets HTTP status code
    * @param {number} status - Valid HTTP status code

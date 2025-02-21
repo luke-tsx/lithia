@@ -18,6 +18,10 @@ export class _LithiaResponse implements LithiaResponse {
    */
   constructor(private res: ServerResponse) {}
 
+  get statusCode(): number {
+    return this.res.statusCode;
+  }
+
   /**
    * Validates response state before allowing modifications
    * @private
