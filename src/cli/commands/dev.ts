@@ -4,6 +4,7 @@ import {
   build,
   createHttpServer,
   createLithia,
+  error,
   info,
   prepare,
   wait,
@@ -87,31 +88,21 @@ export default defineCommand({
       }
     };
 
-    const softReload = async (attempt = 1) => {
+    const softReload = async () => {
       if (state.restartPending || !state.lithia) return;
       state.restartPending = true;
 
-      try {
-        wait('Recompiling project...');
+      wait('Recompiling project...');
+      await prepare(state.lithia);
+      const ok = await build(state.lithia);
 
-        // Apenas recompila sem recriar instâncias
-        await prepare(state.lithia);
-        await build(state.lithia);
-
+      if (ok) {
         info('Project recompiled successfully');
-      } catch (error) {
-        console.error(
-          `Recompile failed (attempt ${attempt}/${MAX_RELOAD_ATTEMPTS}):`,
-          error,
-        );
-
-        if (attempt < MAX_RELOAD_ATTEMPTS) {
-          await setTimeout(1000 * attempt);
-          await softReload(attempt + 1);
-        }
-      } finally {
-        state.restartPending = false;
+      } else {
+        error('Project recompilation failed');
       }
+
+      state.restartPending = false;
     };
 
     const fullReload = async (attempt = 1) => {
@@ -124,11 +115,9 @@ export default defineCommand({
           await cleanup(false);
         }
 
-        // Limpeza completa
         await cleanup(true);
         await setTimeout(500);
 
-        // Nova instância do Lithia
         state.lithia = await createLithia(
           {
             _env: 'dev',
@@ -149,17 +138,14 @@ export default defineCommand({
           },
         );
 
-        // Configuração do ambiente
         await prepare(state.lithia);
         await build(state.lithia);
 
-        // Servidor HTTP
         state.server = createHttpServer(state.lithia);
         state.server.on('error', (error) => {
           console.error('Server error:', error);
         });
 
-        // Novo watcher
         setupWatcher(state.lithia);
 
         if (!isFirstRun) {
@@ -185,7 +171,6 @@ export default defineCommand({
       }
     };
 
-    // Handlers de processo
     process.on('SIGINT', async () => {
       await cleanup(true);
       process.exit(0);
@@ -197,7 +182,6 @@ export default defineCommand({
       process.exit(1);
     });
 
-    // Iniciar o servidor
     await fullReload();
   },
 });

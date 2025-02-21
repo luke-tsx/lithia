@@ -73,7 +73,7 @@ function generateRouteBanner(route: Route): string {
  * @param {Lithia} lithia - The Lithia instance containing app configuration.
  * @returns {Promise<void>}
  */
-export async function buildProd(lithia: Lithia): Promise<void> {
+export async function buildProd(lithia: Lithia): Promise<boolean> {
   try {
     wait('Building your Lithia app for production...');
     const routes = await scanServerRoutes(lithia);
@@ -85,6 +85,8 @@ export async function buildProd(lithia: Lithia): Promise<void> {
     ready(
       `Production build completed successfully! Run ${green('lithia start')} to start your app.`,
     );
+
+    return true;
   } catch (error) {
     console.error('Error during production build:', error);
     process.exit(1);

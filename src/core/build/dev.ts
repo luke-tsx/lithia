@@ -3,6 +3,7 @@ import esbuild from 'esbuild';
 import { Lithia, Route } from 'lithia/types';
 import path from 'path';
 import { getOutputPath } from '../_utils';
+import { error, wait } from '../log';
 import { scanServerRoutes } from '../scan';
 import { createRoutesManifest } from '../server/router';
 
@@ -70,13 +71,19 @@ function generateRouteBanner(route: Route): string {
  * @param {Lithia} lithia - The Lithia instance containing app configuration.
  * @returns {Promise<void>}
  */
-export async function buildDev(lithia: Lithia): Promise<void> {
+export async function buildDev(lithia: Lithia): Promise<boolean> {
   try {
     const routes = await scanServerRoutes(lithia);
-    await Promise.all([buildRouteFiles(lithia, routes)]);
+    await buildRouteFiles(lithia, routes);
     await createRoutesManifest(lithia, routes);
-  } catch (error) {
-    console.error('Error during production build:', error);
-    process.exit(1);
+
+    return true;
+  } catch (err) {
+    error(err);
+    console.log();
+    wait(
+      'Lithia.js server will not be down, but it will not be able to serve any routes until the issue is resolved.',
+    );
+    return false;
   }
 }
