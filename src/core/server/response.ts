@@ -16,11 +16,24 @@ export class _LithiaResponse implements LithiaResponse {
    * @constructor
    * @param {ServerResponse} res - Native Node.js ServerResponse instance
    */
-  constructor(private res: ServerResponse) {}
+  constructor(private res: ServerResponse) {
+    this.on = this.res.on.bind(this.res);
+  }
 
   get statusCode(): number {
     return this.res.statusCode;
   }
+
+  /**
+   * Event listener interface for request stream events
+   * @method
+   * @param {'data' | 'end' | 'error'} event - Stream event type
+   * @param {(chunk: unknown) => void} listener - Event handler callback
+   */
+  on: (
+    event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe',
+    listener: (chunk: unknown) => void,
+  ) => void;
 
   /**
    * Validates response state before allowing modifications

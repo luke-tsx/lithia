@@ -147,6 +147,8 @@ function handleError(
   res: _LithiaResponse,
   isDev: boolean,
 ): void {
+  console.error(error);
+
   const httpError = checkIsHttpError(error)
     ? error
     : new InternalServerError(

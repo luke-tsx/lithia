@@ -37,7 +37,7 @@ export class _LithiaRequest implements LithiaRequest {
     this.query = parseQuery(new URLSearchParams(url.search ?? ''), this.lithia);
     this.storage = new Map<string, unknown>();
     this.params = {};
-    this.on = this.req.on;
+    this.on = this.req.on.bind(this.req);
 
     this.storage.set('lithia', this.lithia);
   }

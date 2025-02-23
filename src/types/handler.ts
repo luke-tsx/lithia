@@ -99,6 +99,16 @@ export interface LithiaResponse {
    * @param {object} data - JSON-serializable object
    */
   json: (data: object) => void;
+
+  /**
+   * Handles response stream events
+   * @param {'data' | 'end' | 'error'} event - Event type
+   * @param {(chunk: unknown) => void} listener - Event handler
+   */
+  on: (
+    event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe',
+    listener: (chunk: unknown) => void,
+  ) => void;
 }
 
 /**
