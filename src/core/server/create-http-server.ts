@@ -84,6 +84,7 @@ async function handleRequest(
     }
 
     await runMiddleware(module.middlewares || [], req, res);
+    if (res._ended) return;
     await executeHandler(module.default, req, res);
   } catch (error) {
     handleError(error, res, lithia.options._env === 'dev');
@@ -147,17 +148,21 @@ function handleError(
   res: _LithiaResponse,
   isDev: boolean,
 ): void {
-  console.error(error);
-
   const httpError = checkIsHttpError(error)
     ? error
     : new InternalServerError(
-        'Internal Server Error',
-        isDev ? error : undefined,
+        isDev ? error.message : 'An internal server error occurred',
+        isDev
+          ? {
+              stack: error.stack,
+              originalError: error,
+            }
+          : undefined,
       );
 
-  if (res._ended) return;
+  console.error(error);
 
+  if (res._ended) return;
   res.status(httpError.status).json({
     status: httpError.status,
     message: httpError.message,
