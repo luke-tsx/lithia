@@ -29,7 +29,7 @@ async function buildRouteFiles(lithia: Lithia, routes: Route[]): Promise<void> {
         packages: 'external',
         sourcemap: false,
         minify: true,
-        keepNames: false,
+        keepNames: true,
         plugins: [
           TsconfigPathsPlugin({
             tsconfig: path.join(process.cwd(), 'tsconfig.json'),
