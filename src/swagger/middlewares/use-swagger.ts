@@ -7,9 +7,9 @@ import {
 import { readFile } from 'node:fs/promises';
 import dist from 'swagger-ui-dist';
 import { withBase } from 'ufo';
-import { buildSwaggerConfig } from './build-swagger-config';
-import { buildSwaggerUI } from './build-swagger-ui';
-import { buildSwaggerInitializerScript } from './buils-swagger-initializer-script';
+import { buildSwaggerConfig } from '../build-swagger-config';
+import { buildSwaggerUI } from '../build-swagger-ui';
+import { buildSwaggerInitializerScript } from '../buils-swagger-initializer-script';
 
 const STATIC_FILES: {
   [path: string]: { path: string; contentType: string };
