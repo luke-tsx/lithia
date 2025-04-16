@@ -43,7 +43,6 @@ export const useCors = (options: Partial<CorsOptions>) => {
       );
     }
 
-    // Sempre adicionar esses headers, independente do tipo da requisição
     res.addHeader('Access-Control-Allow-Origin', allowOrigin);
     res.addHeader('Access-Control-Allow-Credentials', String(opts.credentials));
     res.addHeader(
@@ -59,8 +58,7 @@ export const useCors = (options: Partial<CorsOptions>) => {
         opts.allowedHeaders.join(','),
       );
       res.addHeader('Access-Control-Max-Age', String(opts.maxAge));
-      res.statusCode = opts.optionsSuccessStatus;
-      res.end();
+      res.status(opts.optionsSuccessStatus).end();
       return;
     }
 
