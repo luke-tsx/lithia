@@ -21,27 +21,48 @@ export const useCors = (options: Partial<CorsOptions>) => {
     maxAge: 86400,
     preflightContinue: false,
     optionsSuccessStatus: 204,
-  }
+  };
 
   const opts = { ...defaultOptions, ...options };
 
   return async (req: LithiaRequest, res: LithiaResponse, next: () => void) => {
     const origin = req.headers.origin || '';
-    const isPreflight = req.method === 'OPTIONS' && !req.headers['access-control-request-method'];
-  
+    const isPreflight =
+      req.method === 'OPTIONS' &&
+      !!req.headers['access-control-request-method'];
+
+    const allowOrigin = opts.origin.includes(origin)
+      ? origin
+      : opts.origin.includes('*') && !opts.credentials
+        ? '*'
+        : '';
+
+    if (opts.credentials && allowOrigin === '*') {
+      throw new Error(
+        'Cannot use Access-Control-Allow-Credentials with wildcard origin (*)',
+      );
+    }
+
+    // Sempre adicionar esses headers, independente do tipo da requisição
+    res.addHeader('Access-Control-Allow-Origin', allowOrigin);
+    res.addHeader('Access-Control-Allow-Credentials', String(opts.credentials));
+    res.addHeader(
+      'Access-Control-Expose-Headers',
+      opts.exposedHeaders.join(','),
+    );
+    res.addHeader('Vary', 'Origin');
+
     if (isPreflight) {
-      res.addHeader('Access-Control-Allow-Origin', opts.origin.includes(origin) ? origin : '');
       res.addHeader('Access-Control-Allow-Methods', opts.methods.join(','));
-      res.addHeader('Access-Control-Allow-Headers', opts.allowedHeaders.join(','));
+      res.addHeader(
+        'Access-Control-Allow-Headers',
+        opts.allowedHeaders.join(','),
+      );
       res.addHeader('Access-Control-Max-Age', String(opts.maxAge));
-      res.addHeader('Access-Control-Allow-Credentials', String(opts.credentials));
-      res.addHeader('Access-Control-Expose-Headers', opts.exposedHeaders.join(','));
       res.statusCode = opts.optionsSuccessStatus;
       res.end();
       return;
     }
-
-
 
     next();
   };
