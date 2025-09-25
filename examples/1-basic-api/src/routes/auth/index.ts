@@ -3,7 +3,7 @@ import {
   LithiaMiddleware,
   LithiaRequest,
   LithiaResponse,
-} from '../../../../dist';
+} from 'lithia';
 import { validateRequestBody } from '../../middlewares/auth';
 
 export default async function handler(req: LithiaRequest, res: LithiaResponse) {

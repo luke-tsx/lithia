@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BadRequestError, LithiaMiddleware } from '../../../dist';
+import { BadRequestError, LithiaMiddleware } from 'lithia';
 
 export function validateRequestBody<T extends z.ZodRawShape>(
   schema: z.ZodObject<T>,

@@ -19,20 +19,29 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsx build.ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --ext .ts,.js",
+    "type-check": "tsc --noEmit",
+    "examples": "node examples/cli.js",
+    "version:patch": "npm version patch && npm run build",
+    "version:minor": "npm version minor && npm run build",
+    "version:major": "npm version major && npm run build",
+    "release": "npm run build && npm publish"
   },
   "files": [
     "dist"
   ],
   "devDependencies": {
-    "@changesets/cli": "^2.27.12",
     "@eslint/js": "^9.18.0",
     "@types/lodash": "^4.17.15",
     "@types/node": "^22.10.7",
+    "@types/prompts": "^2.4.9",
     "@types/swagger-ui-dist": "^3.30.5",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
     "prettier": "^3.4.2",
+    "prompts": "^2.4.2",
     "tsup": "^8.3.6",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",

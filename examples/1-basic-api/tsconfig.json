@@ -3,11 +3,16 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "esModuleInterop": true,
     "allowJs": false,
     "types": ["node"],
     "resolveJsonModule": true,
-    "strict": true
+    "strict": true,
+    "baseUrl": "",
+    "paths": {
+      "@/*": ["src/*"],
+      "lithia": ["../../dist"],
+      "lithia/*": ["../../dist/*"]
+    }
   },
   "exclude": []
 }
