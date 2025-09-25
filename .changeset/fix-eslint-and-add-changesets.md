@@ -1,5 +1,5 @@
 ---
-"lithia": patch
+'lithia': patch
 ---
 
 Fix merge conflicts, update ESLint configuration, and add Changesets for release management
