@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@esbuild-plugins/tsconfig-paths": "^0.1.2",
-    "c12": "^2.0.1",
+    "c12": "^3.3.0",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
     "cli-table3": "^0.6.5",
