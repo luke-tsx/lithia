@@ -1,1 +1,1 @@
-export * from './use-swagger'
+export * from './use-swagger';

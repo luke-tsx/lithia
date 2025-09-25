@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  LithiaMiddleware,
-  LithiaRequest,
-  LithiaResponse,
-} from 'lithia';
+import { LithiaMiddleware, LithiaRequest, LithiaResponse } from 'lithia';
 import { validateRequestBody } from '../../middlewares/auth';
 
 export default async function handler(req: LithiaRequest, res: LithiaResponse) {

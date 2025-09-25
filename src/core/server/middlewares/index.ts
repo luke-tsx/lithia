@@ -1,1 +1,1 @@
-export * from './use-cors'
+export * from './use-cors';
