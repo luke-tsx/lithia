@@ -27,11 +27,9 @@
     "version:patch": "npm version patch && npm run build",
     "version:minor": "npm version minor && npm run build",
     "version:major": "npm version major && npm run build",
-    "release:canary": "npm version prerelease --preid=canary && git push --follow-tags",
-    "release:patch": "npm version patch && git push --follow-tags",
-    "release:minor": "npm version minor && git push --follow-tags",
-    "release:major": "npm version major && git push --follow-tags",
-    "release": "npm run build && npm publish"
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
   },
   "files": [
     "dist"
