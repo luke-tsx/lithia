@@ -28,13 +28,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint code
-        run: pnpm run lint --if-present
+        run: pnpm run lint
 
       - name: Format check
-        run: pnpm run format:check --if-present
+        run: pnpm run format:check
 
       - name: Type check
-        run: pnpm run type-check --if-present
+        run: pnpm run type-check
 
       - name: Build project
         run: pnpm run build
