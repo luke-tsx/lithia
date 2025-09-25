@@ -45,13 +45,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: |
-            ${{ contains(github.ref_name, 'canary') && 'Canary Release' || 'Release' }} ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
+          name: |
+            ${{ contains(github.ref_name, 'canary') && 'Canary Release' || 'Release' }} ${{ github.ref_name }}
           body: |
             ## What's Changed
 
@@ -63,4 +61,6 @@ jobs:
             npm install lithia@${{ github.ref_name }}
             ```
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, 'canary') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
