@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+      - '*-canary*'
 
 jobs:
   release:
@@ -34,7 +35,12 @@ jobs:
         run: pnpm run test --if-present
 
       - name: Publish to npm
-        run: pnpm publish --access public
+        run: |
+          if [[ "${{ github.ref_name }}" == *"canary"* ]]; then
+            pnpm publish --access public --tag canary
+          else
+            pnpm publish --access public
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -44,7 +50,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: |
+            ${{ contains(github.ref_name, 'canary') && 'Canary Release' || 'Release' }} ${{ github.ref }}
           body: |
             ## What's Changed
 
