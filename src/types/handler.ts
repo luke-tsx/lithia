@@ -22,7 +22,7 @@ export interface LithiaRequest {
    * @template T - Expected body type
    * @returns {Promise<Readonly<T>>} Parsed body content
    */
-  body: <T = any>() => Promise<Readonly<T>>;
+  body: <T = unknown>() => Promise<Readonly<T>>;
 
   /**
    * Retrieves context value by key

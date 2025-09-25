@@ -21,7 +21,7 @@
     "build": "tsx build.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "eslint . --ext .ts,.js",
+    "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "examples": "node examples/cli.js",
     "version:patch": "npm version patch && npm run build",
