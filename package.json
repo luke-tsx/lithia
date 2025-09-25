@@ -57,7 +57,7 @@
     "citty": "^0.1.6",
     "cli-table3": "^0.6.5",
     "consola": "^3.4.0",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.25.10",
     "hookable": "^5.5.3",
     "import-fresh": "^3.3.1",
     "klona": "^2.0.6",
