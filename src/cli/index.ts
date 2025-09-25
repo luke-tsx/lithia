@@ -13,7 +13,6 @@ const main = defineCommand({
     build: import('./commands/build').then((m) => m.default),
     dev: import('./commands/dev').then((m) => m.default),
     start: import('./commands/start').then((m) => m.default),
-    release: import('./commands/release').then((m) => m.default),
   },
 });
 
