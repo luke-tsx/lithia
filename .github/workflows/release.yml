@@ -37,9 +37,9 @@ jobs:
       - name: Publish to npm
         run: |
           if [[ "${{ github.ref_name }}" == *"canary"* ]]; then
-            pnpm publish --access public --tag canary
+            pnpm publish --access public --tag canary --no-git-checks
           else
-            pnpm publish --access public
+            pnpm publish --access public --no-git-checks
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
