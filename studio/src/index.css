@@ -3,6 +3,38 @@ layer(base);
 
 @import 'tailwindcss';
 
+@theme {
+  /* Lithia Brand Colors */
+  --color-lithia-background: 3 7 18; /* #030712 */
+  --color-lithia-primary: 44 252 129; /* #2cfc81 */
+  --color-lithia-primary-dark: 31 217 115; /* #1fd973 */
+  --color-lithia-primary-light: 77 253 154; /* #4dfd9a */
+
+  /* Extended Dark Palette */
+  --color-dark-50: 248 250 252; /* #f8fafc */
+  --color-dark-100: 241 245 249; /* #f1f5f9 */
+  --color-dark-200: 226 232 240; /* #e2e8f0 */
+  --color-dark-300: 203 213 225; /* #cbd5e1 */
+  --color-dark-400: 148 163 184; /* #94a3b8 */
+  --color-dark-500: 100 116 139; /* #64748b */
+  --color-dark-600: 71 85 105; /* #475569 */
+  --color-dark-700: 51 65 85; /* #334155 */
+  --color-dark-800: 30 41 59; /* #1e293b */
+  --color-dark-900: 15 23 42; /* #0f172a */
+  --color-dark-950: 3 7 18; /* #030712 */
+
+  /* Method Colors */
+  --color-method-get: 44 252 129; /* #2cfc81 */
+  --color-method-post: 59 130 246; /* #3b82f6 */
+  --color-method-put: 234 179 8; /* #eab308 */
+  --color-method-delete: 239 68 68; /* #ef4444 */
+  --color-method-patch: 168 85 247; /* #a855f7 */
+
+  /* Font Families */
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
@@ -10,26 +42,10 @@ layer(base);
   }
 
   body {
-    background-color: #030712;
+    background-color: rgb(var(--color-lithia-background));
     color: white;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image:
-      radial-gradient(
-        circle at 20% 50%,
-        rgba(44, 252, 129, 0.1) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 80% 20%,
-        rgba(44, 252, 129, 0.05) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 40% 80%,
-        rgba(44, 252, 129, 0.08) 0%,
-        transparent 50%
-      );
   }
 
   /* Custom scrollbar */
@@ -39,210 +55,137 @@ layer(base);
   }
 
   ::-webkit-scrollbar-track {
-    background-color: #1e293b;
+    background-color: rgb(var(--color-dark-800));
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #475569;
+    background-color: rgb(var(--color-dark-600));
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #2CFC81;
+    background-color: rgb(var(--color-lithia-primary));
   }
 }
 
 @layer components {
-  /* Method badges with Lithia styling */
+  /* Method badges */
   .method-badge {
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .method-get {
-    background-color: #2CFC81;
-    color: #030712;
+    background-color: rgb(var(--color-method-get));
+    color: rgb(var(--color-lithia-background));
   }
 
   .method-post {
-    background-color: #3b82f6;
+    background-color: rgb(var(--color-method-post));
     color: white;
   }
 
   .method-put {
-    background-color: #eab308;
-    color: #030712;
+    background-color: rgb(var(--color-method-put));
+    color: rgb(var(--color-lithia-background));
   }
 
   .method-delete {
-    background-color: #ef4444;
+    background-color: rgb(var(--color-method-delete));
     color: white;
   }
 
   .method-patch {
-    background-color: #a855f7;
+    background-color: rgb(var(--color-method-patch));
     color: white;
   }
 
-  /* Route cards with Lithia styling */
+  /* Route cards */
   .route-card {
-    padding: 1rem;
-    border: 1px solid #334155;
-    border-radius: 0.75rem;
-    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
     cursor: pointer;
     transition: all 0.2s;
-    background: linear-gradient(
-      135deg,
-      rgba(15, 23, 42, 0.8) 0%,
-      rgba(30, 41, 59, 0.6) 100%
-    );
-    backdrop-filter: blur(10px);
+    background-color: rgb(var(--color-dark-800));
+    border: 1px solid transparent;
   }
 
   .route-card:hover {
-    border-color: rgba(44, 252, 129, 0.5);
-    background-color: rgba(30, 41, 59, 0.5);
-    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.1);
+    background-color: rgb(var(--color-dark-700));
+    border-color: rgba(var(--color-lithia-primary), 0.3);
   }
 
   .route-card.selected {
-    border-color: #2CFC81;
-    background-color: rgba(44, 252, 129, 0.1);
-    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.2);
-    animation: glow 2s ease-in-out infinite alternate;
+    background-color: rgba(var(--color-lithia-primary), 0.1);
+    border-color: rgb(var(--color-lithia-primary));
   }
 
-  /* JSON editor with Lithia styling */
+  /* JSON editor */
   .json-editor {
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 0.75rem;
+    background-color: rgb(var(--color-dark-900));
+    border: 1px solid rgb(var(--color-dark-700));
+    border-radius: 0.5rem;
     padding: 1rem;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: var(--font-family-mono);
     font-size: 0.875rem;
-    background: linear-gradient(
-      135deg,
-      rgba(3, 7, 18, 0.9) 0%,
-      rgba(15, 23, 42, 0.8) 100%
-    );
-    backdrop-filter: blur(10px);
+    color: white;
   }
 
   .json-editor:focus {
-    border-color: #2CFC81;
-    outline: 2px solid rgba(44, 252, 129, 0.2);
+    border-color: rgb(var(--color-lithia-primary));
+    outline: none;
   }
 
-  /* Send button with Lithia styling */
+  /* Send button */
   .send-button {
-    background-color: #2CFC81;
-    color: #030712;
-    padding: 0.75rem 2rem;
-    border-radius: 0.75rem;
+    background-color: rgb(var(--color-lithia-primary));
+    color: rgb(var(--color-lithia-background));
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
     font-weight: 600;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(44, 252, 129, 0.3);
+    border: none;
+    cursor: pointer;
   }
 
   .send-button:hover {
-    background-color: #1FD973;
-    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.3);
-    transform: scale(1.05);
+    background-color: rgb(var(--color-lithia-primary-dark));
+    transform: translateY(-1px);
   }
 
-  /* Lithia glass effect */
-  .lithia-glass {
-    background: rgba(3, 7, 18, 0.8);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(44, 252, 129, 0.2);
-  }
-
-  /* Lithia card */
-  .lithia-card {
-    border-radius: 0.75rem;
-    border: 1px solid #334155;
-    background: linear-gradient(
-      135deg,
-      rgba(15, 23, 42, 0.8) 0%,
-      rgba(30, 41, 59, 0.6) 100%
-    );
-    backdrop-filter: blur(10px);
-  }
-
-  /* Lithia input */
-  .lithia-input {
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    color: white;
-    transition: all 0.2s;
-  }
-
-  .lithia-input:focus {
-    border-color: #2CFC81;
-    outline: 2px solid rgba(44, 252, 129, 0.2);
-  }
-
-  .lithia-input::placeholder {
-    color: #64748b;
-  }
-
-  /* Lithia button */
-  .lithia-button {
-    background-color: #2CFC81;
-    color: #030712;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s;
-  }
-
-  .lithia-button:hover {
-    background-color: #1FD973;
-    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.3);
-  }
-
-  /* Lithia secondary button */
-  .lithia-button-secondary {
-    background-color: #1e293b;
-    color: white;
-    border: 1px solid #475569;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s;
-  }
-
-  .lithia-button-secondary:hover {
-    background-color: #334155;
-    border-color: rgba(44, 252, 129, 0.5);
+  .send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, #2cfc81 0%, #4dfd9a 100%);
+    background: linear-gradient(
+      135deg,
+      rgb(var(--color-lithia-primary)) 0%,
+      rgb(var(--color-lithia-primary-light)) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .glow-text {
-    text-shadow: 0 0 10px rgba(44, 252, 129, 0.5);
+    text-shadow: 0 0 10px rgba(var(--color-lithia-primary), 0.5);
   }
 
   .lithia-shadow {
-    box-shadow: 0 10px 25px rgba(44, 252, 129, 0.1);
+    box-shadow: 0 10px 25px rgba(var(--color-lithia-primary), 0.1);
   }
 
   .lithia-shadow-lg {
-    box-shadow: 0 20px 40px rgba(44, 252, 129, 0.15);
+    box-shadow: 0 20px 40px rgba(var(--color-lithia-primary), 0.15);
   }
 }

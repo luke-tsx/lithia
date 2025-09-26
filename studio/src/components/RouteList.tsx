@@ -1,6 +1,6 @@
 import { useRoutes } from '@/contexts/RoutesContext';
 import type { Route } from '@/types';
-import { Loader2, AlertCircle, Route } from 'lucide-react';
+import { Loader2, AlertCircle, Route as RouteIcon } from 'lucide-react';
 
 interface RouteListProps {
   onRouteSelect: (route: Route) => void;
@@ -39,7 +39,7 @@ export function RouteList({ onRouteSelect, selectedRoute }: RouteListProps) {
   if (routes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <Route className="w-8 h-8 text-dark-500" />
+        <RouteIcon className="w-8 h-8 text-dark-500" />
         <div className="text-dark-400 text-center">
           <div className="font-medium">No routes found</div>
           <div className="text-sm">
@@ -51,7 +51,7 @@ export function RouteList({ onRouteSelect, selectedRoute }: RouteListProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {routes.map((route) => (
         <RouteCard
           key={`${route.method}-${route.path}`}
@@ -89,7 +89,7 @@ function RouteCard({ route, isSelected, onClick }: RouteCardProps) {
           <span className="text-white font-mono text-sm">{route.path}</span>
         </div>
         {route.dynamic && (
-          <div className="text-xs text-lithia-primary bg-primary/10 px-2 py-1 rounded-md">
+          <div className="text-xs text-lithia-primary bg-lithia-primary/10 px-2 py-1 rounded-md">
             Dynamic
           </div>
         )}

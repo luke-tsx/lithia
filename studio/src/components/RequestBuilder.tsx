@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSocket } from '@/contexts/SocketContext';
+import { useLithia } from '@/contexts/LithiaContext';
 import type { Route, RequestResponse } from '@/types';
 import { Send, Loader2, AlertCircle, CheckCircle, Code } from 'lucide-react';
 
@@ -15,7 +15,7 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
   const [response, setResponse] = useState<RequestResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { config } = useSocket();
+  const { config } = useLithia();
 
   // Reset payload when route changes
   useEffect(() => {
@@ -37,11 +37,11 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
       let parsedPayload;
       try {
         parsedPayload = JSON.parse(payload);
-      } catch (e) {
+      } catch {
         throw new Error('Invalid JSON payload');
       }
 
-      const url = `http://localhost:${config.lithiaPort}${route.path}`;
+      const url = `http://localhost:${config.server.port}${route.path}`;
       const options: RequestInit = {
         method: route.method || 'GET',
         headers: {
@@ -101,7 +101,7 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
           </div>
           <div className="text-sm text-dark-400">
             {route.dynamic ? (
-              <span className="text-lithia-primary bg-primary/10 px-2 py-1 rounded-md">
+              <span className="text-lithia-primary bg-lithia-primary/10 px-2 py-1 rounded-md">
                 Dynamic Route
               </span>
             ) : (
@@ -111,7 +111,7 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
         </div>
         <div className="text-sm text-dark-400">
           <span className="font-mono">
-            http://localhost:{config?.lithiaPort || '3000'}
+            http://localhost:{config?.server.port || '3000'}
             {route.path}
           </span>
         </div>

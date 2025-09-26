@@ -50,7 +50,7 @@ export interface DevServerStats {
  */
 export class DevServerManager {
   private eventEmitter: DevServerEventEmitter;
-  private lithia?: Lithia;
+  private lithia: Lithia;
   private fileWatcher?: FileWatcher;
   private buildMonitor?: BuildMonitor;
   private serverManager?: ServerManager;
@@ -160,11 +160,11 @@ export class DevServerManager {
       }
 
       if (this.options.verbose) {
-        this.lithia!.logger.info('Development server started successfully');
+        this.lithia.logger.info('Development server started successfully');
       }
     } catch (error) {
       this.isRunning = false;
-      this.lithia!.logger.error('Failed to start development server:', error);
+      this.lithia.logger.error('Failed to start development server:', error);
       throw error;
     }
   }
@@ -194,10 +194,10 @@ export class DevServerManager {
       }
 
       if (this.options.verbose) {
-        this.lithia!.logger.info('Development server stopped');
+        this.lithia.logger.info('Development server stopped');
       }
     } catch (error) {
-      this.lithia!.logger.error('Error stopping development server:', error);
+      this.lithia.logger.error('Error stopping development server:', error);
       throw error;
     }
   }
@@ -207,7 +207,7 @@ export class DevServerManager {
    */
   async restart(): Promise<void> {
     if (this.options.verbose) {
-      this.lithia!.logger.wait('Restarting development server...');
+      this.lithia.logger.wait('Restarting development server...');
     }
 
     this.totalReloads++;
@@ -219,13 +219,11 @@ export class DevServerManager {
       this.successfulReloads++;
 
       if (this.options.verbose) {
-        this.lithia!.logger.success(
-          'Development server restarted successfully',
-        );
+        this.lithia.logger.success('Development server restarted successfully');
       }
     } catch (error) {
       this.failedReloads++;
-      this.lithia!.logger.error('Failed to restart development server:', error);
+      this.lithia.logger.error('Failed to restart development server:', error);
       throw error;
     }
   }
@@ -250,7 +248,7 @@ export class DevServerManager {
       }
     } catch (error) {
       this.failedReloads++;
-      this.lithia!.logger.error('Soft reload failed:', error);
+      this.lithia.logger.error('Soft reload failed:', error);
     }
   }
 
@@ -331,7 +329,7 @@ export class DevServerManager {
     // Build events
     this.eventEmitter.on(DevServerEventType.BUILD_SUCCESS, async (event) => {
       if (this.options.verbose) {
-        this.lithia?.logger.info('Build success:', event.data);
+        this.lithia.logger.info('Build success:', event.data);
       }
 
       // Emit to Studio if enabled
@@ -341,14 +339,14 @@ export class DevServerManager {
         try {
           this.studio.emitManifestUpdate();
         } catch (error) {
-          this.lithia?.logger.error('Error sending manifest to Studio:', error);
+          this.lithia.logger.error('Error sending manifest to Studio:', error);
         }
       }
     });
 
     this.eventEmitter.on(DevServerEventType.BUILD_ERROR, async (event) => {
       if (this.options.verbose) {
-        this.lithia?.logger.error('Build error:', event.data);
+        this.lithia.logger.error('Build error:', event.data);
       }
 
       // Emit to Studio if enabled
@@ -362,12 +360,12 @@ export class DevServerManager {
 
     // Server events
     this.eventEmitter.on(DevServerEventType.SERVER_ERROR, async (event) => {
-      this.lithia?.logger.error('Server error:', event.data);
+      this.lithia.logger.error('Server error:', event.data);
     });
 
     // Watcher events
     this.eventEmitter.on(DevServerEventType.WATCHER_ERROR, async (event) => {
-      this.lithia?.logger.error('File watcher error:', event.data);
+      this.lithia.logger.error('File watcher error:', event.data);
     });
   }
 
@@ -406,7 +404,7 @@ export class DevServerManager {
       await this.stop();
       this.eventEmitter.removeAllListeners();
     } catch (error) {
-      this.lithia?.logger.error('Error during cleanup:', error);
+      this.lithia.logger.error('Error during cleanup:', error);
     }
   }
 }

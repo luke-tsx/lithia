@@ -1,8 +1,10 @@
+import { useLithia } from '@/contexts/LithiaContext';
 import { useSocket } from '@/contexts/SocketContext';
 import { Wifi, WifiOff } from 'lucide-react';
 
 export function ConnectionStatus() {
-  const { connected, config } = useSocket();
+  const { config } = useLithia();
+  const { connected } = useSocket();
 
   return (
     <div className="flex items-center gap-3 lithia-card px-4 py-3">
@@ -18,7 +20,7 @@ export function ConnectionStatus() {
           <div className="text-xs text-dark-400">
             Lithia:{' '}
             <span className="text-lithia-primary font-mono">
-              {config?.lithiaPort || '3000'}
+              {config?.server.port || '3000'}
             </span>
           </div>
         </>

@@ -64,6 +64,13 @@ export class LithiaStudio {
   }
 
   /**
+   * Emit Lithia configuration to all connected clients.
+   */
+  async emitLithiaConfig(): Promise<void> {
+    this.io.emit('lithia-config', { config: this.lithia.options });
+  }
+
+  /**
    * Emit manifest update to all connected clients.
    * This is the primary event that sends the current route manifest.
    */
@@ -88,18 +95,6 @@ export class LithiaStudio {
   }
 
   /**
-   * Get current configuration.
-   */
-  getConfig() {
-    return {
-      lithiaPort: this.lithia.options.server.port,
-      studioPort: this.lithia.options.studio.port,
-      // WebSocket runs on the same port as Studio UI
-      wsPort: this.lithia.options.studio.port,
-    };
-  }
-
-  /**
    * Setup WebSocket event handlers.
    */
   private setupEventHandlers(): void {
@@ -107,11 +102,16 @@ export class LithiaStudio {
       this.lithia.logger.debug('Studio client connected');
 
       // Send current configuration
-      socket.emit('lithia-config', { config: this.getConfig() });
+      socket.emit('lithia-config', { config: this.lithia.options });
 
       // Send current manifest to newly connected client
       socket.on('get-manifest', () => {
         this.sendCurrentRoutes(socket);
+      });
+
+      // Send Lithia configuration when requested
+      socket.on('get-lithia-config', () => {
+        socket.emit('lithia-config', { config: this.lithia.options });
       });
 
       socket.on('disconnect', () => {

@@ -6,12 +6,12 @@ import {
   ReactNode,
 } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { StudioConfig } from '@/types';
+import type { LithiaOptions } from '@/types';
 
 interface SocketContextType {
   socket: Socket | null;
   connected: boolean;
-  config: StudioConfig | null;
+  config: LithiaOptions | null;
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -23,7 +23,7 @@ const SocketContext = createContext<SocketContextType>({
 export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
-  const [config, setConfig] = useState<StudioConfig | null>(null);
+  const [config, setConfig] = useState<LithiaOptions | null>(null);
 
   useEffect(() => {
     // Connect to WebSocket server (same port as Studio UI)
@@ -51,7 +51,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setConnected(false);
     });
 
-    newSocket.on('lithia-config', (data: { config: StudioConfig }) => {
+    newSocket.on('lithia-config', (data: { config: LithiaOptions }) => {
       console.log('Received Lithia config:', data.config);
       setConfig(data.config);
     });
