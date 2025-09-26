@@ -60,7 +60,6 @@ export interface LithiaOptions {
   build: {
     mode: 'no-bundle' | 'full-bundle';
     externalPackages: string[];
-    optimize: boolean;
   };
 
   globalMiddlewares: LithiaMiddleware[];

@@ -75,7 +75,6 @@ const DEFAULT_BUILD_CONFIG = {
     'better-sqlite3',
     'zod',
   ] as string[],
-  optimize: false,
 } as const;
 
 /**

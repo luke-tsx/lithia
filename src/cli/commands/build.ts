@@ -66,7 +66,6 @@ export default defineCommand({
         },
         build: {
           mode: options.mode,
-          optimize: true,
         },
         outputDir: options.output,
       });

@@ -105,7 +105,6 @@ export class BuildContext {
       mode: {
         mode: buildConfig.mode,
         externalPackages: buildConfig.externalPackages,
-        optimize: buildConfig.optimize || isProduction,
       },
     };
   }

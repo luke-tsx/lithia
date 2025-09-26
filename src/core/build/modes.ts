@@ -18,8 +18,6 @@ export interface BuildModeConfig {
   mode: BuildMode;
   /** Custom external packages (for future use) */
   externalPackages?: string[];
-  /** Whether to enable build mode optimization */
-  optimize?: boolean;
 }
 
 /**

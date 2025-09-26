@@ -206,12 +206,7 @@ async function executeHandler(
  * @param {_LithiaResponse} res - Response object
  * @param {boolean} isDev - Development mode flag
  */
-function handleError(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any,
-  res: _LithiaResponse,
-  isDev: boolean,
-): void {
+function handleError(error: any, res: _LithiaResponse, isDev: boolean): void {
   const httpError = checkIsHttpError(error)
     ? error
     : new InternalServerError(
@@ -237,7 +232,6 @@ function handleError(
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function checkIsHttpError(error: any): error is HttpError {
   return error._isHttpError ? true : false;
 }
