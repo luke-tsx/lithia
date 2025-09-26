@@ -15,6 +15,9 @@ import {
 } from './router';
 import { DefaultRouteValidator } from './validation';
 
+// Global flag to prevent duplicate server messages
+const serverMessageShown = false;
+
 type RouteHandler = (
   req: _LithiaRequest,
   res: _LithiaResponse,
@@ -35,12 +38,6 @@ export function createHttpServer(lithia: Lithia): Server {
       );
     },
   );
-
-  server.listen(lithia.options.server.port, lithia.options.server.host, () => {
-    lithia.logger.ready(
-      `Server listening on http://${lithia.options.server.host}:${lithia.options.server.port}`,
-    );
-  });
 
   return server;
 }

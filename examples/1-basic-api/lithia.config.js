@@ -3,6 +3,5 @@ export default {
   build: {
     mode: 'no-bundle', // 'no-bundle' | 'full-bundle'
     externalPackages: ['drizzle-orm', 'lodash', 'zod', 'esbuild'], // Para futuras extensões
-    optimize: true,
   },
 };

@@ -96,10 +96,6 @@ export class ServerManager {
         config: this.config,
         startTime: this.stats.startTime,
       });
-
-      this.lithia.logger.ready(
-        `Server listening on http://${this.config.host}:${this.config.port}`,
-      );
     } catch (error) {
       await this.eventEmitter.emit(DevServerEventType.SERVER_ERROR, {
         error,
@@ -230,7 +226,16 @@ export class ServerManager {
         return;
       }
 
+      // Check if server is already listening
+      if (this.server.listening) {
+        resolve();
+        return;
+      }
+
       this.server.listen(this.config.port, this.config.host, () => {
+        this.lithia.logger.ready(
+          `Server listening on http://${this.config.host}:${this.config.port}`,
+        );
         resolve();
       });
 

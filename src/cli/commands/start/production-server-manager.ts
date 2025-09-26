@@ -69,10 +69,6 @@ export class ProductionServerManager {
     this.isStarting = true;
 
     try {
-      this.lithia.logger.info(
-        `Starting production server on ${this.config.host}:${this.config.port}`,
-      );
-
       // Create HTTP server
       this.server = createHttpServer(this.lithia);
 
@@ -84,11 +80,6 @@ export class ProductionServerManager {
 
       this.stats.isRunning = true;
       this.stats.startTime = Date.now();
-
-      this.lithia.logger.ready(`Production server started successfully`);
-      this.lithia.logger.info(
-        `Server listening on http://${this.config.host}:${this.config.port}`,
-      );
     } catch (error) {
       this.lithia.logger.error('Failed to start production server:', error);
       throw error;

@@ -157,7 +157,7 @@ export default defineCommand({
       }
 
       lithia.logger.ready(
-        `Production server started successfully in ${startupTime}ms`,
+        `Server listening on http://${serverConfig.host}:${serverConfig.port} (started in ${startupTime}ms)`,
       );
 
       if (options.verbose) {
