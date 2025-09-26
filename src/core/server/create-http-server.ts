@@ -15,9 +15,6 @@ import {
 } from './router';
 import { DefaultRouteValidator } from './validation';
 
-// Global flag to prevent duplicate server messages
-const serverMessageShown = false;
-
 type RouteHandler = (
   req: _LithiaRequest,
   res: _LithiaResponse,

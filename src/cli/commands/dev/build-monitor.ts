@@ -1,6 +1,7 @@
 import { buildLithia, prepare } from 'lithia/core';
 import type { Lithia } from 'lithia/types';
 import { DevServerEventEmitter, DevServerEventType } from './events';
+import { NodeCacheManager } from './node-cache-manager';
 
 /**
  * Build statistics for monitoring.
@@ -33,10 +34,12 @@ export class BuildMonitor {
   private isBuilding = false;
   private buildQueue: Array<() => Promise<void>> = [];
   private processingQueue = false;
+  private cacheManager: NodeCacheManager;
 
   constructor(eventEmitter: DevServerEventEmitter, lithia: Lithia) {
     this.eventEmitter = eventEmitter;
     this.lithia = lithia;
+    this.cacheManager = new NodeCacheManager(lithia);
     this.stats = {
       totalBuilds: 0,
       successfulBuilds: 0,
@@ -123,6 +126,11 @@ export class BuildMonitor {
       this.updateStats(buildTime, result.success);
 
       if (result.success) {
+        // Limpa cache de módulos no modo no-bundle após build bem-sucedido
+        if (this.lithia.options.build.mode === 'no-bundle') {
+          this.cacheManager.clearSrcModulesCache();
+        }
+
         await this.eventEmitter.emit(DevServerEventType.BUILD_SUCCESS, {
           buildTime,
           routesBuilt: result.routesBuilt,
