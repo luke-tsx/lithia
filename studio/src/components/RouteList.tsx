@@ -12,8 +12,8 @@ export function RouteList({ onRouteSelect, selectedRoute }: RouteListProps) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <Loader2 className="w-8 h-8 text-lithia-primary animate-spin" />
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <Loader2 className="text-lithia-primary h-8 w-8 animate-spin" />
         <div className="text-dark-400 text-center">
           <div className="font-medium">Loading API routes...</div>
           <div className="text-sm">
@@ -26,11 +26,11 @@ export function RouteList({ onRouteSelect, selectedRoute }: RouteListProps) {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <AlertCircle className="w-8 h-8 text-red-400" />
-        <div className="text-red-400 text-center">
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <AlertCircle className="h-8 w-8 text-red-400" />
+        <div className="text-center text-red-400">
           <div className="font-medium">Connection Error</div>
-          <div className="text-sm text-dark-500 mt-1">{error}</div>
+          <div className="text-dark-500 mt-1 text-sm">{error}</div>
         </div>
       </div>
     );
@@ -38,8 +38,8 @@ export function RouteList({ onRouteSelect, selectedRoute }: RouteListProps) {
 
   if (routes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <RouteIcon className="w-8 h-8 text-dark-500" />
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <RouteIcon className="text-dark-500 h-8 w-8" />
         <div className="text-dark-400 text-center">
           <div className="font-medium">No routes found</div>
           <div className="text-sm">
@@ -86,10 +86,10 @@ function RouteCard({ route, isSelected, onClick }: RouteCardProps) {
           <span className={`method-badge ${methodClass}`}>
             {route.method?.toUpperCase() || 'GET'}
           </span>
-          <span className="text-white font-mono text-sm">{route.path}</span>
+          <span className="font-mono text-sm text-white">{route.path}</span>
         </div>
         {route.dynamic && (
-          <div className="text-xs text-lithia-primary bg-lithia-primary/10 px-2 py-1 rounded-md">
+          <div className="text-lithia-primary bg-lithia-primary/10 rounded-md px-2 py-1 text-xs">
             Dynamic
           </div>
         )}

@@ -7,28 +7,13 @@ export interface Route {
 }
 
 export interface LithiaOptions {
-  // Internal
-  _cli: {
-    command: string;
-  };
-  _env: 'dev' | 'prod';
-  _c12: any;
-  _config: any;
-
-  // General
   debug: boolean;
-
-  // Dirs
   srcDir: string;
   routesDir: string;
   outputDir: string;
-
-  // Router
   router: {
     globalPrefix: string;
   };
-
-  // Server
   server: {
     port: number;
     host: string;
@@ -48,33 +33,19 @@ export interface LithiaOptions {
       maxBodySize: number;
     };
   };
-
-  // Logger
   logger: {
     colors: boolean;
     timestamp: boolean;
     level: 'debug' | 'info' | 'warn' | 'error';
   };
-
-  // Build
   build: {
     mode: 'no-bundle' | 'full-bundle';
     externalPackages: string[];
   };
-
-  // Hooks configuration
-  hooks: Partial<{
-    [K in string]: any[];
-  }>;
-
-  // Studio configuration
   studio: {
     enabled: boolean;
     port: number;
-    wsPort: number;
   };
-
-  globalMiddlewares: any[];
 }
 
 export interface StudioEvents {

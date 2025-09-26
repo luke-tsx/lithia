@@ -74,11 +74,11 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
 
   if (!route) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <Code className="w-12 h-12 text-dark-500" />
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <Code className="text-dark-500 h-12 w-12" />
         <div className="text-center">
           <div className="text-dark-400 font-medium">No route selected</div>
-          <div className="text-sm text-dark-500 mt-1">
+          <div className="text-dark-500 mt-1 text-sm">
             Choose an endpoint from the left panel to start testing
           </div>
         </div>
@@ -90,18 +90,18 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
     <div className="space-y-6">
       {/* Route Info */}
       <div className="lithia-card p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span
               className={`method-badge method-${route.method?.toLowerCase() || 'get'}`}
             >
               {route.method?.toUpperCase() || 'GET'}
             </span>
-            <span className="text-white font-mono text-lg">{route.path}</span>
+            <span className="font-mono text-lg text-white">{route.path}</span>
           </div>
-          <div className="text-sm text-dark-400">
+          <div className="text-dark-400 text-sm">
             {route.dynamic ? (
-              <span className="text-lithia-primary bg-lithia-primary/10 px-2 py-1 rounded-md">
+              <span className="text-lithia-primary bg-lithia-primary/10 rounded-md px-2 py-1">
                 Dynamic Route
               </span>
             ) : (
@@ -109,7 +109,7 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
             )}
           </div>
         </div>
-        <div className="text-sm text-dark-400">
+        <div className="text-dark-400 text-sm">
           <span className="font-mono">
             http://localhost:{config?.server.port || '3000'}
             {route.path}
@@ -119,19 +119,19 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
 
       {/* JSON Payload */}
       <div>
-        <label className="block text-sm font-medium text-white mb-3">
+        <label className="mb-3 block text-sm font-medium text-white">
           Request Payload
         </label>
         <textarea
           value={payload}
           onChange={(e) => setPayload(e.target.value)}
-          className="json-editor w-full h-40 resize-none"
+          className="json-editor h-40 w-full resize-none"
           placeholder="Enter JSON payload..."
           disabled={route.method === 'GET'}
         />
         {route.method === 'GET' && (
-          <p className="text-xs text-dark-500 mt-2 flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" />
+          <p className="text-dark-500 mt-2 flex items-center gap-1 text-xs">
+            <AlertCircle className="h-3 w-3" />
             GET requests don't support body payload
           </p>
         )}
@@ -142,16 +142,16 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
         <button
           onClick={handleSend}
           disabled={loading}
-          className="send-button disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="send-button flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
               SENDING...
             </>
           ) : (
             <>
-              <Send className="w-4 h-4" />
+              <Send className="h-4 w-4" />
               SEND REQUEST
             </>
           )}
@@ -161,18 +161,18 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
       {/* Response */}
       {response && (
         <div>
-          <label className="block text-sm font-medium text-white mb-3">
+          <label className="mb-3 block text-sm font-medium text-white">
             Response
           </label>
           <div className="json-editor">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-lithia-primary" />
-                <span className="text-sm font-medium text-lithia-primary">
+                <CheckCircle className="text-lithia-primary h-4 w-4" />
+                <span className="text-lithia-primary text-sm font-medium">
                   Request Successful
                 </span>
               </div>
-              <div className="text-sm text-dark-400">
+              <div className="text-dark-400 text-sm">
                 Status:{' '}
                 <span className="font-mono text-white">
                   {response.status} {response.statusText}
@@ -188,12 +188,12 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
 
       {/* Error */}
       {error && (
-        <div className="lithia-card p-4 border-red-500/50 bg-red-500/5">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className="w-4 h-4 text-red-400" />
+        <div className="lithia-card border-red-500/50 bg-red-500/5 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 text-red-400" />
             <div className="font-semibold text-red-400">Request Failed</div>
           </div>
-          <div className="text-red-300 text-sm">{error}</div>
+          <div className="text-sm text-red-300">{error}</div>
         </div>
       )}
     </div>

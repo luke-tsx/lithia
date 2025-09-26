@@ -4,7 +4,6 @@ import { useCors } from 'lithia';
 export default {
   build: {
     mode: 'no-bundle',
-    externalPackages: ['drizzle-orm', 'lodash', 'zod', 'esbuild'],
   },
   studio: {
     enabled: true,
@@ -16,7 +15,6 @@ export default {
       (req, res) => {
         const time = Date.now();
         req.set('timeStart', time);
-        throw new Error('teste');
       },
     ],
     'request:after': [
