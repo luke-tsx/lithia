@@ -1,8 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap')
+layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
 @layer base {
   html {
@@ -11,7 +10,10 @@
   }
 
   body {
-    @apply bg-background text-white antialiased;
+    background-color: #030712;
+    color: white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background-image:
       radial-gradient(
         circle at 20% 50%,
@@ -37,49 +39,64 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-dark-800;
+    background-color: #1e293b;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-dark-600 rounded-full;
+    background-color: #475569;
+    border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary;
+    background-color: #2CFC81;
   }
 }
 
 @layer components {
   /* Method badges with Lithia styling */
   .method-badge {
-    @apply px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .method-get {
-    @apply bg-primary text-lithia-background;
+    background-color: #2CFC81;
+    color: #030712;
   }
 
   .method-post {
-    @apply bg-blue-500 text-white;
+    background-color: #3b82f6;
+    color: white;
   }
 
   .method-put {
-    @apply bg-yellow-500 text-lithia-background;
+    background-color: #eab308;
+    color: #030712;
   }
 
   .method-delete {
-    @apply bg-red-500 text-white;
+    background-color: #ef4444;
+    color: white;
   }
 
   .method-patch {
-    @apply bg-purple-500 text-white;
+    background-color: #a855f7;
+    color: white;
   }
 
   /* Route cards with Lithia styling */
   .route-card {
-    @apply p-4 border border-dark-700 rounded-xl mb-3 cursor-pointer transition-all duration-200;
-    @apply hover:border-lithia-primary/50 hover:bg-dark-800/50 hover:shadow-lg hover:shadow-lithia-primary/10;
+    padding: 1rem;
+    border: 1px solid #334155;
+    border-radius: 0.75rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
     background: linear-gradient(
       135deg,
       rgba(15, 23, 42, 0.8) 0%,
@@ -88,15 +105,27 @@
     backdrop-filter: blur(10px);
   }
 
+  .route-card:hover {
+    border-color: rgba(44, 252, 129, 0.5);
+    background-color: rgba(30, 41, 59, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.1);
+  }
+
   .route-card.selected {
-    @apply border-lithia-primary bg-primary/10 shadow-lg shadow-lithia-primary/20;
+    border-color: #2CFC81;
+    background-color: rgba(44, 252, 129, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.2);
     animation: glow 2s ease-in-out infinite alternate;
   }
 
   /* JSON editor with Lithia styling */
   .json-editor {
-    @apply bg-dark-900 border border-dark-700 rounded-xl p-4 font-mono text-sm;
-    @apply focus:border-lithia-primary focus:ring-2 focus:ring-lithia-primary/20;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.875rem;
     background: linear-gradient(
       135deg,
       rgba(3, 7, 18, 0.9) 0%,
@@ -105,12 +134,26 @@
     backdrop-filter: blur(10px);
   }
 
+  .json-editor:focus {
+    border-color: #2CFC81;
+    outline: 2px solid rgba(44, 252, 129, 0.2);
+  }
+
   /* Send button with Lithia styling */
   .send-button {
-    @apply bg-primary hover:bg-primary-dark text-lithia-background;
-    @apply px-8 py-3 rounded-xl font-semibold transition-all duration-200;
-    @apply hover:shadow-lg hover:shadow-lithia-primary/30 hover:scale-105;
+    background-color: #2CFC81;
+    color: #030712;
+    padding: 0.75rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s;
     box-shadow: 0 4px 12px rgba(44, 252, 129, 0.3);
+  }
+
+  .send-button:hover {
+    background-color: #1FD973;
+    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.3);
+    transform: scale(1.05);
   }
 
   /* Lithia glass effect */
@@ -122,7 +165,8 @@
 
   /* Lithia card */
   .lithia-card {
-    @apply rounded-xl border border-dark-700;
+    border-radius: 0.75rem;
+    border: 1px solid #334155;
     background: linear-gradient(
       135deg,
       rgba(15, 23, 42, 0.8) 0%,
@@ -133,23 +177,52 @@
 
   /* Lithia input */
   .lithia-input {
-    @apply bg-dark-900 border border-dark-700 rounded-lg px-4 py-2 text-white;
-    @apply focus:border-lithia-primary focus:ring-2 focus:ring-lithia-primary/20;
-    @apply placeholder-dark-500 transition-all duration-200;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: white;
+    transition: all 0.2s;
+  }
+
+  .lithia-input:focus {
+    border-color: #2CFC81;
+    outline: 2px solid rgba(44, 252, 129, 0.2);
+  }
+
+  .lithia-input::placeholder {
+    color: #64748b;
   }
 
   /* Lithia button */
   .lithia-button {
-    @apply bg-primary hover:bg-primary-dark text-lithia-background;
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
-    @apply hover:shadow-lg hover:shadow-lithia-primary/30;
+    background-color: #2CFC81;
+    color: #030712;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .lithia-button:hover {
+    background-color: #1FD973;
+    box-shadow: 0 10px 15px -3px rgba(44, 252, 129, 0.3);
   }
 
   /* Lithia secondary button */
   .lithia-button-secondary {
-    @apply bg-dark-800 hover:bg-dark-700 text-white border border-dark-600;
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
-    @apply hover:border-lithia-primary/50;
+    background-color: #1e293b;
+    color: white;
+    border: 1px solid #475569;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .lithia-button-secondary:hover {
+    background-color: #334155;
+    border-color: rgba(44, 252, 129, 0.5);
   }
 }
 
