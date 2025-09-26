@@ -1,7 +1,5 @@
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
-import { Lithia, LithiaMiddleware, Route } from 'lithia/types';
-import { isAsyncFunction } from 'node:util/types';
-import { ready } from '../log';
+import { Lithia, LithiaMiddleware, Route, RouteModule } from 'lithia/types';
 import {
   ConflictError,
   HttpError,
@@ -15,6 +13,7 @@ import {
   getRoutesFromManifest,
   importRouteModule,
 } from './router';
+import { DefaultRouteValidator } from './validation';
 
 type RouteHandler = (
   req: _LithiaRequest,
@@ -38,7 +37,7 @@ export function createHttpServer(lithia: Lithia): Server {
   );
 
   server.listen(lithia.options.server.port, lithia.options.server.host, () => {
-    ready(
+    lithia.logger.ready(
       `Server listening on http://${lithia.options.server.host}:${lithia.options.server.port}`,
     );
   });
@@ -59,36 +58,101 @@ async function handleRequest(
   lithia: Lithia,
 ): Promise<void> {
   try {
-    res.addHeader('X-Powered-By', 'Lithia');
-
-    await runMiddleware(lithia.options.globalMiddlewares, req, res);
-
+    await executeGlobalMiddlewares(req, res, lithia);
     if (res._ended) return;
 
-    const routes = getRoutesFromManifest(lithia);
-    const route = findMatchingRoute(req, routes, lithia.options._env);
+    const route = await findAndValidateRoute(req, lithia);
+    const module = await importAndValidateModule(route, lithia);
 
-    const module = await importRouteModule(route, lithia.options._env);
-
-    if (typeof module?.default !== 'function') {
-      throw new InternalServerError(
-        'Route module must export a default function',
-      );
-    }
-    if (!isAsyncFunction(module.default)) {
-      throw new InternalServerError('Route handler must be an async function');
-    }
-
-    if (route.dynamic) {
-      req.params = extractDynamicParams(req.pathname, route);
-    }
-
-    await runMiddleware(module.middlewares || [], req, res);
+    await executeRouteMiddlewares(req, res, module);
     if (res._ended) return;
-    await executeHandler(module.default, req, res);
+
+    await executeRouteHandler(req, res, route, module);
   } catch (error) {
     handleError(error, res, lithia.options._env === 'dev');
   }
+}
+
+/**
+ * Executes global middlewares
+ */
+async function executeGlobalMiddlewares(
+  req: _LithiaRequest,
+  res: _LithiaResponse,
+  lithia: Lithia,
+): Promise<void> {
+  res.addHeader('X-Powered-By', 'Lithia');
+  await runMiddleware(lithia.options.globalMiddlewares, req, res);
+}
+
+/**
+ * Finds and validates the matching route
+ */
+async function findAndValidateRoute(
+  req: _LithiaRequest,
+  lithia: Lithia,
+): Promise<Route> {
+  const routes = getRoutesFromManifest(lithia);
+  const route = findMatchingRoute(req, routes, lithia.options._env);
+
+  const validator = new DefaultRouteValidator();
+  const validation = validator.validateRoute(route);
+
+  if (!validation.isValid) {
+    throw new InternalServerError(
+      `Invalid route: ${validation.errors.join(', ')}`,
+    );
+  }
+
+  return route;
+}
+
+/**
+ * Imports and validates the route module
+ */
+async function importAndValidateModule(
+  route: Route,
+  lithia: Lithia,
+): Promise<RouteModule> {
+  const module = await importRouteModule(route, lithia.options._env);
+
+  const validator = new DefaultRouteValidator();
+  const validation = validator.validateModule(module);
+
+  if (!validation.isValid) {
+    throw new InternalServerError(
+      `Invalid module: ${validation.errors.join(', ')}`,
+    );
+  }
+
+  return module;
+}
+
+/**
+ * Executes route-specific middlewares
+ */
+async function executeRouteMiddlewares(
+  req: _LithiaRequest,
+  res: _LithiaResponse,
+  module: RouteModule,
+): Promise<void> {
+  await runMiddleware(module.middlewares || [], req, res);
+}
+
+/**
+ * Executes the route handler
+ */
+async function executeRouteHandler(
+  req: _LithiaRequest,
+  res: _LithiaResponse,
+  route: Route,
+  module: RouteModule,
+): Promise<void> {
+  if (route.dynamic) {
+    req.params = extractDynamicParams(req.pathname, route);
+  }
+
+  await executeHandler(module.default!, req, res);
 }
 
 /**
@@ -187,15 +251,12 @@ async function runMiddleware(
     if (res._ended) return;
     if (index >= middlewares.length) return;
 
-    if (typeof middlewares[index] !== 'function') {
+    const middleware = middlewares[index];
+    if (typeof middleware !== 'function') {
       throw new InternalServerError('Middleware must be a function');
     }
 
-    if (!isAsyncFunction(middlewares[index])) {
-      throw new InternalServerError('Middleware must be an async function');
-    }
-
-    await middlewares[index](req, res, async () => await next(index + 1));
+    await middleware(req, res, async () => await next(index + 1));
   };
 
   await next(0);

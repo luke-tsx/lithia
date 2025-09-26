@@ -3,8 +3,7 @@ import esbuild from 'esbuild';
 import { Lithia, Route } from 'lithia/types';
 import path from 'path';
 import { getOutputPath } from '../_utils';
-import { error, wait } from '../log';
-import { scanServerRoutes } from '../scan';
+import { scanServerRoutes } from '../routing/index';
 import { createRoutesManifest } from '../server/router';
 
 /**
@@ -79,9 +78,9 @@ export async function buildDev(lithia: Lithia): Promise<boolean> {
 
     return true;
   } catch (err) {
-    error(err);
+    lithia.logger.error(err);
     console.log();
-    wait(
+    lithia.logger.wait(
       'Lithia.js server will not be down, but it will not be able to serve any routes until the issue is resolved.',
     );
     return false;

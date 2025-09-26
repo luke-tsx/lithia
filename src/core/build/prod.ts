@@ -3,9 +3,8 @@ import esbuild from 'esbuild';
 import { Lithia, Route } from 'lithia/types';
 import path from 'node:path';
 import { getOutputPath } from '../_utils';
-import { ready, wait } from '../log';
-import { green } from '../picocolors';
-import { scanServerRoutes } from '../scan';
+import { green } from '../log/picocolors';
+import { scanServerRoutes } from '../routing/index';
 import { createRoutesManifest } from '../server';
 import { printRoutesOverview } from './build';
 
@@ -75,14 +74,14 @@ function generateRouteBanner(route: Route): string {
  */
 export async function buildProd(lithia: Lithia): Promise<boolean> {
   try {
-    wait('Building your Lithia app for production...');
+    lithia.logger.wait('Building your Lithia app for production...');
     const routes = await scanServerRoutes(lithia);
 
     await buildRouteFiles(lithia, routes);
     await createRoutesManifest(lithia, routes);
 
     printRoutesOverview(routes);
-    ready(
+    lithia.logger.ready(
       `Production build completed successfully! Run ${green('lithia start')} to start your app.`,
     );
 

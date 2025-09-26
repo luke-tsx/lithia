@@ -1,25 +1,5 @@
-import chokidar, { ChokidarOptions, FSWatcher } from 'chokidar';
 import { defineCommand } from 'citty';
-import {
-  build,
-  createHttpServer,
-  createLithia,
-  error,
-  info,
-  prepare,
-  wait,
-} from 'lithia/core';
-import type { Lithia } from 'lithia/types';
-import lodash from 'lodash';
-import { setTimeout } from 'node:timers/promises';
-
-interface DevServerState {
-  lithia?: Lithia;
-  watcher?: FSWatcher;
-  server?: ReturnType<typeof createHttpServer>;
-  restartPending: boolean;
-  configChanged: boolean;
-}
+import { DevServerManager, DevServerOptions } from './dev/index';
 
 export default defineCommand({
   meta: {
@@ -32,156 +12,95 @@ export default defineCommand({
       description: 'Start the studio server',
       default: false,
     },
+    port: {
+      type: 'string',
+      description: 'Port to run the server on',
+      default: '3000',
+    },
+    host: {
+      type: 'string',
+      description: 'Host to bind the server to',
+      default: '0.0.0.0',
+    },
+    verbose: {
+      type: 'boolean',
+      description: 'Enable verbose output',
+      default: false,
+    },
+    watch: {
+      type: 'boolean',
+      description: 'Enable file watching for auto-reload',
+      default: true,
+    },
   },
-  async run() {
-    let isFirstRun = true;
-
-    const state: DevServerState = {
-      restartPending: false,
-      configChanged: false,
-    };
-
-    const WATCHER_OPTIONS: ChokidarOptions = {
-      ignoreInitial: true,
-      atomic: 500,
-      ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
-      awaitWriteFinish: {
-        stabilityThreshold: 300,
-        pollInterval: 100,
+  async run({ args }) {
+    const devServerOptions: DevServerOptions = {
+      server: {
+        port: parseInt(args.port as string, 10),
+        host: args.host as string,
+      },
+      autoReload: args.watch as boolean,
+      verbose: args.verbose as boolean,
+      studio: args.studio as boolean,
+      maxReloadAttempts: 3,
+      fileWatcher: {
+        debounceDelay: 300,
+        recursive: true,
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/dist/**',
+          '**/.lithia/**',
+        ],
+        ignoreInitial: true,
       },
     };
 
-    const DEBOUNCE_DELAY = 300;
-    const MAX_RELOAD_ATTEMPTS = 3;
+    const devServer = new DevServerManager(devServerOptions);
 
-    const setupWatcher = (lithia: Lithia) => {
-      state.watcher = chokidar.watch(lithia.options.srcDir, WATCHER_OPTIONS);
-
-      const handleFileChange = lodash.debounce(async () => {
-        if (state.restartPending) return;
-        await softReload();
-      }, DEBOUNCE_DELAY);
-
-      state.watcher
-        .on('add', handleFileChange)
-        .on('change', handleFileChange)
-        .on('unlink', handleFileChange);
-
-      return state.watcher;
-    };
-
-    const cleanup = async (fullCleanup: boolean) => {
+    // Setup process event handlers
+    const handleShutdown = async (signal: string) => {
+      console.log(`\nReceived ${signal}. Shutting down gracefully...`);
       try {
-        if (fullCleanup && state.server) {
-          state.server.close();
-        }
-
-        if (state.watcher) {
-          await state.watcher.close();
-        }
-
-        if (fullCleanup && state.lithia) {
-          await state.lithia.hooks.callHook('close');
-        }
+        await devServer.cleanup();
+        process.exit(0);
       } catch (error) {
-        console.error('Cleanup error:', error);
+        console.error('Error during shutdown:', error);
+        process.exit(1);
       }
     };
 
-    const softReload = async () => {
-      if (state.restartPending || !state.lithia) return;
-      state.restartPending = true;
-
-      wait('Recompiling project...');
-      await prepare(state.lithia);
-      const ok = await build(state.lithia);
-
-      if (ok) {
-        info('Project recompiled successfully');
-      } else {
-        error('Project recompilation failed');
-      }
-
-      state.restartPending = false;
-    };
-
-    const fullReload = async (attempt = 1) => {
-      if (state.restartPending) return;
-      state.restartPending = true;
-
-      try {
-        if (!isFirstRun) {
-          wait('Reloading dev server...');
-          await cleanup(false);
-        }
-
-        await cleanup(true);
-        await setTimeout(500);
-
-        state.lithia = await createLithia(
-          {
-            _env: 'dev',
-            _cli: { command: 'dev' },
-          },
-          {
-            watch: true,
-            c12: {
-              async onUpdate({ getDiff }) {
-                const diff = getDiff();
-                if (diff.length === 0) return;
-
-                info('Detected configuration changes, reloading dev server...');
-                state.configChanged = true;
-                await fullReload();
-              },
-            },
-          },
-        );
-
-        await prepare(state.lithia);
-        await build(state.lithia);
-
-        state.server = createHttpServer(state.lithia);
-        state.server.on('error', (error) => {
-          console.error('Server error:', error);
-        });
-
-        setupWatcher(state.lithia);
-
-        if (!isFirstRun) {
-          info('Development server reloaded successfully');
-        }
-      } catch (error) {
-        console.error(
-          `Reload failed (attempt ${attempt}/${MAX_RELOAD_ATTEMPTS}):`,
-          error,
-        );
-
-        if (attempt < MAX_RELOAD_ATTEMPTS) {
-          await setTimeout(1000 * attempt);
-          await fullReload(attempt + 1);
-        } else {
-          console.error('Maximum reload attempts reached. Exiting...');
-          process.exit(1);
-        }
-      } finally {
-        state.restartPending = false;
-        state.configChanged = false;
-        isFirstRun = false;
-      }
-    };
-
-    process.on('SIGINT', async () => {
-      await cleanup(true);
-      process.exit(0);
-    });
-
-    process.on('uncaughtException', async (error) => {
+    const handleError = async (error: Error) => {
       console.error('Uncaught exception:', error);
-      await cleanup(true);
+      try {
+        await devServer.cleanup();
+      } catch (cleanupError) {
+        console.error('Error during cleanup:', cleanupError);
+      }
       process.exit(1);
-    });
+    };
 
-    await fullReload();
+    process.on('SIGINT', () => handleShutdown('SIGINT'));
+    process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+    process.on('uncaughtException', handleError);
+    process.on('unhandledRejection', handleError);
+
+    try {
+      // Start the development server
+      await devServer.start();
+
+      // Keep the process running
+      if (devServerOptions.verbose) {
+        const lithia = devServer.lithiaInstance;
+        lithia?.logger.info(
+          'Development server is running. Press Ctrl+C to stop.',
+        );
+        lithia?.logger.info('Use --verbose flag for detailed logs');
+      }
+    } catch (error) {
+      console.error('Failed to start development server:', error);
+      await devServer.cleanup();
+      process.exit(1);
+    }
   },
 });

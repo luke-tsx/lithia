@@ -4,4 +4,4 @@ export * from './server';
 export * from './_utils';
 export * from './lithia';
 export * from './log';
-export * from './scan';
+export * from './routing';

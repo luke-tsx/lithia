@@ -49,6 +49,20 @@ export interface LithiaOptions {
     };
   };
 
+  // Logger
+  logger: {
+    colors: boolean;
+    timestamp: boolean;
+    level: 'debug' | 'info' | 'warn' | 'error';
+  };
+
+  // Build
+  build: {
+    mode: 'no-bundle' | 'full-bundle';
+    externalPackages: string[];
+    optimize: boolean;
+  };
+
   globalMiddlewares: LithiaMiddleware[];
 }
 
