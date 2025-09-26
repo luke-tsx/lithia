@@ -12,7 +12,7 @@ function App() {
   return (
     <SocketProvider>
       <RoutesProvider>
-        <div className="min-h-screen bg-lithia-background text-white overflow-hidden">
+        <div className="min-h-screen bg-background text-white overflow-hidden">
           {/* Header */}
           <header className="lithia-glass border-b border-lithia-primary/20">
             <div className="px-8 py-6">

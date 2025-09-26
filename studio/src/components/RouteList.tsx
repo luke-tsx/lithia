@@ -89,7 +89,7 @@ function RouteCard({ route, isSelected, onClick }: RouteCardProps) {
           <span className="text-white font-mono text-sm">{route.path}</span>
         </div>
         {route.dynamic && (
-          <div className="text-xs text-lithia-primary bg-lithia-primary/10 px-2 py-1 rounded-md">
+          <div className="text-xs text-lithia-primary bg-primary/10 px-2 py-1 rounded-md">
             Dynamic
           </div>
         )}

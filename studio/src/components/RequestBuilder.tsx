@@ -101,7 +101,7 @@ export function RequestBuilder({ route, onSend }: RequestBuilderProps) {
           </div>
           <div className="text-sm text-dark-400">
             {route.dynamic ? (
-              <span className="text-lithia-primary bg-lithia-primary/10 px-2 py-1 rounded-md">
+              <span className="text-lithia-primary bg-primary/10 px-2 py-1 rounded-md">
                 Dynamic Route
               </span>
             ) : (

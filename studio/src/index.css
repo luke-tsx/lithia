@@ -11,7 +11,7 @@
   }
 
   body {
-    @apply bg-lithia-background text-white antialiased;
+    @apply bg-background text-white antialiased;
     background-image:
       radial-gradient(
         circle at 20% 50%,
@@ -45,7 +45,7 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-lithia-primary;
+    @apply bg-primary;
   }
 }
 
@@ -57,7 +57,7 @@
   }
 
   .method-get {
-    @apply bg-lithia-primary text-lithia-background;
+    @apply bg-primary text-lithia-background;
   }
 
   .method-post {
@@ -89,7 +89,7 @@
   }
 
   .route-card.selected {
-    @apply border-lithia-primary bg-lithia-primary/10 shadow-lg shadow-lithia-primary/20;
+    @apply border-lithia-primary bg-primary/10 shadow-lg shadow-lithia-primary/20;
     animation: glow 2s ease-in-out infinite alternate;
   }
 
@@ -107,7 +107,7 @@
 
   /* Send button with Lithia styling */
   .send-button {
-    @apply bg-lithia-primary hover:bg-lithia-primary-dark text-lithia-background;
+    @apply bg-primary hover:bg-primary-dark text-lithia-background;
     @apply px-8 py-3 rounded-xl font-semibold transition-all duration-200;
     @apply hover:shadow-lg hover:shadow-lithia-primary/30 hover:scale-105;
     box-shadow: 0 4px 12px rgba(44, 252, 129, 0.3);
@@ -140,7 +140,7 @@
 
   /* Lithia button */
   .lithia-button {
-    @apply bg-lithia-primary hover:bg-lithia-primary-dark text-lithia-background;
+    @apply bg-primary hover:bg-primary-dark text-lithia-background;
     @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
     @apply hover:shadow-lg hover:shadow-lithia-primary/30;
   }
