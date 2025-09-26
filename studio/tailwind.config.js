@@ -5,8 +5,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#2CFC81',
-        background: '#030712',
+        primary: {
+          DEFAULT: '#2CFC81',
+        },
+        background: {
+          DEFAULT: '#030712',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
