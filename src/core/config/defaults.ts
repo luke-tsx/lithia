@@ -22,6 +22,7 @@ const DEFAULT_SERVER_CONFIG = {
         enabled: true,
       },
     },
+    maxBodySize: 1024 * 1024, // 1MB default
   },
 } as const;
 
@@ -89,6 +90,17 @@ const DEFAULT_DIR_CONFIG = {
 } as const;
 
 /**
+ * Default studio configuration values.
+ *
+ * @internal
+ */
+const DEFAULT_STUDIO_CONFIG = {
+  enabled: false,
+  port: 8473,
+  wsPort: 8474,
+} as const;
+
+/**
  * Default Lithia configuration object.
  *
  * This object contains all the default values used by the framework when no
@@ -133,6 +145,12 @@ export const LithiaDefaults: LithiaConfig = {
   // Build configuration
   build: DEFAULT_BUILD_CONFIG,
 
+  // Hooks configuration (empty by default)
+  hooks: {},
+
   // Global middleware configuration
   globalMiddlewares: [],
+
+  // Studio configuration
+  studio: DEFAULT_STUDIO_CONFIG,
 };

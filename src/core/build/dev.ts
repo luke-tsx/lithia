@@ -4,7 +4,7 @@ import { Lithia, Route } from 'lithia/types';
 import path from 'path';
 import { getOutputPath } from '../_utils';
 import { scanServerRoutes } from '../routing/index';
-import { createRoutesManifest } from '../server/router';
+import { RouterManager } from '../server/routing';
 
 /**
  * Builds individual route files for production.
@@ -74,7 +74,8 @@ export async function buildDev(lithia: Lithia): Promise<boolean> {
   try {
     const routes = await scanServerRoutes(lithia);
     await buildRouteFiles(lithia, routes);
-    await createRoutesManifest(lithia, routes);
+    const routerManager = new RouterManager(lithia);
+    await routerManager.createRoutesManifest(routes);
 
     return true;
   } catch (err) {

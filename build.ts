@@ -1,6 +1,18 @@
-import { cp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { build } from 'tsup';
+import { spawn } from 'node:child_process';
+
+/**
+ * Build pipeline steps for better organization and logging.
+ */
+enum BuildStep {
+  INSTALL_STUDIO_DEPS = '📦 Install Studio Dependencies',
+  BUILD_LITHIA_CORE = '⚙️ Build Lithia Core',
+  PROCESS_DIST_FILES = '🔄 Process Distribution Files',
+  BUILD_STUDIO_UI = '🎨 Build Studio UI',
+  FINALIZE = '✨ Finalize Build',
+}
 
 const subpaths = [
   'cli',
@@ -11,6 +23,97 @@ const subpaths = [
   'swagger',
   'types',
 ];
+
+/**
+ * Logs a build step start.
+ */
+function logStepStart(step: BuildStep): void {
+  console.log(`\n🚀 ${step}...`);
+}
+
+/**
+ * Logs a build step completion.
+ */
+function logStepComplete(step: BuildStep): void {
+  console.log(`✅ ${step} completed`);
+}
+
+/**
+ * Logs a build step error.
+ */
+function logStepError(step: BuildStep, error: string): void {
+  console.error(`❌ ${step} failed: ${error}`);
+}
+
+/**
+ * Executes a build step with proper logging and error handling.
+ */
+async function executeStep<T>(
+  step: BuildStep,
+  stepFunction: () => Promise<T>,
+): Promise<T> {
+  logStepStart(step);
+  try {
+    const result = await stepFunction();
+    logStepComplete(step);
+    return result;
+  } catch (error) {
+    logStepError(step, error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}
+
+/**
+ * Installs Studio dependencies.
+ */
+async function installStudioDependencies(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn('pnpm', ['install'], {
+      cwd: join(process.cwd(), 'studio'),
+      stdio: 'inherit',
+      shell: true,
+    });
+
+    installProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(
+          new Error(`Studio dependency installation failed with code ${code}`),
+        );
+      }
+    });
+
+    installProcess.on('error', (error) => {
+      reject(error);
+    });
+  });
+}
+
+/**
+ * Builds the Studio UI using Vite.
+ */
+async function buildStudio(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const viteProcess = spawn('pnpm', ['run', 'build'], {
+      cwd: join(process.cwd(), 'studio'),
+      stdio: 'inherit',
+      shell: true,
+    });
+
+    viteProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Studio build failed with code ${code}`));
+      }
+    });
+
+    viteProcess.on('error', (error) => {
+      reject(error);
+    });
+  });
+}
 
 /**
  * Builds the Lithia package using tsup.
@@ -122,22 +225,41 @@ async function updateImportPaths(fullPath: string) {
 }
 
 /**
- * Copies the `certs` directory from `src/studio/certs` to `dist/studio/certs`.
- */
-async function copyCertsDirectory() {
-  await cp('src/studio/certs', 'dist/studio/certs', { recursive: true });
-}
-
-/**
  * Main function to orchestrate the build process.
  */
 async function main() {
+  const startTime = Date.now();
+
   try {
-    await buildLithia();
-    await processDistFiles();
-    await copyCertsDirectory();
+    console.log('🚀 Starting Lithia Build Pipeline...');
+    console.log('═'.repeat(50));
+
+    // Step 1: Install Studio dependencies
+    await executeStep(BuildStep.INSTALL_STUDIO_DEPS, installStudioDependencies);
+
+    // Step 2: Build Lithia core
+    await executeStep(BuildStep.BUILD_LITHIA_CORE, buildLithia);
+
+    // Step 3: Process distribution files
+    await executeStep(BuildStep.PROCESS_DIST_FILES, processDistFiles);
+
+    // Step 4: Build Studio UI (after Lithia is ready)
+    await executeStep(BuildStep.BUILD_STUDIO_UI, buildStudio);
+
+    // Step 5: Finalize build
+    await executeStep(BuildStep.FINALIZE, async () => {
+      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+      console.log(`\n🎉 Build completed successfully in ${duration}s!`);
+      console.log('═'.repeat(50));
+    });
   } catch (error) {
-    console.error('Build process failed:', error);
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.error(`\n💥 Build pipeline failed after ${duration}s`);
+    console.error('═'.repeat(50));
+    console.error(
+      '❌ Error:',
+      error instanceof Error ? error.message : String(error),
+    );
     process.exit(1);
   }
 }

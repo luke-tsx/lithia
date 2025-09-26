@@ -1,9 +1,10 @@
 import { createLithia } from 'lithia/core';
+import { LithiaStudio } from 'lithia/studio';
 import type { Lithia } from 'lithia/types';
 import { BuildMonitor } from './build-monitor';
 import { DevServerEventEmitter, DevServerEventType } from './events';
 import { FileWatcher, FileWatcherOptions } from './file-watcher';
-import { ServerManager, ServerConfig } from './server-manager';
+import { ServerConfig, ServerManager } from './server-manager';
 
 /**
  * Development server configuration options.
@@ -17,8 +18,6 @@ export interface DevServerOptions {
   autoReload?: boolean;
   /** Whether to enable verbose logging */
   verbose?: boolean;
-  /** Whether to start with studio */
-  studio?: boolean;
   /** Maximum reload attempts */
   maxReloadAttempts?: number;
 }
@@ -55,6 +54,7 @@ export class DevServerManager {
   private fileWatcher?: FileWatcher;
   private buildMonitor?: BuildMonitor;
   private serverManager?: ServerManager;
+  private studio?: LithiaStudio;
   private options: DevServerOptions;
   private isInitialized = false;
   private isRunning = false;
@@ -67,7 +67,6 @@ export class DevServerManager {
     this.options = {
       autoReload: true,
       verbose: false,
-      studio: false,
       maxReloadAttempts: 3,
       ...options,
     };
@@ -106,6 +105,11 @@ export class DevServerManager {
         this.options.server,
       );
 
+      // Initialize Studio if enabled in config
+      if (this.lithia.options.studio.enabled) {
+        this.studio = new LithiaStudio(this.lithia);
+      }
+
       // Setup file watcher if auto-reload is enabled
       if (this.options.autoReload) {
         this.fileWatcher = new FileWatcher(this.eventEmitter, {
@@ -113,7 +117,6 @@ export class DevServerManager {
           ...this.options.fileWatcher,
         });
       }
-
       this.isInitialized = true;
 
       if (this.options.verbose) {
@@ -151,6 +154,11 @@ export class DevServerManager {
       // Start HTTP server
       await this.serverManager!.start();
 
+      // Start Studio if enabled
+      if (this.studio) {
+        await this.studio.start();
+      }
+
       if (this.options.verbose) {
         this.lithia!.logger.info('Development server started successfully');
       }
@@ -173,6 +181,10 @@ export class DevServerManager {
 
     try {
       // Stop components in reverse order
+      if (this.studio) {
+        await this.studio.stop();
+      }
+
       if (this.serverManager) {
         await this.serverManager.stop();
       }
@@ -317,9 +329,34 @@ export class DevServerManager {
     });
 
     // Build events
+    this.eventEmitter.on(DevServerEventType.BUILD_SUCCESS, async (event) => {
+      if (this.options.verbose) {
+        this.lithia?.logger.info('Build success:', event.data);
+      }
+
+      // Emit to Studio if enabled
+      if (this.studio) {
+        this.studio.emitBuildStatus(true);
+        // Send updated manifest to Studio
+        try {
+          this.studio.emitManifestUpdate();
+        } catch (error) {
+          this.lithia?.logger.error('Error sending manifest to Studio:', error);
+        }
+      }
+    });
+
     this.eventEmitter.on(DevServerEventType.BUILD_ERROR, async (event) => {
       if (this.options.verbose) {
         this.lithia?.logger.error('Build error:', event.data);
+      }
+
+      // Emit to Studio if enabled
+      if (this.studio) {
+        this.studio.emitBuildStatus(
+          false,
+          event.data?.errors?.[0]?.message || 'Build failed',
+        );
       }
     });
 

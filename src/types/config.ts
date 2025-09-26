@@ -6,6 +6,7 @@ import {
 } from 'c12';
 import type { DeepPartial } from './_utils';
 import { LithiaMiddleware } from './handler';
+import { LithiaHooks } from './hooks';
 
 export interface LithiaOptions {
   // Internal
@@ -46,6 +47,7 @@ export interface LithiaOptions {
           enabled: boolean;
         };
       };
+      maxBodySize: number;
     };
   };
 
@@ -60,6 +62,18 @@ export interface LithiaOptions {
   build: {
     mode: 'no-bundle' | 'full-bundle';
     externalPackages: string[];
+  };
+
+  // Hooks configuration
+  hooks: Partial<{
+    [K in keyof LithiaHooks]: LithiaHooks[K][];
+  }>;
+
+  // Studio configuration
+  studio: {
+    enabled: boolean;
+    port: number;
+    wsPort: number;
   };
 
   globalMiddlewares: LithiaMiddleware[];

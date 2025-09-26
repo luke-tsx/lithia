@@ -1,6 +1,6 @@
 import { Lithia } from 'lithia/types';
 import { scanServerRoutes } from '../routing/index';
-import { createRoutesManifest } from '../server/router';
+import { RouterManager } from '../server/routing';
 import { BuildContext, BuildResult } from './context';
 import { BuildModeFactory } from './modes';
 import { ParallelRouteBuilder, RouteBuilder } from './route-builder';
@@ -117,7 +117,8 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
    * @param context - The build context
    */
   private async createManifest(context: BuildContext): Promise<void> {
-    await createRoutesManifest(context.lithia, context.routes);
+    const routerManager = new RouterManager(context.lithia);
+    await routerManager.createRoutesManifest(context.routes);
   }
 }
 
@@ -210,7 +211,8 @@ export class ProductionBuildStrategy implements BuildStrategy {
    * @param context - The build context
    */
   private async createManifest(context: BuildContext): Promise<void> {
-    await createRoutesManifest(context.lithia, context.routes);
+    const routerManager = new RouterManager(context.lithia);
+    await routerManager.createRoutesManifest(context.routes);
   }
 
   /**

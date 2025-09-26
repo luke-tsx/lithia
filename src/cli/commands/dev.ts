@@ -7,11 +7,6 @@ export default defineCommand({
     description: 'Start the development server',
   },
   args: {
-    studio: {
-      type: 'boolean',
-      description: 'Start the studio server',
-      default: false,
-    },
     port: {
       type: 'string',
       description: 'Port to run the server on',
@@ -30,6 +25,11 @@ export default defineCommand({
     watch: {
       type: 'boolean',
       description: 'Enable file watching for auto-reload',
+      default: true,
+    },
+    studio: {
+      type: 'boolean',
+      description: 'Start Lithia Studio for API testing',
       default: true,
     },
   },

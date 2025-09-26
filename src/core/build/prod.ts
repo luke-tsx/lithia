@@ -5,7 +5,7 @@ import path from 'node:path';
 import { getOutputPath } from '../_utils';
 import { green } from '../log/picocolors';
 import { scanServerRoutes } from '../routing/index';
-import { createRoutesManifest } from '../server';
+import { RouterManager } from '../server/routing';
 import { printRoutesOverview } from './build';
 
 /**
@@ -78,7 +78,8 @@ export async function buildProd(lithia: Lithia): Promise<boolean> {
     const routes = await scanServerRoutes(lithia);
 
     await buildRouteFiles(lithia, routes);
-    await createRoutesManifest(lithia, routes);
+    const routerManager = new RouterManager(lithia);
+    await routerManager.createRoutesManifest(routes);
 
     printRoutesOverview(routes);
     lithia.logger.ready(

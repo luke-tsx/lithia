@@ -1,4 +1,4 @@
-import { createHttpServer } from 'lithia/core';
+import { HttpServerManager } from 'lithia/core';
 import type { Lithia } from 'lithia/types';
 import { Server } from 'node:http';
 
@@ -70,7 +70,8 @@ export class ProductionServerManager {
 
     try {
       // Create HTTP server
-      this.server = createHttpServer(this.lithia);
+      const serverManager = new HttpServerManager(this.lithia);
+      this.server = serverManager.createServer();
 
       // Setup server event handlers
       this.setupServerEventHandlers();

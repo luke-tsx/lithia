@@ -2,6 +2,7 @@ export * from './config';
 export * from './lithia';
 export * from './handler';
 export * from './hooks';
+export * from './middleware';
 export * from './_utils';
 export * from './route';
 export * from './open-api';
