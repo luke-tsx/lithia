@@ -5,10 +5,6 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   html {
     font-family: 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
