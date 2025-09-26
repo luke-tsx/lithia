@@ -1,10 +1,10 @@
 import { Lithia, Route, RouteModule } from 'lithia/types';
 import { InternalServerError, NotFoundError } from './errors';
+import { MiddlewareManager } from './middleware-manager';
 import { _LithiaRequest } from './request';
 import { _LithiaResponse } from './response';
 import { RouterManager } from './routing';
 import { DefaultRouteValidator } from './validation';
-import { MiddlewareManager } from './middleware-manager';
 
 /**
  * RequestProcessor handles the complete request processing pipeline.
@@ -28,37 +28,33 @@ export class RequestProcessor {
     res: _LithiaResponse,
   ): Promise<void> {
     try {
-      // Call request:before hook
-      await this.lithia.hooks.callHook('request:before', req, res);
+      await this.lithia.hooks
+        .callHook('request:before', req, res)
+        .catch((error) => {
+          this.lithia.logger.error('Error in request:before hook:', error);
+        });
 
-      // Execute global middlewares
       await this.executeGlobalMiddlewares(req, res);
+
       if (res._ended) return;
 
-      // Find and validate route
       const route = await this.findAndValidateRoute(req);
-
-      // Import and validate module
       const module = await this.importAndValidateModule(route);
 
-      // Execute route middlewares
       await this.executeRouteMiddlewares(req, res, route, module);
+
       if (res._ended) return;
 
-      // Execute route handler
       await this.executeRouteHandler(req, res, route, module);
-
-      // Call request:after hook
-      await this.lithia.hooks.callHook('request:after', req, res);
     } catch (error) {
-      // Call request:error hook
-      await this.lithia.hooks.callHook(
-        'request:error',
-        req,
-        res,
-        error as Error,
-      );
-      throw error; // Re-throw to be handled by ErrorHandler
+      await this.lithia.hooks.callHook('request:error', req, res, error);
+      throw error;
+    } finally {
+      await this.lithia.hooks
+        .callHook('request:after', req, res)
+        .catch((error) => {
+          this.lithia.logger.error('Error in request:after hook:', error);
+        });
     }
   }
 

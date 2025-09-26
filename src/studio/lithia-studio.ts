@@ -39,13 +39,9 @@ export class LithiaStudio {
     this.setupEventHandlers();
     this.setupStaticFileServing();
 
-    // Start server on the Studio port (not wsPort)
     this.httpServer.listen(this.lithia.options.studio.port, () => {
-      this.lithia.logger.info(
-        `🌐 Studio UI: http://localhost:${this.lithia.options.studio.port}`,
-      );
-      this.lithia.logger.info(
-        `🔗 WebSocket: ws://localhost:${this.lithia.options.studio.port}`,
+      this.lithia.logger.ready(
+        `Studio listening on http://localhost:${this.lithia.options.studio.port}`,
       );
     });
 

@@ -73,7 +73,6 @@ export interface LithiaOptions {
   studio: {
     enabled: boolean;
     port: number;
-    wsPort: number;
   };
 
   globalMiddlewares: LithiaMiddleware[];

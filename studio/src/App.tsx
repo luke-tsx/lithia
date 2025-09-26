@@ -5,7 +5,7 @@ import type { Route } from '@/types';
 import { useState } from 'react';
 
 function App() {
-  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [selectedRoute] = useState<Route | null>(null);
 
   return (
     <SocketProvider>

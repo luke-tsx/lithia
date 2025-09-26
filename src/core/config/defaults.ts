@@ -97,7 +97,6 @@ const DEFAULT_DIR_CONFIG = {
 const DEFAULT_STUDIO_CONFIG = {
   enabled: false,
   port: 8473,
-  wsPort: 8474,
 } as const;
 
 /**

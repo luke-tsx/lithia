@@ -74,7 +74,7 @@ export function RoutesProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       const response = await fetch(
-        `http://localhost:${config?.lithiaPort || 3000}/api/lithia/routes`,
+        `http://localhost:${config?.server.port || 3000}/api/lithia/routes`,
       );
       if (!response.ok) {
         throw new Error('Failed to fetch routes');

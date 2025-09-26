@@ -1,18 +1,29 @@
 import { useCors } from 'lithia';
 
+/**@type {import('lithia').LithiaConfig'} */
 export default {
-  // Configuração do modo de build
   build: {
-    mode: 'no-bundle', // 'no-bundle' | 'full-bundle'
-    externalPackages: ['drizzle-orm', 'lodash', 'zod', 'esbuild'], // Para futuras extensões
+    mode: 'no-bundle',
+    externalPackages: ['drizzle-orm', 'lodash', 'zod', 'esbuild'],
   },
-
-  // Configuração do Studio
   studio: {
     enabled: true,
     port: 8473,
-    wsPort: 8474,
   },
-
   globalMiddlewares: [useCors()],
+  hooks: {
+    'request:before': [
+      (req, res) => {
+        const time = Date.now();
+        req.set('timeStart', time);
+        throw new Error('teste');
+      },
+    ],
+    'request:after': [
+      (req, res) => {
+        const time = req.get('timeStart');
+        console.log(`request:after ${Date.now() - time}ms`);
+      },
+    ],
+  },
 };
