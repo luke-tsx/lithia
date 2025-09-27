@@ -119,7 +119,7 @@ export class LithiaStudio {
    */
   private setupStaticFileServing(): void {
     // Serve the built Studio files from dist/studio/app/
-    const studioPath = path.join(__dirname, 'app', 'public');
+    const studioPath = path.join(__dirname, 'app');
     const staticServer = serveStatic(studioPath);
 
     this.httpServer.on('request', (req, res) => {
