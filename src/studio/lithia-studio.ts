@@ -23,7 +23,7 @@ export class LithiaStudio {
     // Initialize Socket.IO with proper CORS
     this.io = new SocketIOServer(this.httpServer, {
       cors: {
-        origin: `http://localhost:${lithia.options.studio.port}`,
+        origin: `http://localhost:8473`,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         credentials: true,
       },
@@ -39,10 +39,8 @@ export class LithiaStudio {
     this.setupEventHandlers();
     this.setupStaticFileServing();
 
-    this.httpServer.listen(this.lithia.options.studio.port, () => {
-      this.lithia.logger.ready(
-        `Studio listening on http://localhost:${this.lithia.options.studio.port}`,
-      );
+    this.httpServer.listen(8473, () => {
+      this.lithia.logger.ready(`Studio listening on http://localhost:8473`);
     });
 
     this.isRunning = true;
@@ -121,7 +119,7 @@ export class LithiaStudio {
    */
   private setupStaticFileServing(): void {
     // Serve the built Studio files from dist/studio/app/
-    const studioPath = path.join(__dirname, 'app');
+    const studioPath = path.join(__dirname, 'app', 'public');
     const staticServer = serveStatic(studioPath);
 
     this.httpServer.on('request', (req, res) => {

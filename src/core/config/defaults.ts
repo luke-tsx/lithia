@@ -96,7 +96,6 @@ const DEFAULT_DIR_CONFIG = {
  */
 const DEFAULT_STUDIO_CONFIG = {
   enabled: false,
-  port: 8473,
 } as const;
 
 /**
