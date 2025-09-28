@@ -1,11 +1,10 @@
+import path from 'node:path';
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import { Lithia, Route } from 'lithia/types';
-import path from 'path';
+import type { Lithia, Route } from 'lithia/types';
 import { getOutputPath } from '../_utils';
-import { error, wait } from '../log';
-import { scanServerRoutes } from '../scan';
-import { createRoutesManifest } from '../server/router';
+import { scanServerRoutes } from '../routing/index';
+import { RouterManager } from '../server/routing';
 
 /**
  * Builds individual route files for production.
@@ -75,13 +74,14 @@ export async function buildDev(lithia: Lithia): Promise<boolean> {
   try {
     const routes = await scanServerRoutes(lithia);
     await buildRouteFiles(lithia, routes);
-    await createRoutesManifest(lithia, routes);
+    const routerManager = new RouterManager(lithia);
+    await routerManager.createRoutesManifest(routes);
 
     return true;
   } catch (err) {
-    error(err);
+    lithia.logger.error(err);
     console.log();
-    wait(
+    lithia.logger.wait(
       'Lithia.js server will not be down, but it will not be able to serve any routes until the issue is resolved.',
     );
     return false;

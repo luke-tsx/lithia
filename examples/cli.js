@@ -2,9 +2,9 @@
 
 const { defineCommand, runMain } = require('citty');
 const prompts = require('prompts');
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { spawn } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // Function to scan examples folder and find projects
 function scanExamples() {
@@ -22,9 +22,7 @@ function scanExamples() {
         // Check if it has package.json
         if (fs.existsSync(packageJsonPath)) {
           try {
-            const packageJson = JSON.parse(
-              fs.readFileSync(packageJsonPath, 'utf8'),
-            );
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
             projects.push({
               name: item.name,
               displayName: item.name
@@ -35,10 +33,7 @@ function scanExamples() {
               description: packageJson.description || 'Lithia example',
             });
           } catch (error) {
-            console.warn(
-              `Error reading package.json from ${item.name}:`,
-              error.message,
-            );
+            console.warn(`Error reading package.json from ${item.name}:`, error.message);
           }
         }
       }
@@ -46,8 +41,8 @@ function scanExamples() {
 
     // Sort by number
     projects.sort((a, b) => {
-      const numA = parseInt(a.name.match(/^(\d+)-/)?.[1] || '0');
-      const numB = parseInt(b.name.match(/^(\d+)-/)?.[1] || '0');
+      const numA = parseInt(a.name.match(/^(\d+)-/)?.[1] || '0', 10);
+      const numB = parseInt(b.name.match(/^(\d+)-/)?.[1] || '0', 10);
       return numA - numB;
     });
   } catch (error) {
@@ -131,9 +126,9 @@ const runCommand = defineCommand({
         if (!selectedProject) {
           console.log(`Project "${args.project}" not found`);
           console.log('Available projects:');
-          projects.forEach((p) =>
-            console.log(`  - ${p.name} (${p.displayName})`),
-          );
+          projects.forEach((p) => {
+            console.log(`  - ${p.name} (${p.displayName})`);
+          });
           process.exit(1);
         }
       } else {
@@ -260,10 +255,7 @@ const createCommand = defineCommand({
         },
       };
 
-      fs.writeFileSync(
-        path.join(projectPath, 'package.json'),
-        JSON.stringify(packageJson, null, 2),
-      );
+      fs.writeFileSync(path.join(projectPath, 'package.json'), JSON.stringify(packageJson, null, 2));
 
       // Create tsconfig.json
       const tsconfig = {
@@ -285,22 +277,14 @@ const createCommand = defineCommand({
         exclude: [],
       };
 
-      fs.writeFileSync(
-        path.join(projectPath, 'tsconfig.json'),
-        JSON.stringify(tsconfig, null, 2),
-      );
+      fs.writeFileSync(path.join(projectPath, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2));
 
       // Create lithia.config.js
-      const lithiaConfig = `const { defineLithiaConfig } = require('lithia');
+      const lithiaConfig = `import { defineLithiaConfig } from 'lithia';
 
-module.exports = defineLithiaConfig({
-  globalMiddlewares: [],
-});`;
+export default defineLithiaConfig({});`;
 
-      fs.writeFileSync(
-        path.join(projectPath, 'lithia.config.js'),
-        lithiaConfig,
-      );
+      fs.writeFileSync(path.join(projectPath, 'lithia.config.js'), lithiaConfig);
 
       // Create example route
       const helloRoute = `import { LithiaRequest, LithiaResponse } from 'lithia';
@@ -311,10 +295,7 @@ export default async function handler(req: LithiaRequest, res: LithiaResponse) {
   });
 }`;
 
-      fs.writeFileSync(
-        path.join(projectPath, 'src', 'routes', 'hello.get.ts'),
-        helloRoute,
-      );
+      fs.writeFileSync(path.join(projectPath, 'src', 'routes', 'hello.get.ts'), helloRoute);
 
       console.log(`Project ${projectName} created successfully!`);
       console.log(`Location: ${projectPath}`);
@@ -349,7 +330,7 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason, _promise) => {
   console.error('Unhandled promise rejection:', reason);
   process.exit(1);
 });

@@ -28,5 +28,6 @@
       "lithia/studio": ["./src/studio"]
     }
   },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "examples"]
 }

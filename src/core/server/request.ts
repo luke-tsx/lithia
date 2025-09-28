@@ -1,6 +1,7 @@
-import { IncomingHttpHeaders, IncomingMessage } from 'http';
-import { Lithia, LithiaRequest, Params, Query } from 'lithia/types';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import { parse } from 'node:url';
+import { parse as parseCookie } from 'cookie';
+import type { Lithia, LithiaRequest, Params, Query } from 'lithia/types';
 
 /**
  * Enhanced HTTP request handler wrapping Node.js IncomingMessage
@@ -20,6 +21,8 @@ export class _LithiaRequest implements LithiaRequest {
   pathname: Readonly<string>;
   query: Readonly<Query>;
   private storage: Map<string, unknown>;
+  private _bodyCache: unknown | null = null;
+  private _cookies: Record<string, string> | null = null;
 
   /**
    * @constructor
@@ -48,17 +51,14 @@ export class _LithiaRequest implements LithiaRequest {
    * @param {'data' | 'end' | 'error'} event - Stream event type
    * @param {(chunk: unknown) => void} listener - Event handler callback
    */
-  on: (
-    event: 'data' | 'end' | 'error',
-    listener: (chunk: unknown) => void,
-  ) => void;
+  on: (event: 'data' | 'end' | 'error', listener: (chunk: unknown) => void) => void;
 
   /**
-   * Parses request body based on content-type
+   * Parses request body based on content-type with caching and validation
    * @method
    * @template T - Expected body type
    * @returns {Promise<Readonly<T>>} Parsed body content
-   * @throws {Error} For invalid JSON or stream errors
+   * @throws {Error} For invalid JSON, unsupported content-type, or stream errors
    *
    * @example
    * // JSON body
@@ -66,39 +66,56 @@ export class _LithiaRequest implements LithiaRequest {
    *
    * // Text body
    * const text = await request.body<string>();
+   *
+   * // Form data
+   * const formData = await request.body<Record<string, string>>();
    */
   async body<T>(): Promise<Readonly<T>> {
-    if (!['POST', 'PUT', 'PATCH'].includes(this.method)) {
+    if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(this.method)) {
       return {} as T;
     }
 
-    if (this.get('body')) {
-      return this.get('body') as T;
+    // Return cached body if available
+    if (this._bodyCache !== null) {
+      return this._bodyCache as T;
     }
 
-    const body = await new Promise((resolve, reject) => {
-      let body = '';
+    const contentType = this.headers['content-type'] || '';
+    const contentLength = parseInt(this.headers['content-length'] || '0', 10);
+
+    // Check body size limit
+    const maxBodySize = this.lithia.options.server.request.maxBodySize || 1024 * 1024; // 1MB default
+    if (contentLength > maxBodySize) {
+      throw new Error(`Request body too large: ${contentLength} bytes (max: ${maxBodySize})`);
+    }
+
+    const body = await new Promise<T>((resolve, reject) => {
+      let bodyData = '';
+      let receivedLength = 0;
 
       this.req.on('data', (chunk) => {
-        body += chunk;
+        receivedLength += chunk.length;
+
+        // Check received length against max body size
+        if (receivedLength > maxBodySize) {
+          reject(new Error(`Request body too large: ${receivedLength} bytes (max: ${maxBodySize})`));
+          return;
+        }
+
+        bodyData += chunk;
       });
 
       this.req.on('end', () => {
-        if (body.length === 0) {
+        if (bodyData.length === 0) {
           resolve({} as T);
           return;
         }
 
-        switch (this.headers['content-type']) {
-          case 'application/json':
-            try {
-              resolve(JSON.parse(body));
-            } catch (error) {
-              reject(new Error(`Invalid JSON: ${error.message}`));
-            }
-            break;
-          default:
-            resolve(body as unknown as T);
+        try {
+          const parsed = this.parseBodyByContentType(bodyData, contentType);
+          resolve(parsed as T);
+        } catch (error) {
+          reject(error);
         }
       });
 
@@ -107,9 +124,68 @@ export class _LithiaRequest implements LithiaRequest {
       });
     });
 
+    // Cache the parsed body
+    this._bodyCache = body;
     this.set('body', body);
 
-    return body as T;
+    return body;
+  }
+
+  /**
+   * Parses body content based on content-type
+   * @private
+   * @param {string} bodyData - Raw body data
+   * @param {string} contentType - Content-Type header value
+   * @returns {unknown} Parsed body content
+   * @throws {Error} For unsupported content-types or parsing errors
+   */
+  private parseBodyByContentType(bodyData: string, contentType: string): unknown {
+    const [type] = contentType.split(';');
+
+    switch (type.trim()) {
+      case 'application/json':
+        try {
+          return JSON.parse(bodyData);
+        } catch (error) {
+          throw new Error(`Invalid JSON: ${error.message}`);
+        }
+
+      case 'application/x-www-form-urlencoded':
+        return this.parseFormData(bodyData);
+
+      case 'multipart/form-data':
+        throw new Error('Multipart form data parsing not yet implemented');
+
+      case 'text/plain':
+      case 'text/html':
+      case 'text/css':
+      case 'text/javascript':
+        return bodyData;
+
+      default:
+        // For unknown content types, return as string
+        return bodyData;
+    }
+  }
+
+  /**
+   * Parses URL-encoded form data
+   * @private
+   * @param {string} formData - URL-encoded form data
+   * @returns {Record<string, string>} Parsed form data object
+   */
+  private parseFormData(formData: string): Record<string, string> {
+    const result: Record<string, string> = {};
+    const pairs = formData.split('&');
+
+    for (const pair of pairs) {
+      const [key, value] = pair.split('=');
+      if (key) {
+        result[decodeURIComponent(key)] = value ? decodeURIComponent(value) : '';
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -132,6 +208,129 @@ export class _LithiaRequest implements LithiaRequest {
   set(key: string, value: unknown): void {
     this.storage.set(key, value);
   }
+
+  /**
+   * Gets request cookies as a parsed object
+   * @method
+   * @returns {Record<string, string>} Parsed cookies object
+   */
+  cookies(): Record<string, string> {
+    if (this._cookies === null) {
+      const cookieHeader = this.headers.cookie;
+      this._cookies = cookieHeader ? parseCookie(cookieHeader) : {};
+    }
+    return this._cookies || {};
+  }
+
+  /**
+   * Gets a specific cookie value
+   * @method
+   * @param {string} name - Cookie name
+   * @returns {string | undefined} Cookie value or undefined
+   */
+  cookie(name: string): string | undefined {
+    return this.cookies()[name];
+  }
+
+  /**
+   * Checks if request accepts a specific content type
+   * @method
+   * @param {string} contentType - Content type to check
+   * @returns {boolean} True if content type is accepted
+   */
+  accepts(contentType: string): boolean {
+    const acceptHeader = this.headers.accept || '';
+    return acceptHeader.includes(contentType) || acceptHeader.includes('*/*');
+  }
+
+  /**
+   * Checks if request is JSON
+   * @method
+   * @returns {boolean} True if content-type is JSON
+   */
+  isJson(): boolean {
+    const contentType = this.headers['content-type'] || '';
+    return contentType.includes('application/json');
+  }
+
+  /**
+   * Checks if request is form data
+   * @method
+   * @returns {boolean} True if content-type is form data
+   */
+  isFormData(): boolean {
+    const contentType = this.headers['content-type'] || '';
+    return contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data');
+  }
+
+  /**
+   * Checks if request is AJAX/XMLHttpRequest
+   * @method
+   * @returns {boolean} True if request is AJAX
+   */
+  isAjax(): boolean {
+    return this.headers['x-requested-with'] === 'XMLHttpRequest';
+  }
+
+  /**
+   * Gets client IP address
+   * @method
+   * @returns {string} Client IP address
+   */
+  ip(): string {
+    return (
+      (this.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      (this.headers['x-real-ip'] as string) ||
+      this.req.connection?.remoteAddress ||
+      this.req.socket?.remoteAddress ||
+      '127.0.0.1'
+    );
+  }
+
+  /**
+   * Gets request user agent
+   * @method
+   * @returns {string} User agent string
+   */
+  userAgent(): string {
+    return this.headers['user-agent'] || '';
+  }
+
+  /**
+   * Checks if request is secure (HTTPS)
+   * @method
+   * @returns {boolean} True if request is secure
+   */
+  isSecure(): boolean {
+    return this.headers['x-forwarded-proto'] === 'https' || (this.req.connection as any)?.encrypted === true;
+  }
+
+  /**
+   * Gets request host
+   * @method
+   * @returns {string} Request host
+   */
+  host(): string {
+    return this.headers.host || 'localhost';
+  }
+
+  /**
+   * Gets request protocol
+   * @method
+   * @returns {string} Request protocol (http or https)
+   */
+  protocol(): string {
+    return this.isSecure() ? 'https' : 'http';
+  }
+
+  /**
+   * Gets full request URL
+   * @method
+   * @returns {string} Complete request URL
+   */
+  url(): string {
+    return `${this.protocol()}://${this.host()}${this.pathname}`;
+  }
 }
 
 /**
@@ -150,7 +349,7 @@ export function parseQuery(url: URLSearchParams, lithia: Lithia): Query {
   const query: Query = {};
 
   for (const [key, value] of url.entries()) {
-    if (number.enabled && !isNaN(Number(value)) && value !== '') {
+    if (number.enabled && !Number.isNaN(Number(value)) && value !== '') {
       query[key] = Number(value);
       continue;
     }

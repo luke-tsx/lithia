@@ -1,12 +1,11 @@
+import path from 'node:path';
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import { Lithia, Route } from 'lithia/types';
-import path from 'node:path';
+import type { Lithia, Route } from 'lithia/types';
 import { getOutputPath } from '../_utils';
-import { ready, wait } from '../log';
-import { green } from '../picocolors';
-import { scanServerRoutes } from '../scan';
-import { createRoutesManifest } from '../server';
+import { green } from '../log/picocolors';
+import { scanServerRoutes } from '../routing/index';
+import { RouterManager } from '../server/routing';
 import { printRoutesOverview } from './build';
 
 /**
@@ -75,16 +74,15 @@ function generateRouteBanner(route: Route): string {
  */
 export async function buildProd(lithia: Lithia): Promise<boolean> {
   try {
-    wait('Building your Lithia app for production...');
+    lithia.logger.wait('Building your Lithia app for production...');
     const routes = await scanServerRoutes(lithia);
 
     await buildRouteFiles(lithia, routes);
-    await createRoutesManifest(lithia, routes);
+    const routerManager = new RouterManager(lithia);
+    await routerManager.createRoutesManifest(routes);
 
     printRoutesOverview(routes);
-    ready(
-      `Production build completed successfully! Run ${green('lithia start')} to start your app.`,
-    );
+    lithia.logger.ready(`Production build completed successfully! Run ${green('lithia start')} to start your app.`);
 
     return true;
   } catch (error) {

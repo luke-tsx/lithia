@@ -1,10 +1,19 @@
 # Changelog
+## 3.0.0
 
-## 2.1.29
+### Major Changes
+
+- Version 3 of Lithia, now with integrated studio!
 
 ### Patch Changes
 
-- e181e6f: Fix merge conflicts and improve CI/CD pipeline
+- 75884f8: Fix merge conflicts, update ESLint configuration, and add Changesets for release management
+
+  - Resolve merge conflicts in pnpm-lock.yaml
+  - Update ESLint to v9.x compatibility
+  - Add Changesets for automated release workflow
+  - Fix TypeScript configuration and CI/CD pipeline
+  - Improve release process with canary support
 
 All notable changes to this project will be documented in this file.
 

@@ -1,5 +1,5 @@
-import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
-import { Metadata, Params, Query } from './route';
+import type { IncomingHttpHeaders, OutgoingHttpHeaders } from 'node:http';
+import type { Metadata, Params, Query } from './route';
 
 /**
  * Represents an incoming HTTP request with enhanced capabilities
@@ -44,10 +44,33 @@ export interface LithiaRequest {
    * @param {'data' | 'end' | 'error'} event - Event type
    * @param {(chunk: unknown) => void} listener - Event handler
    */
-  on: (
-    event: 'data' | 'end' | 'error',
-    listener: (chunk: unknown) => void,
-  ) => void;
+  on: (event: 'data' | 'end' | 'error', listener: (chunk: unknown) => void) => void;
+
+  // Enhanced helper methods
+  /** Gets request cookies as parsed object */
+  cookies: () => Record<string, string>;
+  /** Gets specific cookie value */
+  cookie: (name: string) => string | undefined;
+  /** Checks if request accepts content type */
+  accepts: (contentType: string) => boolean;
+  /** Checks if request is JSON */
+  isJson: () => boolean;
+  /** Checks if request is form data */
+  isFormData: () => boolean;
+  /** Checks if request is AJAX */
+  isAjax: () => boolean;
+  /** Gets client IP address */
+  ip: () => string;
+  /** Gets request user agent */
+  userAgent: () => string;
+  /** Checks if request is secure (HTTPS) */
+  isSecure: () => boolean;
+  /** Gets request host */
+  host: () => string;
+  /** Gets request protocol */
+  protocol: () => string;
+  /** Gets full request URL */
+  url: () => string;
 }
 
 /**
@@ -76,7 +99,7 @@ export interface LithiaResponse {
    * @param {string} value - Header value
    * @returns {LithiaResponse} Instance for chaining
    */
-  addHeader: (name: string, value: string) => LithiaResponse;
+  addHeader: (name: string, value: string | number | string[]) => LithiaResponse;
 
   /**
    * Removes a response header
@@ -84,6 +107,13 @@ export interface LithiaResponse {
    * @returns {LithiaResponse} Instance for chaining
    */
   removeHeader: (name: string) => LithiaResponse;
+
+  /**
+   * Sets multiple headers at once
+   * @param {OutgoingHttpHeaders} headers - Headers object
+   * @returns {LithiaResponse} Instance for chaining
+   */
+  setHeaders: (headers: OutgoingHttpHeaders) => LithiaResponse;
 
   /**
    * Sends response with automatic content handling
@@ -101,13 +131,92 @@ export interface LithiaResponse {
   json: (data: object) => void;
 
   /**
+   * Performs HTTP redirect
+   * @param {string} url - Redirect URL
+   * @param {number} [status=302] - Redirect status code
+   */
+  redirect: (url: string, status?: number) => void;
+
+  /**
    * Handles response stream events
    * @param {'data' | 'end' | 'error'} event - Event type
    * @param {(chunk: unknown) => void} listener - Event handler
    */
-  on: (
-    event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe',
-    listener: (chunk: unknown) => void,
+  on: (event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe', listener: (chunk: unknown) => void) => void;
+
+  // HTTP Status Code Helpers
+  /** Sends 200 OK response */
+  ok: (data?: unknown) => void;
+  /** Sends 201 Created response */
+  created: (data?: unknown) => void;
+  /** Sends 204 No Content response */
+  noContent: () => void;
+  /** Sends 400 Bad Request response */
+  badRequest: (data?: unknown) => void;
+  /** Sends 401 Unauthorized response */
+  unauthorized: (data?: unknown) => void;
+  /** Sends 403 Forbidden response */
+  forbidden: (data?: unknown) => void;
+  /** Sends 404 Not Found response */
+  notFound: (data?: unknown) => void;
+  /** Sends 409 Conflict response */
+  conflict: (data?: unknown) => void;
+  /** Sends 422 Unprocessable Entity response */
+  unprocessableEntity: (data?: unknown) => void;
+  /** Sends 429 Too Many Requests response */
+  tooManyRequests: (data?: unknown) => void;
+  /** Sends 500 Internal Server Error response */
+  internalServerError: (data?: unknown) => void;
+  /** Sends 502 Bad Gateway response */
+  badGateway: (data?: unknown) => void;
+  /** Sends 503 Service Unavailable response */
+  serviceUnavailable: (data?: unknown) => void;
+
+  // Cookie Helpers
+  /** Sets a cookie */
+  cookie: (name: string, value: string, options?: any) => LithiaResponse;
+  /** Clears a cookie */
+  clearCookie: (name: string, options?: any) => LithiaResponse;
+
+  // CORS Helpers
+  /** Sets CORS headers */
+  cors: (options?: {
+    origin?: string | string[];
+    methods?: string[];
+    headers?: string[];
+    credentials?: boolean;
+  }) => LithiaResponse;
+
+  // Cache Helpers
+  /** Sets cache headers */
+  cache: (options?: {
+    maxAge?: number;
+    sMaxAge?: number;
+    private?: boolean;
+    noCache?: boolean;
+    noStore?: boolean;
+    mustRevalidate?: boolean;
+    etag?: string;
+  }) => LithiaResponse;
+
+  // File Helpers
+  /** Sends file as download */
+  download: (
+    filePath: string,
+    filename?: string,
+    options?: {
+      root?: string;
+      headers?: OutgoingHttpHeaders;
+    },
+  ) => void;
+  /** Sends file with appropriate headers */
+  sendFile: (
+    filePath: string,
+    options?: {
+      root?: string;
+      headers?: OutgoingHttpHeaders;
+      cache?: boolean;
+    },
   ) => void;
 }
 
@@ -119,10 +228,7 @@ export interface LithiaResponse {
  * @param {LithiaResponse} res - Response object
  * @returns {Promise<void>}
  */
-export type LithiaHandler = (
-  req: LithiaRequest,
-  res: LithiaResponse,
-) => Promise<void>;
+export type LithiaHandler = (req: LithiaRequest, res: LithiaResponse) => Promise<void>;
 
 /**
  * Middleware handler type for pre/post processing
@@ -133,11 +239,7 @@ export type LithiaHandler = (
  * @param {Function} next - Proceeds to next middleware/handler
  * @returns {Promise<void>}
  */
-export type LithiaMiddleware = (
-  req: LithiaRequest,
-  res: LithiaResponse,
-  next: () => void,
-) => Promise<void>;
+export type LithiaMiddleware = (req: LithiaRequest, res: LithiaResponse, next: () => void) => Promise<void>;
 
 /**
  * Route module definition structure

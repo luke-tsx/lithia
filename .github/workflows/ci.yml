@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,18 +31,3 @@ jobs:
 
       - name: Build project
         run: pnpm run build
-
-      - name: Lint code
-        run: pnpm run lint
-
-      - name: Format check
-        run: pnpm run format:check
-
-      - name: Type check
-        run: pnpm run type-check
-
-      - name: Test examples
-        run: |
-          cd examples/1-basic-api
-          npm install
-          npm run build

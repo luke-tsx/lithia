@@ -1,11 +1,6 @@
-import {
-  C12InputConfig,
-  ConfigWatcher,
-  ResolvedConfig,
-  WatchConfigOptions,
-} from 'c12';
+import type { C12InputConfig, ConfigWatcher, ResolvedConfig, WatchConfigOptions } from 'c12';
 import type { DeepPartial } from './_utils';
-import { LithiaMiddleware } from './handler';
+import type { LithiaHooks } from './hooks';
 
 export interface LithiaOptions {
   // Internal
@@ -18,16 +13,6 @@ export interface LithiaOptions {
 
   // General
   debug: boolean;
-
-  // Dirs
-  srcDir: string;
-  routesDir: string;
-  outputDir: string;
-
-  // Router
-  router: {
-    globalPrefix: string;
-  };
 
   // Server
   server: {
@@ -46,15 +31,39 @@ export interface LithiaOptions {
           enabled: boolean;
         };
       };
+      maxBodySize: number;
     };
   };
 
-  globalMiddlewares: LithiaMiddleware[];
+  // CORS
+  cors: {
+    origin?: string[];
+    methods?: string[];
+    allowedHeaders?: string[];
+    exposedHeaders?: string[];
+    credentials?: boolean;
+    maxAge?: number;
+    optionsSuccessStatus?: number;
+  };
+
+  // Build
+  build: {
+    mode: 'no-bundle' | 'full-bundle';
+    externalPackages: string[];
+  };
+
+  // Hooks configuration
+  hooks: {
+    [K in keyof LithiaHooks]: LithiaHooks[K][];
+  };
+
+  // Studio configuration
+  studio: {
+    enabled: boolean;
+  };
 }
 
-export interface LithiaConfig
-  extends DeepPartial<LithiaOptions>,
-    C12InputConfig<LithiaConfig> {}
+export interface LithiaConfig extends DeepPartial<LithiaOptions>, C12InputConfig<LithiaConfig> {}
 
 export interface LoadConfigOptions {
   watch?: boolean;
