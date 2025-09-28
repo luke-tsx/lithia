@@ -73,8 +73,6 @@ export class DevServerManager {
         debug: this.debugMode,
       });
 
-      this.originalConfig = this.lithia.options;
-
       // Initialize components
       this.buildMonitor = new BuildMonitor(this.eventEmitter, this.lithia);
       this.serverManager = new ServerManager(this.eventEmitter, this.lithia);
@@ -182,17 +180,12 @@ export class DevServerManager {
   async restart(): Promise<void> {
     this.lithia.logger.wait('Restarting development server...');
 
-    this.totalReloads++;
-
     try {
       await this.stop();
       await this.start();
 
-      this.successfulReloads++;
-
       this.lithia.logger.success('Development server restarted successfully');
     } catch (error) {
-      this.failedReloads++;
       this.lithia.logger.error('Failed to restart development server:', error);
       throw error;
     }
@@ -206,18 +199,9 @@ export class DevServerManager {
       return;
     }
 
-    this.totalReloads++;
-
     try {
-      const success = await this.buildMonitor.build('File change detected');
-
-      if (success) {
-        this.successfulReloads++;
-      } else {
-        this.failedReloads++;
-      }
+      await this.buildMonitor.build('File change detected');
     } catch (error) {
-      this.failedReloads++;
       this.lithia.logger.error('Soft reload failed:', error);
     }
   }
@@ -259,7 +243,9 @@ export class DevServerManager {
 
       if (criticalChanges.length > 0) {
         this.lithia.logger.warn(
-          `Critical configuration changes detected that require server restart: ${criticalChanges.map((change) => change.key).join(', ')}`,
+          `Critical configuration changes detected that require server restart: ${criticalChanges
+            .map((change) => change.key)
+            .join(', ')}`,
         );
       }
     } catch (error) {

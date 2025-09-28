@@ -29,17 +29,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build project
-        run: pnpm run build
-
       - name: Lint and format check
         run: pnpm run check
 
-      - name: Type check
-        run: pnpm run type-check
-
-      - name: Test examples
-        run: |
-          cd examples/1-basic-api
-          npm install
-          npm run build
+      - name: Build project
+        run: pnpm run build

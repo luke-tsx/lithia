@@ -1,8 +1,11 @@
-import { access, constants } from 'node:fs/promises';
-import path from 'node:path';
-import { defineCommand } from 'citty';
-import { createLithia } from 'lithia/core';
-import { type ProductionServerConfig, ProductionServerManager } from './start/production-server-manager';
+import { access, constants } from "node:fs/promises";
+import path from "node:path";
+import { defineCommand } from "citty";
+import { createLithia } from "lithia/core";
+import {
+  type ProductionServerConfig,
+  ProductionServerManager,
+} from "./start/production-server-manager";
 
 interface StartOptions {
   port?: number;
@@ -16,42 +19,42 @@ interface StartOptions {
 
 export default defineCommand({
   meta: {
-    name: 'start',
-    description: 'Start Lithia project in production mode',
+    name: "start",
+    description: "Start Lithia project in production mode",
   },
   args: {
     port: {
-      type: 'string',
-      description: 'Port to run the server on',
-      default: '3000',
+      type: "string",
+      description: "Port to run the server on",
+      default: "3000",
     },
     host: {
-      type: 'string',
-      description: 'Host to bind the server to',
-      default: '0.0.0.0',
+      type: "string",
+      description: "Host to bind the server to",
+      default: "0.0.0.0",
     },
     verbose: {
-      type: 'boolean',
-      description: 'Enable verbose output',
+      type: "boolean",
+      description: "Enable verbose output",
       default: false,
     },
     output: {
-      type: 'string',
-      description: 'Output directory to check for built files',
-      default: '.lithia',
+      type: "string",
+      description: "Output directory to check for built files",
+      default: ".lithia",
     },
     https: {
-      type: 'boolean',
-      description: 'Enable HTTPS (requires cert and key)',
+      type: "boolean",
+      description: "Enable HTTPS (requires cert and key)",
       default: false,
     },
     cert: {
-      type: 'string',
-      description: 'SSL certificate file path',
+      type: "string",
+      description: "SSL certificate file path",
     },
     key: {
-      type: 'string',
-      description: 'SSL private key file path',
+      type: "string",
+      description: "SSL private key file path",
     },
   },
   async run({ args }) {
@@ -70,8 +73,8 @@ export default defineCommand({
     try {
       // Validate HTTPS configuration
       if (options.https && (!options.cert || !options.key)) {
-        console.error('❌ HTTPS enabled but certificate or key not provided');
-        console.error('Use --cert and --key options to specify SSL files');
+        console.error("❌ HTTPS enabled but certificate or key not provided");
+        console.error("Use --cert and --key options to specify SSL files");
         process.exit(1);
       }
 
@@ -81,7 +84,7 @@ export default defineCommand({
         await access(outputPath, constants.F_OK);
       } catch {
         console.error(`❌ Build output not found at: ${outputPath}`);
-        console.error('Please run `lithia build` first to build your project.');
+        console.error("Please run `lithia build` first to build your project.");
         process.exit(1);
       }
 
@@ -100,22 +103,20 @@ export default defineCommand({
 
       // Create Lithia instance for production
       const lithia = await createLithia({
-        _env: 'prod',
+        _env: "prod",
         _cli: {
-          command: 'start',
+          command: "start",
         },
         server: {
           port: options.port,
           host: options.host,
         },
-        logger: {
-          level: options.verbose ? 'debug' : 'info',
-        },
-        outputDir: options.output,
       });
 
       if (options.verbose) {
-        lithia.logger.info(`Starting production server on ${options.host}:${options.port}`);
+        lithia.logger.info(
+          `Starting production server on ${options.host}:${options.port}`
+        );
         lithia.logger.info(`Output directory: ${outputPath}`);
         if (options.https) {
           lithia.logger.info(`HTTPS enabled with certificate: ${options.cert}`);
@@ -140,26 +141,34 @@ export default defineCommand({
       if (options.verbose) {
         const info = serverManager.getDetailedInfo();
         lithia.logger.info(`Server uptime: ${info.uptimeFormatted}`);
-        lithia.logger.info(`Memory usage: ${Math.round(info.stats.requestCount)} requests handled`);
+        lithia.logger.info(
+          `Memory usage: ${Math.round(
+            info.stats.requestCount
+          )} requests handled`
+        );
 
         const health = serverManager.getHealthStatus();
         lithia.logger.info(`Health status: ${health.status}`);
-        lithia.logger.info(`Memory usage: ${Math.round(health.memoryUsage.heapUsed / 1024 / 1024)}MB`);
+        lithia.logger.info(
+          `Memory usage: ${Math.round(
+            health.memoryUsage.heapUsed / 1024 / 1024
+          )}MB`
+        );
       }
 
       lithia.logger.ready(
-        `Server listening on http://${serverConfig.host}:${serverConfig.port} (started in ${startupTime}ms)`,
+        `Server listening on http://${serverConfig.host}:${serverConfig.port} (started in ${startupTime}ms)`
       );
 
       if (options.verbose) {
-        lithia.logger.info('Use --debug flag for detailed logs');
-        lithia.logger.info('Press Ctrl+C to stop the server');
+        lithia.logger.info("Use --debug flag for detailed logs");
+        lithia.logger.info("Press Ctrl+C to stop the server");
       }
 
       // Keep the process alive
       await new Promise(() => {});
     } catch (error) {
-      console.error('Failed to start production server:', error);
+      console.error("Failed to start production server:", error);
       process.exit(1);
     }
   },
