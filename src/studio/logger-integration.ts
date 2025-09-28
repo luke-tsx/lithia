@@ -20,10 +20,6 @@ export class LoggerIntegration {
    * Setup logger integration to emit logs to Studio clients.
    */
   setup(): void {
-    // Store original logger options
-    const originalOptions = this.lithia.options.logger;
-
-    // Create a separate console instance for Lithia logs
     const lithiaConsole = {
       log: console.log.bind(console),
       error: console.error.bind(console),
@@ -32,9 +28,7 @@ export class LoggerIntegration {
       debug: console.debug.bind(console),
     } as Console;
 
-    // Create new logger with log entry callback and separate console
     const studioLogger = new ConsoleLogger({
-      ...originalOptions,
       onLogEntry: (entry: LogEntry) => {
         if (this.onLogEntry) {
           this.onLogEntry(entry);

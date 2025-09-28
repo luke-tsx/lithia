@@ -40,7 +40,6 @@ export enum DevServerEventType {
   BUILD_COMPLETE = 'build:complete',
 
   // Configuration
-  CONFIG_CHANGED = 'config:changed',
   ENV_CHANGED = 'env:changed',
 
   // Reload process

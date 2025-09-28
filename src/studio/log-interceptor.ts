@@ -1,4 +1,5 @@
 import { LogEntry } from 'lithia/core';
+import path from 'node:path';
 
 /**
  * Intercepts global console methods to capture user logs.
@@ -77,21 +78,11 @@ export class LogInterceptor {
   private mapToSourcePath(compiledPath: string): string {
     // Convert .lithia/routes/file.js to src/routes/file.ts
     let sourceFile = compiledPath;
-    if (compiledPath.includes('/.lithia/routes/')) {
-      sourceFile = compiledPath
-        .replace('/.lithia/routes/', '/src/routes/')
-        .replace('.js', '.ts');
-    } else if (compiledPath.includes('\\.lithia\\routes\\')) {
-      sourceFile = compiledPath
-        .replace('\\.lithia\\routes\\', '\\src\\routes\\')
-        .replace('.js', '.ts');
-    }
+    const resolvedPath = path.resolve(compiledPath);
 
-    // Convert to relative path from src/ (keep src/ in the path)
-    const srcIndex = sourceFile.indexOf('/src/');
-    if (srcIndex !== -1) {
-      return sourceFile.substring(srcIndex + 1); // Keep 'src/' prefix
-    }
+    sourceFile = resolvedPath.replace('.js', '.ts');
+    sourceFile = sourceFile.replace('.lithia', 'src');
+    sourceFile = path.relative(process.cwd(), sourceFile);
 
     return sourceFile;
   }
@@ -114,14 +105,8 @@ export class LogInterceptor {
         // Skip if it's from node_modules, internal Node.js files, dist/studio, or Lithia core/cli
         if (
           !filePath.includes('node_modules') &&
-          !filePath.includes('internal/') &&
-          !filePath.includes('(node:') &&
-          !filePath.includes('/dist/studio/') &&
-          !filePath.includes('\\dist\\studio\\') &&
-          !filePath.includes('/dist/core/') &&
-          !filePath.includes('\\dist\\core\\') &&
-          !filePath.includes('/dist/cli/') &&
-          !filePath.includes('\\dist\\cli\\') &&
+          !filePath.includes('/dist/') &&
+          !filePath.includes('\\dist\\') &&
           filePath.includes('/')
         ) {
           const mappedFile = this.mapToSourcePath(filePath);

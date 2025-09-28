@@ -25,6 +25,30 @@ export interface ConfigProvider {
   ): Promise<LithiaOptions>;
 }
 
+export interface DiffHashedObject {
+  key: string;
+  value: unknown;
+  hash: string;
+  props: unknown;
+}
+
+export interface DiffEntry {
+  key: string;
+  type: string;
+  newValue: DiffHashedObject;
+  oldValue: DiffHashedObject;
+}
+
+export interface ConfigUpdateContext {
+  getDiff: () => Array<DiffEntry>;
+  newConfig: LithiaOptions;
+  oldConfig: LithiaOptions;
+}
+
+export type ConfigUpdateCallback = (
+  context: ConfigUpdateContext,
+) => void | Promise<void>;
+
 /**
  * Configuration validation error.
  *
@@ -50,6 +74,17 @@ export class ConfigValidationError extends Error {
  * @implements {ConfigProvider}
  */
 export class C12ConfigProvider implements ConfigProvider {
+  private configUpdateCallback?: ConfigUpdateCallback;
+
+  /**
+   * Sets a callback to be called when configuration changes in watch mode.
+   *
+   * @param callback - Function to call when config updates
+   */
+  setConfigUpdateCallback(callback: ConfigUpdateCallback): void {
+    this.configUpdateCallback = callback;
+  }
+
   /**
    * Loads and validates configuration using c12.
    *
@@ -67,9 +102,7 @@ export class C12ConfigProvider implements ConfigProvider {
   ): Promise<LithiaOptions> {
     overrides = klona(overrides);
 
-    const loadedConfig = await (
-      opts.watch ? watchConfig<LithiaConfig> : loadConfig<LithiaConfig>
-    )({
+    const configOptions = {
       name: 'lithia',
       configFile: 'lithia.config',
       cwd: process.cwd(),
@@ -77,9 +110,37 @@ export class C12ConfigProvider implements ConfigProvider {
       overrides,
       defaults: LithiaDefaults,
       ...opts.c12,
-    });
+    };
+
+    const loadedConfig = await (
+      opts.watch ? watchConfig<LithiaConfig> : loadConfig<LithiaConfig>
+    )(
+      opts.watch && this.configUpdateCallback
+        ? {
+            ...configOptions,
+            onUpdate: async (context) => {
+              const newOptions = klona(
+                context.newConfig.config,
+              ) as LithiaOptions;
+              this.validateConfig(newOptions);
+
+              newOptions._config = overrides;
+              newOptions._c12 = context.newConfig;
+
+              await this.configUpdateCallback!({
+                getDiff: context.getDiff,
+                newConfig: newOptions,
+                oldConfig: context.oldConfig.config as LithiaOptions,
+              });
+            },
+          }
+        : configOptions,
+    );
 
     const options = klona(loadedConfig.config) as LithiaOptions;
+
+    // Apply overrides after loading config
+    Object.assign(options, overrides);
 
     this.validateConfig(options);
 

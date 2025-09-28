@@ -142,14 +142,6 @@ export class FileWatcher {
         return debouncedEmit(DevServerEventType.FILE_ADDED, filePath);
       })
       .on('change', (filePath) => {
-        // Check if it's the config file
-        if (filePath.endsWith('lithia.config.ts')) {
-          return this.eventEmitter.emit(DevServerEventType.CONFIG_CHANGED, {
-            filePath,
-            timestamp: Date.now(),
-          });
-        }
-
         if (filePath.endsWith('.env') || filePath.endsWith('.env.local')) {
           return this.eventEmitter.emit(DevServerEventType.ENV_CHANGED, {
             filePath,

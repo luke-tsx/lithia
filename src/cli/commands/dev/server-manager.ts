@@ -50,18 +50,17 @@ export class ServerManager {
   private isStarting = false;
   private isStopping = false;
 
-  constructor(
-    eventEmitter: DevServerEventEmitter,
-    lithia: Lithia,
-    config: ServerConfig,
-  ) {
+  constructor(eventEmitter: DevServerEventEmitter, lithia: Lithia) {
     this.eventEmitter = eventEmitter;
     this.lithia = lithia;
-    this.config = config;
+    this.config = {
+      port: lithia.options.server.port,
+      host: lithia.options.server.host,
+    };
     this.stats = {
       isRunning: false,
       requestCount: 0,
-      config: { ...config },
+      config: { ...this.config },
     };
   }
 

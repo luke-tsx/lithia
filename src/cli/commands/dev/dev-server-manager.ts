@@ -1,44 +1,28 @@
-import { createLithia, loadOptions } from 'lithia/core';
+import {
+  C12ConfigProvider,
+  ConfigUpdateContext,
+  DiffEntry,
+  createLithia,
+} from 'lithia/core';
 import { LithiaStudio } from 'lithia/studio';
-import type { Lithia } from 'lithia/types';
+import type { Lithia, LithiaOptions } from 'lithia/types';
 import { BuildMonitor } from './build-monitor';
 import { loadEnvironmentFiles } from './env-loader';
 import { DevServerEventEmitter, DevServerEventType } from './events';
 import { FileWatcher } from './file-watcher';
-import { ServerConfig, ServerManager } from './server-manager';
-
-/**
- * Development server configuration options.
- */
-export interface DevServerOptions {
-  /** Server configuration */
-  server: ServerConfig;
-  /** Whether to enable auto-reload */
-  autoReload?: boolean;
-  /** Whether to enable debug logging */
-  debug?: boolean;
-  /** Maximum reload attempts */
-  maxReloadAttempts?: number;
-}
+import { ServerManager } from './server-manager';
 
 /**
  * Development server statistics.
  */
 export interface DevServerStats {
-  /** Server statistics */
-  server: any;
   /** Build statistics */
-  build: any;
-  /** File watcher statistics */
-  fileWatcher: any;
-  /** Overall uptime */
+  build: {
+    totalBuilds: number;
+    averageBuildTime: number;
+  };
+  /** Server uptime */
   uptime: number;
-  /** Total reloads performed */
-  totalReloads: number;
-  /** Successful reloads */
-  successfulReloads: number;
-  /** Failed reloads */
-  failedReloads: number;
 }
 
 /**
@@ -54,21 +38,33 @@ export class DevServerManager {
   private buildMonitor?: BuildMonitor;
   private serverManager?: ServerManager;
   private studio?: LithiaStudio;
-  private options: DevServerOptions;
+  private autoReload: boolean;
+  private debugMode: boolean;
+  private maxReloadAttempts: number;
+  private configProvider?: C12ConfigProvider;
   private isInitialized = false;
   private isRunning = false;
   private totalReloads = 0;
   private successfulReloads = 0;
   private failedReloads = 0;
   private startTime?: number;
+  private originalConfig: LithiaOptions;
+  private criticalChanges: string[] = [
+    'server.port',
+    'server.host',
+    'studio.enabled',
+  ];
 
-  constructor(options: DevServerOptions) {
-    this.options = {
-      autoReload: true,
-      debug: false,
-      maxReloadAttempts: 3,
-      ...options,
-    };
+  constructor(
+    options: {
+      autoReload?: boolean;
+      debug?: boolean;
+      maxReloadAttempts?: number;
+    } = {},
+  ) {
+    this.autoReload = options.autoReload ?? true;
+    this.debugMode = options.debug ?? false;
+    this.maxReloadAttempts = options.maxReloadAttempts ?? 3;
 
     this.eventEmitter = new DevServerEventEmitter();
     this.setupEventHandlers();
@@ -87,20 +83,14 @@ export class DevServerManager {
       this.lithia = await createLithia({
         _env: 'dev',
         _cli: { command: 'dev' },
-        debug: this.options.debug,
-        server: {
-          port: this.options.server.port,
-          host: this.options.server.host,
-        },
+        debug: this.debugMode,
       });
+
+      this.originalConfig = this.lithia.options;
 
       // Initialize components
       this.buildMonitor = new BuildMonitor(this.eventEmitter, this.lithia);
-      this.serverManager = new ServerManager(
-        this.eventEmitter,
-        this.lithia,
-        this.options.server,
-      );
+      this.serverManager = new ServerManager(this.eventEmitter, this.lithia);
 
       // Initialize Studio if enabled in config
       if (this.lithia.options.studio.enabled) {
@@ -111,11 +101,15 @@ export class DevServerManager {
       }
 
       // Setup file watcher if auto-reload is enabled
-      if (this.options.autoReload) {
+      if (this.autoReload) {
         this.fileWatcher = new FileWatcher(this.eventEmitter, {
           watchDir: process.cwd(),
         });
       }
+
+      // Setup config watching
+      this.setupConfigWatching();
+
       this.isInitialized = true;
 
       this.lithia.logger.info('Development server initialized');
@@ -244,18 +238,91 @@ export class DevServerManager {
   /**
    * Reload Lithia configuration from file.
    */
-  async reloadConfig(): Promise<void> {
+  /**
+   * Setup configuration watching with c12.
+   */
+  private async setupConfigWatching(): Promise<void> {
+    this.configProvider = new C12ConfigProvider();
+
+    this.configProvider.setConfigUpdateCallback(
+      async (context: ConfigUpdateContext) => {
+        await this.handleConfigUpdate(context);
+      },
+    );
+
+    // Load config with watch enabled
+    await this.configProvider.loadConfig({}, { watch: true });
+  }
+
+  /**
+   * Handle configuration updates with diff detection.
+   */
+  private async handleConfigUpdate(
+    context: ConfigUpdateContext,
+  ): Promise<void> {
     if (!this.isRunning) {
       return;
     }
 
+    const diff = context.getDiff();
+    const criticalChanges = this.detectCriticalChanges(diff);
+
     try {
-      const newOptions = await loadOptions();
-      this.lithia.options = newOptions;
+      this.lithia.options = context.newConfig;
       this.lithia.logger.success('Lithia configuration updated');
+
+      // Notify Studio of configuration update
+      this.notifyStudioConfigUpdate();
+
+      if (criticalChanges.length > 0) {
+        this.lithia.logger.warn(
+          `Critical configuration changes detected that require server restart: ${criticalChanges.map((change) => change.key).join(', ')}`,
+        );
+      }
     } catch (error) {
-      this.lithia.logger.error('Failed to reload Lithia configuration:', error);
+      this.lithia.logger.error('Failed to apply configuration changes:', error);
     }
+  }
+
+  private detectCriticalChanges(diff: DiffEntry[]) {
+    return diff.filter(
+      (entry) =>
+        this.criticalChanges.includes(entry.key) && entry.type === 'changed',
+    );
+  }
+
+  /**
+   * Notify Studio of configuration update.
+   */
+  private notifyStudioConfigUpdate(): void {
+    if (this.studio) {
+      const config = {
+        debug: this.lithia.options.debug,
+        server: {
+          host: this.lithia.options.server.host,
+          port: this.lithia.options.server.port,
+          request: this.lithia.options.server.request,
+        },
+        build: this.lithia.options.build,
+        studio: {
+          enabled: this.lithia.options.studio.enabled,
+        },
+        cors: this.lithia.options.cors,
+      };
+
+      // Send config update to all connected Studio clients
+      this.studio.getWebSocketManager().sendToAll('lithia-config', { config });
+    }
+  }
+
+  /**
+   * Reload Lithia configuration (legacy method - now handled by config watching).
+   */
+  async reloadConfig(): Promise<void> {
+    // This method is now handled by the config watching system
+    this.lithia.logger.info(
+      'Configuration watching is active - changes are applied automatically',
+    );
   }
 
   /**
@@ -305,38 +372,25 @@ export class DevServerManager {
   }
 
   /**
+   * Get debug mode.
+   */
+  get isDebugEnabled(): boolean {
+    return this.debugMode;
+  }
+
+  /**
    * Get development server statistics.
    */
   getStatistics(): DevServerStats {
+    const buildStats = this.buildMonitor?.getStatistics();
+
     return {
-      server: this.serverManager?.getStatistics(),
-      build: this.buildMonitor?.getStatistics(),
-      fileWatcher: this.fileWatcher?.getStats(),
+      build: {
+        totalBuilds: buildStats?.totalBuilds || 0,
+        averageBuildTime: buildStats?.averageBuildTime || 0,
+      },
       uptime: this.startTime ? Date.now() - this.startTime : 0,
-      totalReloads: this.totalReloads,
-      successfulReloads: this.successfulReloads,
-      failedReloads: this.failedReloads,
     };
-  }
-
-  /**
-   * Update server configuration.
-   *
-   * @param newOptions - New configuration options
-   */
-  updateOptions(newOptions: Partial<DevServerOptions>): void {
-    this.options = { ...this.options, ...newOptions };
-
-    if (this.serverManager && newOptions.server) {
-      this.serverManager.updateConfig(newOptions.server);
-    }
-  }
-
-  /**
-   * Get current configuration.
-   */
-  getOptions(): DevServerOptions {
-    return { ...this.options };
   }
 
   /**
@@ -394,26 +448,21 @@ export class DevServerManager {
   private setupEventHandlers(): void {
     // File change events
     this.eventEmitter.on(DevServerEventType.FILE_CHANGED, async () => {
-      if (this.options.autoReload) {
+      if (this.autoReload) {
         await this.softReload();
       }
     });
 
     this.eventEmitter.on(DevServerEventType.FILE_ADDED, async () => {
-      if (this.options.autoReload) {
+      if (this.autoReload) {
         await this.softReload();
       }
     });
 
     this.eventEmitter.on(DevServerEventType.FILE_DELETED, async () => {
-      if (this.options.autoReload) {
+      if (this.autoReload) {
         await this.softReload();
       }
-    });
-
-    // Config change events
-    this.eventEmitter.on(DevServerEventType.CONFIG_CHANGED, async () => {
-      await this.reloadConfig();
     });
 
     // Environment change events
@@ -470,7 +519,11 @@ export class DevServerManager {
   getDetailedInfo(): {
     isInitialized: boolean;
     isRunning: boolean;
-    options: DevServerOptions;
+    config: {
+      autoReload: boolean;
+      debug: boolean;
+      maxReloadAttempts: number;
+    };
     stats: DevServerStats;
     components: {
       fileWatcher: boolean;
@@ -481,7 +534,11 @@ export class DevServerManager {
     return {
       isInitialized: this.isInitialized,
       isRunning: this.isRunning,
-      options: this.getOptions(),
+      config: {
+        autoReload: this.autoReload,
+        debug: this.debugMode,
+        maxReloadAttempts: this.maxReloadAttempts,
+      },
       stats: this.getStatistics(),
       components: {
         fileWatcher: !!this.fileWatcher,

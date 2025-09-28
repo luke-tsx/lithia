@@ -71,6 +71,24 @@ export class LithiaStudio {
       this.webSocketManager.sendToClient(socket, 'update-manifest', { routes });
     });
 
+    // Config handlers
+    this.webSocketManager.on('get-lithia-config', (socket) => {
+      const config = {
+        debug: this.lithia.options.debug,
+        server: {
+          host: this.lithia.options.server.host,
+          port: this.lithia.options.server.port,
+          request: this.lithia.options.server.request,
+        },
+        build: this.lithia.options.build,
+        studio: {
+          enabled: this.lithia.options.studio.enabled,
+        },
+        cors: this.lithia.options.cors,
+      };
+      this.webSocketManager.sendToClient(socket, 'lithia-config', { config });
+    });
+
     // Stats handlers
     this.webSocketManager.on('request-immediate-stats', () => {
       if (this.onImmediateStatsRequest) {

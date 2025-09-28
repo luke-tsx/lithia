@@ -1,8 +1,8 @@
 import { defineLithiaConfig } from 'lithia';
-import type { LithiaConfig } from 'lithia/types';
+import type { LithiaConfig, LithiaRequest, LithiaResponse } from 'lithia/types';
 
 const config: LithiaConfig = {
-  debug: false,
+  debug: true,
   server: {
     host: '0.0.0.0',
     port: 3000,
@@ -30,6 +30,13 @@ const config: LithiaConfig = {
   },
   cors: {
     exposedHeaders: ['X-Powered-By'],
+  },
+  hooks: {
+    'request:after': [
+      (req: LithiaRequest, res: LithiaResponse) => {
+        console.log('Request after');
+      },
+    ],
   },
 };
 

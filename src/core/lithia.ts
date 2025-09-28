@@ -82,7 +82,7 @@ export async function createLithia(
   }
 
   // Log successful initialization
-  lithiaLogger.info(`Lithia instance created successfully`);
+  lithiaLogger.debug(`Lithia instance created successfully`);
   lithiaLogger.debug('Configuration loaded:', {
     port: options.server.port,
     host: options.server.host,

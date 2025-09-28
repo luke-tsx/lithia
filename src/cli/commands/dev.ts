@@ -1,50 +1,17 @@
 import { defineCommand } from 'citty';
-import { DevServerManager, DevServerOptions } from './dev/index';
+import { DevServerManager } from './dev/index';
 
 export default defineCommand({
   meta: {
     name: 'dev',
     description: 'Start the development server',
   },
-  args: {
-    port: {
-      type: 'string',
-      description: 'Port to run the server on',
-      default: '3000',
-    },
-    host: {
-      type: 'string',
-      description: 'Host to bind the server to',
-      default: '0.0.0.0',
-    },
-    debug: {
-      type: 'boolean',
-      description: 'Enable debug output',
-      default: false,
-    },
-    watch: {
-      type: 'boolean',
-      description: 'Enable file watching for auto-reload',
-      default: true,
-    },
-    studio: {
-      type: 'boolean',
-      description: 'Start Lithia Studio for API testing',
-      default: true,
-    },
-  },
-  async run({ args }) {
-    const devServerOptions: DevServerOptions = {
-      server: {
-        port: parseInt(args.port as string, 10),
-        host: args.host as string,
-      },
-      autoReload: args.watch as boolean,
-      debug: args.debug as boolean,
+  async run() {
+    const devServer = new DevServerManager({
+      autoReload: true,
+      debug: false,
       maxReloadAttempts: 3,
-    };
-
-    const devServer = new DevServerManager(devServerOptions);
+    });
 
     // Setup process event handlers
     const handleShutdown = async (signal: string) => {
@@ -78,7 +45,7 @@ export default defineCommand({
       await devServer.start();
 
       // Keep the process running
-      if (devServerOptions.debug) {
+      if (devServer.isDebugEnabled) {
         const lithia = devServer.lithiaInstance;
         lithia?.logger.info(
           'Development server is running. Press Ctrl+C to stop.',
