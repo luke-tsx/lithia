@@ -161,7 +161,7 @@ export default defineCommand({
       );
 
       if (options.verbose) {
-        lithia.logger.info('Use --verbose flag for detailed logs');
+        lithia.logger.info('Use --debug flag for detailed logs');
         lithia.logger.info('Press Ctrl+C to stop the server');
       }
 

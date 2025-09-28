@@ -67,20 +67,17 @@ export default defineCommand({
         build: {
           mode: options.mode,
         },
-        outputDir: options.output,
+        // outputDir is fixed to '.lithia' - ignoring user override
       });
 
       if (options.verbose) {
         lithia.logger.info(`Building with mode: ${options.mode}`);
-        lithia.logger.info(`Output directory: ${options.output}`);
+        lithia.logger.info(`Output directory: .lithia (fixed)`);
       }
 
       // Clean output directory if requested
       if (options.clean) {
-        const outputPath = path.join(
-          process.cwd(),
-          options.output || '.lithia',
-        );
+        const outputPath = path.join(process.cwd(), '.lithia');
         try {
           await rm(outputPath, { recursive: true, force: true });
           if (options.verbose) {
@@ -88,16 +85,11 @@ export default defineCommand({
           }
         } catch (error) {
           // Directory might not exist, which is fine
-          if (options.verbose) {
-            lithia.logger.debug(
-              `Output directory cleanup skipped: ${error instanceof Error ? error.message : String(error)}`,
-            );
-          }
         }
       }
 
       // Prepare and build
-      await prepare(lithia);
+      await prepare();
       const result = await buildLithia(lithia);
 
       const buildTime = Date.now() - startTime;
@@ -108,7 +100,7 @@ export default defineCommand({
 
         if (options.verbose) {
           lithia.logger.info(`Build mode: ${options.mode}`);
-          lithia.logger.info(`Output directory: ${options.output}`);
+          lithia.logger.info(`Output directory: .lithia (fixed)`);
         }
       } else {
         lithia.logger.error('Build failed');

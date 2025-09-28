@@ -103,7 +103,6 @@ export class BuildMonitor {
    */
   private async performBuild(reason: string): Promise<boolean> {
     if (this.isBuilding) {
-      this.lithia.logger.debug('Build already in progress, skipping...');
       return false;
     }
 
@@ -119,17 +118,14 @@ export class BuildMonitor {
       this.lithia.logger.wait('Building project...');
 
       // Prepare and build
-      await prepare(this.lithia);
+      await prepare();
       const result = await buildLithia(this.lithia);
 
       const buildTime = Date.now() - startTime;
       this.updateStats(buildTime, result.success);
 
       if (result.success) {
-        // Limpa cache de módulos no modo no-bundle após build bem-sucedido
-        if (this.lithia.options.build.mode === 'no-bundle') {
-          this.cacheManager.clearSrcModulesCache();
-        }
+        this.cacheManager.clearOutputModulesCache();
 
         await this.eventEmitter.emit(DevServerEventType.BUILD_SUCCESS, {
           buildTime,

@@ -57,10 +57,7 @@ export class DefaultRouteProcessor implements RouteProcessor {
    */
   processFile(file: FileInfo, lithia: Lithia): Route {
     let path = this.convention.transformPath(file.path);
-    path = this.pathTransformer.normalizePath(
-      path,
-      lithia.options.router.globalPrefix,
-    );
+    path = this.pathTransformer.normalizePath(path, '');
 
     const { method, env, updatedPath } =
       this.convention.extractMethodAndEnv(path);
@@ -77,6 +74,7 @@ export class DefaultRouteProcessor implements RouteProcessor {
       path,
       dynamic,
       filePath,
+      sourceFilePath: file.fullPath,
       regex,
     };
   }

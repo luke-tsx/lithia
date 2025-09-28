@@ -41,7 +41,7 @@ export enum DevServerEventType {
 
   // Configuration
   CONFIG_CHANGED = 'config:changed',
-  CONFIG_LOADED = 'config:loaded',
+  ENV_CHANGED = 'env:changed',
 
   // Reload process
   RELOAD_STARTING = 'reload:starting',

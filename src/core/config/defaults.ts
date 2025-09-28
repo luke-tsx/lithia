@@ -27,66 +27,13 @@ const DEFAULT_SERVER_CONFIG = {
 } as const;
 
 /**
- * Default router configuration values.
- *
- * @internal
- */
-const DEFAULT_ROUTER_CONFIG = {
-  globalPrefix: '',
-} as const;
-
-/**
- * Default logger configuration values.
- *
- * @internal
- */
-const DEFAULT_LOGGER_CONFIG = {
-  colors: true,
-  timestamp: true,
-  level: 'info' as const,
-} as const;
-
-/**
  * Default build configuration values.
  *
  * @internal
  */
 const DEFAULT_BUILD_CONFIG = {
   mode: 'no-bundle' as const,
-  externalPackages: [
-    'drizzle-orm',
-    'drizzle-kit',
-    'lodash',
-    'lodash-es',
-    'moment',
-    'date-fns',
-    'axios',
-    'node-fetch',
-    'ws',
-    'socket.io',
-    'prisma',
-    '@prisma/client',
-    'mongoose',
-    'sequelize',
-    'typeorm',
-    'knex',
-    'pg',
-    'mysql2',
-    'sqlite3',
-    'better-sqlite3',
-    'zod',
-  ] as string[],
-} as const;
-
-/**
- * Default directory configuration values.
- *
- * @internal
- */
-const DEFAULT_DIR_CONFIG = {
-  srcDir: 'src',
-  routesDir: 'routes',
-  outputDir: '.lithia',
+  externalPackages: [] as string[],
 } as const;
 
 /**
@@ -99,6 +46,21 @@ const DEFAULT_STUDIO_CONFIG = {
 } as const;
 
 /**
+ * Default CORS configuration values.
+ *
+ * @internal
+ */
+const DEFAULT_CORS_CONFIG = {
+  origin: ['*'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: [],
+  credentials: false,
+  maxAge: 86400, // 24 hours
+  optionsSuccessStatus: 204,
+};
+
+/**
  * Default Lithia configuration object.
  *
  * This object contains all the default values used by the framework when no
@@ -107,11 +69,12 @@ const DEFAULT_STUDIO_CONFIG = {
  *
  * The configuration is organized into logical sections:
  * - General settings (debug mode)
- * - Directory paths for source, routes, and output
  * - Server configuration (host, port, request parsing)
- * - Router settings (global prefix)
+ * - CORS configuration (origin, methods, headers, credentials)
  * - Logger configuration (colors, timestamps, log level)
- * - Global middleware array
+ * - Build configuration (mode, external packages)
+ * - Hooks configuration
+ * - Studio configuration
  *
  * @constant
  * @example
@@ -128,26 +91,17 @@ export const LithiaDefaults: LithiaConfig = {
   // General configuration
   debug: isDebug,
 
-  // Directory configuration
-  ...DEFAULT_DIR_CONFIG,
-
-  // Router configuration
-  router: DEFAULT_ROUTER_CONFIG,
-
   // Server configuration
   server: DEFAULT_SERVER_CONFIG,
 
-  // Logger configuration
-  logger: DEFAULT_LOGGER_CONFIG,
+  // CORS configuration
+  cors: DEFAULT_CORS_CONFIG,
 
   // Build configuration
   build: DEFAULT_BUILD_CONFIG,
 
   // Hooks configuration (empty by default)
   hooks: {},
-
-  // Global middleware configuration
-  globalMiddlewares: [],
 
   // Studio configuration
   studio: DEFAULT_STUDIO_CONFIG,

@@ -1,15 +1,29 @@
 import { pathToFileURL } from 'node:url';
+import importFresh from 'import-fresh';
 import type { Route, RouteModule } from 'lithia/types';
 
 /**
  * Handles dynamic import of route modules.
  *
- * Provides functionality to import route modules using standard dynamic imports.
- * Cache management is now handled by the NodeCacheManager after builds.
+ * Uses importFresh in development for guaranteed fresh imports,
+ * normal import in production for performance.
  */
 export class RouteImporter {
+  private isDevelopment: boolean;
+
+  constructor() {
+    this.isDevelopment =
+      process.env.NODE_ENV === 'development' ||
+      process.env.LITHIA_ENV === 'dev' ||
+      !process.env.NODE_ENV;
+  }
+
   /**
-   * Dynamically imports route module.
+   * Dynamically imports route module with cache invalidation.
+   *
+   * In development mode, uses importFresh for guaranteed fresh imports.
+   * In production, uses normal import for performance.
+   *
    * @param {Route} route - Route configuration
    * @returns {Promise<RouteModule>} Imported module
    *
@@ -21,9 +35,14 @@ export class RouteImporter {
    */
   async importRoute(route: Route): Promise<RouteModule> {
     try {
-      return await import(pathToFileURL(route.filePath).href).then(
-        (m) => m.default,
-      );
+      if (this.isDevelopment) {
+        // Use importFresh for guaranteed fresh imports in development
+        return importFresh(route.filePath);
+      }
+
+      // Production: use normal import for performance
+      const importUrl = pathToFileURL(route.filePath).href;
+      return await import(importUrl).then((m) => m.default);
     } catch (error) {
       throw new Error(
         `Failed to import route module ${route.filePath}: ${error.message}`,

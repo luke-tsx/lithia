@@ -6,7 +6,7 @@ import {
   LithiaHooks,
 } from 'lithia/types';
 import { loadOptions } from './config/loader';
-import { ConsolaLogger, Logger } from './log/logger';
+import { ConsoleLogger, Logger } from './log/logger';
 
 /**
  * Registers hooks from configuration into the Lithia instance.
@@ -60,7 +60,11 @@ export async function createLithia(
   const options = await loadOptions(config, opts);
 
   // Initialize logger
-  const lithiaLogger = logger || new ConsolaLogger(options.logger);
+  const lithiaLogger =
+    logger ||
+    new ConsoleLogger({
+      debug: options.debug,
+    });
 
   // Create Lithia instance with hooks
   const lithia: Lithia = {

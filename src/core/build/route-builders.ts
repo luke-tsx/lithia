@@ -51,11 +51,8 @@ export class NoBundleRouteBuilder implements RouteBuilder {
    */
   private async buildAllFiles(context: BuildContext): Promise<void> {
     try {
-      const srcDir = path.join(process.cwd(), context.lithia.options.srcDir);
-      const outputDir = path.join(
-        process.cwd(),
-        context.lithia.options.outputDir,
-      );
+      const srcDir = path.join(process.cwd(), 'src');
+      const outputDir = path.join(process.cwd(), '.lithia');
 
       await esbuild.build({
         entryPoints: [`${srcDir}/**/*.ts`],

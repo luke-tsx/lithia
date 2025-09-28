@@ -103,26 +103,5 @@ export class C12ConfigProvider implements ConfigProvider {
         'server.port',
       );
     }
-
-    if (config.srcDir && typeof config.srcDir !== 'string') {
-      throw new ConfigValidationError('srcDir must be a string', 'srcDir');
-    }
-
-    if (config.routesDir && typeof config.routesDir !== 'string') {
-      throw new ConfigValidationError(
-        'routesDir must be a string',
-        'routesDir',
-      );
-    }
-
-    if (
-      config.logger.level &&
-      !['debug', 'info', 'warn', 'error'].includes(config.logger.level)
-    ) {
-      throw new ConfigValidationError(
-        'Logger level must be one of: debug, info, warn, error',
-        'logger.level',
-      );
-    }
   }
 }

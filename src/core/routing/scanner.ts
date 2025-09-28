@@ -79,7 +79,7 @@ export class DefaultFileScanner implements FileScanner {
    * @returns Promise that resolves to an array of discovered Route objects
    */
   async scanRoutes(lithia: Lithia): Promise<Route[]> {
-    const files = await this.fileSystemScanner.scanDirectory(lithia);
+    const files = await this.fileSystemScanner.scanDirectory();
     return files.map((file) => this.routeProcessor.processFile(file, lithia));
   }
 }

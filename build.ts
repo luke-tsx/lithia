@@ -1,7 +1,8 @@
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { cpSync } from 'node:fs';
+import { cp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { build } from 'tsup';
-import { spawn } from 'node:child_process';
 
 /**
  * Build pipeline steps for better organization and logging.
@@ -11,6 +12,7 @@ enum BuildStep {
   BUILD_LITHIA_CORE = '⚙️ Build Lithia Core',
   PROCESS_DIST_FILES = '🔄 Process Distribution Files',
   BUILD_STUDIO_UI = '🎨 Build Studio UI',
+  COPY_STUDIO_DIST = '📁 Copy Studio Dist Files',
   FINALIZE = '✨ Finalize Build',
 }
 
@@ -95,13 +97,13 @@ async function installStudioDependencies(): Promise<void> {
  */
 async function buildStudio(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    const viteProcess = spawn('pnpm', ['run', 'build'], {
+    const buildProcess = spawn('pnpm', ['run', 'build'], {
       cwd: join(process.cwd(), 'studio'),
       stdio: 'inherit',
       shell: true,
     });
 
-    viteProcess.on('close', (code) => {
+    buildProcess.on('close', (code) => {
       if (code === 0) {
         resolve();
       } else {
@@ -109,10 +111,28 @@ async function buildStudio(): Promise<void> {
       }
     });
 
-    viteProcess.on('error', (error) => {
+    buildProcess.on('error', (error) => {
       reject(error);
     });
   });
+}
+
+/**
+ * Copies the Studio dist files to the dist directory.
+ */
+async function copyStudioDist() {
+  await rm(join(process.cwd(), 'dist', 'studio', 'app'), {
+    recursive: true,
+    force: true,
+  });
+
+  await cp(
+    join(process.cwd(), 'studio', 'out'),
+    join(process.cwd(), 'dist', 'studio', 'app'),
+    {
+      recursive: true,
+    },
+  );
 }
 
 /**
@@ -245,6 +265,9 @@ async function main() {
 
     // Step 4: Build Studio UI (after Lithia is ready)
     await executeStep(BuildStep.BUILD_STUDIO_UI, buildStudio);
+
+    // Step 5: Copy Studio dist files
+    await executeStep(BuildStep.COPY_STUDIO_DIST, copyStudioDist);
 
     // Step 5: Finalize build
     await executeStep(BuildStep.FINALIZE, async () => {

@@ -17,9 +17,9 @@ export default defineCommand({
       description: 'Host to bind the server to',
       default: '0.0.0.0',
     },
-    verbose: {
+    debug: {
       type: 'boolean',
-      description: 'Enable verbose output',
+      description: 'Enable debug output',
       default: false,
     },
     watch: {
@@ -40,20 +40,8 @@ export default defineCommand({
         host: args.host as string,
       },
       autoReload: args.watch as boolean,
-      verbose: args.verbose as boolean,
-      studio: args.studio as boolean,
+      debug: args.debug as boolean,
       maxReloadAttempts: 3,
-      fileWatcher: {
-        debounceDelay: 300,
-        recursive: true,
-        ignored: [
-          '**/node_modules/**',
-          '**/.git/**',
-          '**/dist/**',
-          '**/.lithia/**',
-        ],
-        ignoreInitial: true,
-      },
     };
 
     const devServer = new DevServerManager(devServerOptions);
@@ -90,12 +78,12 @@ export default defineCommand({
       await devServer.start();
 
       // Keep the process running
-      if (devServerOptions.verbose) {
+      if (devServerOptions.debug) {
         const lithia = devServer.lithiaInstance;
         lithia?.logger.info(
           'Development server is running. Press Ctrl+C to stop.',
         );
-        lithia?.logger.info('Use --verbose flag for detailed logs');
+        lithia?.logger.info('Use --debug flag for detailed logs');
       }
     } catch (error) {
       console.error('Failed to start development server:', error);

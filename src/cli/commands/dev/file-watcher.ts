@@ -1,4 +1,5 @@
 import chokidar, { ChokidarOptions, FSWatcher } from 'chokidar';
+import path from 'path';
 import { DevServerEventEmitter, DevServerEventType } from './events';
 
 /**
@@ -7,14 +8,6 @@ import { DevServerEventEmitter, DevServerEventType } from './events';
 export interface FileWatcherOptions {
   /** Directory to watch */
   watchDir: string;
-  /** Debounce delay in milliseconds */
-  debounceDelay?: number;
-  /** Whether to watch recursively */
-  recursive?: boolean;
-  /** File patterns to ignore */
-  ignored?: string[];
-  /** Whether to ignore initial events */
-  ignoreInitial?: boolean;
 }
 
 /**
@@ -26,7 +19,7 @@ export interface FileWatcherOptions {
 export class FileWatcher {
   private watcher?: FSWatcher;
   private eventEmitter: DevServerEventEmitter;
-  private options: FileWatcherOptions;
+  private watchDir: string;
   private debounceTimer?: NodeJS.Timeout;
   private isWatching = false;
 
@@ -35,18 +28,7 @@ export class FileWatcher {
     options: FileWatcherOptions,
   ) {
     this.eventEmitter = eventEmitter;
-    this.options = {
-      debounceDelay: 300,
-      recursive: true,
-      ignored: [
-        '**/node_modules/**',
-        '**/.git/**',
-        '**/dist/**',
-        '**/.lithia/**',
-      ],
-      ignoreInitial: true,
-      ...options,
-    };
+    this.watchDir = options.watchDir;
   }
 
   /**
@@ -59,28 +41,33 @@ export class FileWatcher {
 
     try {
       const watcherOptions: ChokidarOptions = {
-        ignoreInitial: this.options.ignoreInitial,
+        ignoreInitial: true,
         atomic: 500,
-        ignored: this.options.ignored,
+        ignored: [
+          (filePath) => filePath.includes('node_modules'),
+          (filePath) => filePath.includes('.lithia'),
+          (filePath) => filePath.includes('.git'),
+        ],
         awaitWriteFinish: {
           stabilityThreshold: 300,
           pollInterval: 100,
         },
       };
 
-      this.watcher = chokidar.watch(this.options.watchDir, watcherOptions);
+      // Watch the root directory (which includes src and config files)
+      this.watcher = chokidar.watch(this.watchDir, watcherOptions);
 
       this.setupEventHandlers();
       this.isWatching = true;
 
       await this.eventEmitter.emit(DevServerEventType.WATCHER_READY, {
-        watchDir: this.options.watchDir,
+        watchDir: this.watchDir,
         options: watcherOptions,
       });
     } catch (error) {
       await this.eventEmitter.emit(DevServerEventType.WATCHER_ERROR, {
         error,
-        watchDir: this.options.watchDir,
+        watchDir: this.watchDir,
       });
       throw error;
     }
@@ -94,47 +81,47 @@ export class FileWatcher {
       return;
     }
 
-    if (this.debounceTimer) {
-      clearTimeout(this.debounceTimer);
-      this.debounceTimer = undefined;
-    }
+    try {
+      await this.watcher.close();
+      this.watcher = undefined;
+      this.isWatching = false;
 
-    await this.watcher.close();
-    this.watcher = undefined;
-    this.isWatching = false;
+      if (this.debounceTimer) {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = undefined;
+      }
+
+      await this.eventEmitter.emit(DevServerEventType.WATCHER_READY, {
+        watchDir: this.watchDir,
+      });
+    } catch (error) {
+      await this.eventEmitter.emit(DevServerEventType.WATCHER_ERROR, {
+        error,
+        watchDir: this.watchDir,
+      });
+      throw error;
+    }
   }
 
   /**
-   * Check if the watcher is currently active.
+   * Check if the watcher is currently watching.
    */
   get watching(): boolean {
     return this.isWatching;
   }
 
   /**
-   * Get the current watch directory.
+   * Get current statistics.
    */
-  get watchDirectory(): string {
-    return this.options.watchDir;
+  getStats(): { watching: boolean; watchDir: string } {
+    return {
+      watching: this.isWatching,
+      watchDir: this.watchDir,
+    };
   }
 
   /**
-   * Update the watch directory.
-   *
-   * @param newWatchDir - New directory to watch
-   */
-  async updateWatchDirectory(newWatchDir: string): Promise<void> {
-    if (newWatchDir === this.options.watchDir) {
-      return;
-    }
-
-    await this.stop();
-    this.options.watchDir = newWatchDir;
-    await this.start();
-  }
-
-  /**
-   * Setup event handlers for the file watcher.
+   * Setup event handlers for file changes.
    *
    * @private
    */
@@ -147,15 +134,35 @@ export class FileWatcher {
       (eventType: string, filePath: string) => {
         this.eventEmitter.emit(eventType, { filePath, timestamp: Date.now() });
       },
-      this.options.debounceDelay!,
+      500, // Fixed debounce delay
     );
 
     this.watcher
       .on('add', (filePath) => {
-        debouncedEmit(DevServerEventType.FILE_ADDED, filePath);
+        return debouncedEmit(DevServerEventType.FILE_ADDED, filePath);
       })
       .on('change', (filePath) => {
-        debouncedEmit(DevServerEventType.FILE_CHANGED, filePath);
+        // Check if it's the config file
+        if (filePath.endsWith('lithia.config.ts')) {
+          return this.eventEmitter.emit(DevServerEventType.CONFIG_CHANGED, {
+            filePath,
+            timestamp: Date.now(),
+          });
+        }
+
+        if (filePath.endsWith('.env') || filePath.endsWith('.env.local')) {
+          return this.eventEmitter.emit(DevServerEventType.ENV_CHANGED, {
+            filePath,
+            timestamp: Date.now(),
+          });
+        }
+
+        if (
+          filePath.startsWith(path.resolve(process.cwd(), 'src')) &&
+          filePath.endsWith('.ts')
+        ) {
+          return debouncedEmit(DevServerEventType.FILE_CHANGED, filePath);
+        }
       })
       .on('unlink', (filePath) => {
         debouncedEmit(DevServerEventType.FILE_DELETED, filePath);
@@ -163,13 +170,13 @@ export class FileWatcher {
       .on('error', async (error) => {
         await this.eventEmitter.emit(DevServerEventType.WATCHER_ERROR, {
           error,
-          watchDir: this.options.watchDir,
+          watchDir: this.watchDir,
         });
       });
   }
 
   /**
-   * Create a debounced function.
+   * Debounce function to prevent excessive event emissions.
    *
    * @private
    * @param func - Function to debounce
@@ -189,22 +196,5 @@ export class FileWatcher {
         func(...args);
       }, delay);
     }) as T;
-  }
-
-  /**
-   * Get statistics about the file watcher.
-   */
-  getStats(): {
-    isWatching: boolean;
-    watchDir: string;
-    debounceDelay: number;
-    ignored: string[];
-  } {
-    return {
-      isWatching: this.isWatching,
-      watchDir: this.options.watchDir,
-      debounceDelay: this.options.debounceDelay!,
-      ignored: this.options.ignored!,
-    };
   }
 }

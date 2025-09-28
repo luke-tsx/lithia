@@ -69,11 +69,9 @@ export class RequestProcessor {
     res: _LithiaResponse,
   ): Promise<void> {
     res.addHeader('X-Powered-By', 'Lithia');
-    await this.middlewareManager.executeGlobalMiddlewares(
-      this.lithia.options.globalMiddlewares,
-      req,
-      res,
-    );
+
+    // Setup CORS from config
+    await this.setupCors(req, res);
   }
 
   /**
@@ -200,5 +198,90 @@ export class RequestProcessor {
 
     await module.default!(req, res);
     if (!res._ended) res.end();
+  }
+
+  /**
+   * Sets up CORS headers based on configuration.
+   *
+   * @param req - Request object
+   * @param res - Response object
+   */
+  private async setupCors(
+    req: _LithiaRequest,
+    res: _LithiaResponse,
+  ): Promise<void> {
+    const corsConfig = this.lithia.options.cors;
+    if (!corsConfig) return;
+
+    // Prepare origins - add Studio origin if enabled
+    let origins = corsConfig.origin || [];
+    if (
+      this.lithia.options.studio.enabled &&
+      this.lithia.options._env === 'dev'
+    ) {
+      origins = [...origins, 'http://localhost:8473'];
+    }
+
+    // Set origin header
+    const origin = req.headers.origin;
+    if (origin && this.isOriginAllowed(origin, origins)) {
+      res.addHeader('Access-Control-Allow-Origin', origin);
+    }
+
+    // Set credentials header
+    if (corsConfig.credentials) {
+      res.addHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      if (corsConfig.methods) {
+        res.addHeader(
+          'Access-Control-Allow-Methods',
+          corsConfig.methods.join(', '),
+        );
+      }
+
+      if (corsConfig.allowedHeaders) {
+        res.addHeader(
+          'Access-Control-Allow-Headers',
+          corsConfig.allowedHeaders.join(', '),
+        );
+      }
+
+      if (corsConfig.exposedHeaders && corsConfig.exposedHeaders.length > 0) {
+        res.addHeader(
+          'Access-Control-Expose-Headers',
+          corsConfig.exposedHeaders.join(', '),
+        );
+      }
+
+      if (corsConfig.maxAge && corsConfig.maxAge > 0) {
+        res.addHeader('Access-Control-Max-Age', corsConfig.maxAge.toString());
+      }
+
+      res.status(corsConfig.optionsSuccessStatus || 204);
+      res.end();
+      return;
+    }
+
+    // Set exposed headers for non-preflight requests
+    if (corsConfig.exposedHeaders && corsConfig.exposedHeaders.length > 0) {
+      res.addHeader(
+        'Access-Control-Expose-Headers',
+        corsConfig.exposedHeaders.join(', '),
+      );
+    }
+  }
+
+  /**
+   * Checks if origin is allowed based on configuration.
+   *
+   * @param origin - Request origin
+   * @param allowedOrigins - Allowed origins array
+   * @returns True if origin is allowed
+   */
+  private isOriginAllowed(origin: string, allowedOrigins: string[]): boolean {
+    return allowedOrigins.includes('*') || allowedOrigins.includes(origin);
   }
 }

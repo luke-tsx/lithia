@@ -1,4 +1,4 @@
-import { FileInfo, Lithia } from 'lithia/types';
+import { FileInfo } from 'lithia/types';
 import { readdir } from 'node:fs/promises';
 import nodePath from 'node:path';
 
@@ -14,10 +14,9 @@ export interface FileSystemScanner {
   /**
    * Scans the routes directory for TypeScript files.
    *
-   * @param lithia - The Lithia instance containing directory configuration
    * @returns Promise that resolves to an array of discovered file information
    */
-  scanDirectory(lithia: Lithia): Promise<FileInfo[]>;
+  scanDirectory(): Promise<FileInfo[]>;
 }
 
 /**
@@ -31,21 +30,16 @@ export interface FileSystemScanner {
  */
 export class DefaultFileSystemScanner implements FileSystemScanner {
   /**
-   * Scans the configured routes directory for TypeScript files.
+   * Scans the routes directory for TypeScript files.
    *
-   * Uses the Lithia configuration to determine the source directory and routes
-   * directory, then recursively scans for .ts files while filtering out test files.
+   * Scans the fixed 'src/routes' directory recursively for .ts files while
+   * filtering out test files.
    *
-   * @param lithia - The Lithia instance containing directory configuration
    * @returns Promise that resolves to an array of FileInfo objects
    */
-  async scanDirectory(lithia: Lithia): Promise<FileInfo[]> {
+  async scanDirectory(): Promise<FileInfo[]> {
     const dir = process.cwd();
-    const name = nodePath.resolve(
-      dir,
-      lithia.options.srcDir,
-      lithia.options.routesDir,
-    );
+    const name = nodePath.resolve(dir, 'src', 'routes');
     return this.scanDir({
       dir,
       name,

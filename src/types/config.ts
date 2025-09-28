@@ -5,7 +5,6 @@ import {
   WatchConfigOptions,
 } from 'c12';
 import type { DeepPartial } from './_utils';
-import { LithiaMiddleware } from './handler';
 import { LithiaHooks } from './hooks';
 
 export interface LithiaOptions {
@@ -19,16 +18,6 @@ export interface LithiaOptions {
 
   // General
   debug: boolean;
-
-  // Dirs
-  srcDir: string;
-  routesDir: string;
-  outputDir: string;
-
-  // Router
-  router: {
-    globalPrefix: string;
-  };
 
   // Server
   server: {
@@ -51,11 +40,15 @@ export interface LithiaOptions {
     };
   };
 
-  // Logger
-  logger: {
-    colors: boolean;
-    timestamp: boolean;
-    level: 'debug' | 'info' | 'warn' | 'error';
+  // CORS
+  cors: {
+    origin?: string[];
+    methods?: string[];
+    allowedHeaders?: string[];
+    exposedHeaders?: string[];
+    credentials?: boolean;
+    maxAge?: number;
+    optionsSuccessStatus?: number;
   };
 
   // Build
@@ -65,16 +58,14 @@ export interface LithiaOptions {
   };
 
   // Hooks configuration
-  hooks: Partial<{
+  hooks: {
     [K in keyof LithiaHooks]: LithiaHooks[K][];
-  }>;
+  };
 
   // Studio configuration
   studio: {
     enabled: boolean;
   };
-
-  globalMiddlewares: LithiaMiddleware[];
 }
 
 export interface LithiaConfig

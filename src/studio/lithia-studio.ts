@@ -1,32 +1,83 @@
 import { Server, createServer } from 'http';
 import { RouterManager } from 'lithia/core';
-import type { Lithia, Route } from 'lithia/types';
-import path from 'node:path';
-import serveStatic from 'serve-static';
-import { Socket, Server as SocketIOServer } from 'socket.io';
+import type { Lithia } from 'lithia/types';
+import { LogInterceptor } from './log-interceptor';
+import { LoggerIntegration } from './logger-integration';
+import { ServerMonitor } from './server-monitor';
+import { StaticServer } from './static-server';
+import { WebSocketManager } from './websocket-manager';
 
 /**
  * Lithia Studio WebSocket and static file server.
+ *
+ * This class orchestrates all Studio components including WebSocket management,
+ * static file serving, logger integration, and console log interception.
  */
 export class LithiaStudio {
-  private io: SocketIOServer;
   private httpServer: Server;
   private lithia: Lithia;
   private isRunning = false;
+  private webSocketManager: WebSocketManager;
+  private staticServer: StaticServer;
+  private loggerIntegration: LoggerIntegration;
+  private logInterceptor: LogInterceptor;
+  private serverMonitor: ServerMonitor;
+  private routerManager: RouterManager;
+  private onImmediateStatsRequest?: () => void;
 
-  constructor(lithia: Lithia) {
+  constructor(lithia: Lithia, onImmediateStatsRequest?: () => void) {
     this.lithia = lithia;
+    this.onImmediateStatsRequest = onImmediateStatsRequest;
 
     // Create HTTP server for both static files and WebSocket
     this.httpServer = createServer();
 
-    // Initialize Socket.IO with proper CORS
-    this.io = new SocketIOServer(this.httpServer, {
-      cors: {
-        origin: `http://localhost:8473`,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        credentials: true,
-      },
+    // Initialize components
+    this.routerManager = new RouterManager(this.lithia);
+    this.webSocketManager = new WebSocketManager(this.httpServer, this.lithia);
+    this.staticServer = new StaticServer(this.httpServer);
+    this.loggerIntegration = new LoggerIntegration(this.lithia, (entry) => {
+      this.webSocketManager.emitLogEntry(entry);
+    });
+    this.logInterceptor = new LogInterceptor((entry) => {
+      this.webSocketManager.emitLogEntry(entry);
+    });
+    this.serverMonitor = new ServerMonitor(this.lithia);
+
+    // Setup logger integration
+    this.loggerIntegration.setup();
+
+    // Setup server monitoring
+    this.serverMonitor.on('stats', (stats) => {
+      this.webSocketManager.sendToAll('server-stats', stats);
+    });
+
+    // Setup WebSocket event handlers
+    this.setupWebSocketHandlers();
+  }
+
+  /**
+   * Setup WebSocket event handlers.
+   */
+  private setupWebSocketHandlers(): void {
+    // Routes handlers
+    this.webSocketManager.on('get-routes', (socket) => {
+      const routes = this.routerManager.getRoutesFromManifest();
+      this.webSocketManager.sendToClient(socket, 'routes', routes);
+    });
+
+    this.webSocketManager.on('get-manifest', (socket) => {
+      const routes = this.routerManager.getRoutesFromManifest();
+      this.webSocketManager.sendToClient(socket, 'update-manifest', { routes });
+    });
+
+    // Stats handlers
+    this.webSocketManager.on('request-immediate-stats', () => {
+      if (this.onImmediateStatsRequest) {
+        this.onImmediateStatsRequest();
+      }
+      // Force server monitor to emit current stats immediately
+      this.serverMonitor.emitCurrentStats();
     });
   }
 
@@ -36,14 +87,28 @@ export class LithiaStudio {
   async start(): Promise<void> {
     if (this.isRunning) return;
 
-    this.setupEventHandlers();
-    this.setupStaticFileServing();
+    const studioPort = 8473; // Fixed port
 
-    this.httpServer.listen(8473, () => {
-      this.lithia.logger.ready(`Studio listening on http://localhost:8473`);
+    // Start log interception
+    this.logInterceptor.start();
+
+    // Start server monitoring
+    this.serverMonitor.start();
+
+    await new Promise<void>((resolve, reject) => {
+      this.httpServer.listen(studioPort, () => {
+        this.isRunning = true;
+        this.lithia.logger.ready(
+          `Studio listening on http://localhost:${studioPort}`,
+        );
+        resolve();
+      });
+
+      this.httpServer.on('error', (error) => {
+        this.lithia.logger.error('Studio HTTP server error:', error);
+        reject(error);
+      });
     });
-
-    this.isRunning = true;
   }
 
   /**
@@ -52,113 +117,77 @@ export class LithiaStudio {
   async stop(): Promise<void> {
     if (!this.isRunning) return;
 
-    this.httpServer.close();
-    this.lithia.logger.info('Lithia Studio server stopped');
-    this.isRunning = false;
+    // Stop log interception
+    this.logInterceptor.stop();
+
+    // Stop server monitoring
+    this.serverMonitor.stop();
+
+    await new Promise<void>((resolve, reject) => {
+      this.httpServer.close((error) => {
+        if (error) {
+          this.lithia.logger.error('Error stopping Studio HTTP server:', error);
+          return reject(error);
+        }
+        this.isRunning = false;
+        this.lithia.logger.info('Studio HTTP server stopped');
+        resolve();
+      });
+    });
   }
 
   /**
-   * Emit Lithia configuration to all connected clients.
+   * Get the WebSocket manager instance.
    */
-  async emitLithiaConfig(): Promise<void> {
-    this.io.emit('lithia-config', { config: this.lithia.options });
+  getWebSocketManager(): WebSocketManager {
+    return this.webSocketManager;
   }
 
   /**
-   * Emit manifest update to all connected clients.
-   * This is the primary event that sends the current route manifest.
+   * Get the number of connected clients.
    */
-  emitManifestUpdate(): void {
-    try {
-      const routes = this.getCurrentRoutes();
-      this.io.emit('update-manifest', { routes });
-      this.lithia.logger.debug(
-        `Emitted manifest update with ${routes.length} routes`,
-      );
-    } catch (error) {
-      this.lithia.logger.error('Error emitting manifest update:', error);
-      this.io.emit('manifest-error', { error: (error as Error).message });
-    }
+  getConnectedClients(): number {
+    return this.webSocketManager.getConnectedClients();
   }
 
   /**
-   * Emit build status update.
+   * Check if the Studio server is running.
+   */
+  isServerRunning(): boolean {
+    return this.isRunning;
+  }
+
+  /**
+   * Emit build status to all connected Studio clients.
    */
   emitBuildStatus(success: boolean, error?: string): void {
-    this.io.emit('build-status', { success, error });
-  }
-
-  /**
-   * Setup WebSocket event handlers.
-   */
-  private setupEventHandlers(): void {
-    this.io.on('connection', (socket) => {
-      this.lithia.logger.debug('Studio client connected');
-
-      // Send current configuration
-      socket.emit('lithia-config', { config: this.lithia.options });
-
-      // Send current manifest to newly connected client
-      socket.on('get-manifest', () => {
-        this.sendCurrentRoutes(socket);
-      });
-
-      // Send Lithia configuration when requested
-      socket.on('get-lithia-config', () => {
-        socket.emit('lithia-config', { config: this.lithia.options });
-      });
-
-      socket.on('disconnect', () => {
-        this.lithia.logger.debug('Studio client disconnected');
-      });
+    this.webSocketManager.sendToAll('build-status', {
+      success,
+      error,
+      timestamp: new Date(),
     });
   }
 
   /**
-   * Setup static file serving for the Studio UI.
+   * Emit manifest update to all connected Studio clients.
    */
-  private setupStaticFileServing(): void {
-    // Serve the built Studio files from dist/studio/app/
-    const studioPath = path.join(__dirname, 'app');
-    const staticServer = serveStatic(studioPath);
-
-    this.httpServer.on('request', (req, res) => {
-      // Skip WebSocket upgrade requests
-      if (req.headers.upgrade === 'websocket') {
-        return;
-      }
-
-      // Serve static files
-      staticServer(req, res, () => {
-        // Fallback to index.html for SPA routing
-        req.url = '/index.html';
-        staticServer(req, res, () => {
-          // Final fallback - return 404
-          res.statusCode = 404;
-          res.end('Studio UI not found');
-        });
-      });
+  emitManifestUpdate(): void {
+    this.webSocketManager.sendToAll('manifest-update', {
+      timestamp: new Date(),
     });
   }
 
   /**
-   * Get current routes from the manifest.
+   * Send build statistics to connected clients.
    */
-  private getCurrentRoutes(): Route[] {
-    const routerManager = new RouterManager(this.lithia);
-    return routerManager.getRoutesFromManifest();
+  emitBuildStats(buildStats: any): void {
+    this.webSocketManager.sendToAll('build-stats', buildStats);
   }
 
   /**
-   * Send current routes to a specific socket.
+   * Send dev server statistics to connected clients.
    */
-  private sendCurrentRoutes(socket: Socket): void {
-    try {
-      const routes = this.getCurrentRoutes();
-      socket.emit('update-manifest', { routes });
-    } catch (error) {
-      this.lithia.logger.error('Error sending routes to studio client:', error);
-      socket.emit('manifest-error', { error: (error as Error).message });
-    }
+  emitDevServerStats(devServerStats: any): void {
+    this.webSocketManager.sendToAll('dev-server-stats', devServerStats);
   }
 }

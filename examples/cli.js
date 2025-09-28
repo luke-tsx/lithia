@@ -291,11 +291,9 @@ const createCommand = defineCommand({
       );
 
       // Create lithia.config.js
-      const lithiaConfig = `const { defineLithiaConfig } = require('lithia');
+      const lithiaConfig = `import { defineLithiaConfig } from 'lithia';
 
-module.exports = defineLithiaConfig({
-  globalMiddlewares: [],
-});`;
+export default defineLithiaConfig({});`;
 
       fs.writeFileSync(
         path.join(projectPath, 'lithia.config.js'),

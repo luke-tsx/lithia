@@ -41,11 +41,7 @@ export class ManifestManager {
    * @returns {string} - The absolute path to the routes manifest file.
    */
   getManifestFilePath(): string {
-    return path.join(
-      process.cwd(),
-      this.lithia.options.outputDir,
-      'routes.json',
-    );
+    return path.join(process.cwd(), '.lithia', 'routes.json');
   }
 
   /**
@@ -64,6 +60,7 @@ export class ManifestManager {
 
   /**
    * Updates the `filePath` property of each route to reflect the output path.
+   * Preserves the `sourceFilePath` as the original TypeScript file path.
    * @private
    * @param {Route[]} routes - An array of Route objects to process.
    * @returns {Route[]} - An array of Route objects with updated `filePath` properties.
@@ -72,6 +69,7 @@ export class ManifestManager {
     return routes.map((route) => ({
       ...route,
       filePath: getOutputPath(this.lithia, route.filePath),
+      sourceFilePath: route.sourceFilePath || route.filePath,
     }));
   }
 
@@ -81,7 +79,7 @@ export class ManifestManager {
    * @param {Route[]} routes - An array of Route objects to write to the file.
    */
   private async writeRoutesToFile(routes: Route[]): Promise<void> {
-    const outputPath = path.join(this.lithia.options.outputDir, 'routes.json');
+    const outputPath = path.join('.lithia', 'routes.json');
     await writeFile(outputPath, JSON.stringify(routes, null, 2));
   }
 
