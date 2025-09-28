@@ -35,11 +35,11 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
+    "@changesets/cli": "^2.29.7",
     "@types/lodash": "^4.17.15",
     "@types/node": "^24.5.2",
     "@types/prompts": "^2.4.9",
     "@types/serve-static": "^1.15.8",
-    "@types/swagger-ui-dist": "^3.30.5",
     "prompts": "^2.4.2",
     "tsup": "^8.3.6",
     "tsx": "^4.19.2",
