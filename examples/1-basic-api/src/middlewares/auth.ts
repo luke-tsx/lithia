@@ -16,10 +16,8 @@ export function validateRequestBody<T extends z.ZodRawShape>(
         };
       });
 
-      throw new BadRequestError(issues);
+      throw new BadRequestError('Validation failed', { issues });
     }
-
-    console.log(body.data);
 
     next();
   };

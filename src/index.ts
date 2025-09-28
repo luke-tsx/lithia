@@ -25,7 +25,4 @@ export {
   RequestTimeoutError,
   ServiceUnavailableError,
   UnauthorizedError,
-  useCors,
 } from 'lithia/core';
-
-export { useSwagger } from 'lithia/swagger';

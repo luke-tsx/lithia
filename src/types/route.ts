@@ -26,6 +26,7 @@ export type Route = {
   path: string;
   dynamic: boolean;
   filePath: string;
+  sourceFilePath?: string;
   regex: string;
 };
 
