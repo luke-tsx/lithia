@@ -1,4 +1,4 @@
-import { MatchedEnvSuffix, MatchedMethodSuffix } from 'lithia/types';
+import type { MatchedEnvSuffix, MatchedMethodSuffix } from 'lithia/types';
 
 /**
  * Interface for route convention implementations.
@@ -75,9 +75,7 @@ export class DefaultRouteConvention implements RouteConvention {
    */
   getMethodFromFilename(filename: string): MatchedMethodSuffix | undefined {
     const match = filename.match(this.suffixRegex);
-    return match?.groups?.method?.toUpperCase() as
-      | MatchedMethodSuffix
-      | undefined;
+    return match?.groups?.method?.toUpperCase() as MatchedMethodSuffix | undefined;
   }
 
   /**
@@ -141,9 +139,7 @@ export class DefaultRouteConvention implements RouteConvention {
 
     if (suffixMatch?.index && suffixMatch?.index >= 0) {
       path = path.slice(0, suffixMatch.index);
-      method = suffixMatch.groups?.method?.toUpperCase() as
-        | MatchedMethodSuffix
-        | undefined;
+      method = suffixMatch.groups?.method?.toUpperCase() as MatchedMethodSuffix | undefined;
       env = suffixMatch.groups?.env as MatchedEnvSuffix | undefined;
     }
 

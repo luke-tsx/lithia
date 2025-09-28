@@ -1,7 +1,7 @@
+import path from 'node:path';
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import { Lithia, Route } from 'lithia/types';
-import path from 'node:path';
+import type { Lithia, Route } from 'lithia/types';
 import { getOutputPath } from '../_utils';
 import { green } from '../log/picocolors';
 import { scanServerRoutes } from '../routing/index';
@@ -82,9 +82,7 @@ export async function buildProd(lithia: Lithia): Promise<boolean> {
     await routerManager.createRoutesManifest(routes);
 
     printRoutesOverview(routes);
-    lithia.logger.ready(
-      `Production build completed successfully! Run ${green('lithia start')} to start your app.`,
-    );
+    lithia.logger.ready(`Production build completed successfully! Run ${green('lithia start')} to start your app.`);
 
     return true;
   } catch (error) {

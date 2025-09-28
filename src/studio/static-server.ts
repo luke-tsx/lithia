@@ -1,4 +1,4 @@
-import { Server } from 'http';
+import type { Server } from 'node:http';
 import path from 'node:path';
 import serveStatic from 'serve-static';
 

@@ -1,12 +1,7 @@
 import { createDebugger, createHooks } from 'hookable';
-import {
-  Lithia,
-  LithiaConfig,
-  LoadConfigOptions,
-  LithiaHooks,
-} from 'lithia/types';
+import type { Lithia, LithiaConfig, LithiaHooks, LoadConfigOptions } from 'lithia/types';
 import { loadOptions } from './config/loader';
-import { ConsoleLogger, Logger } from './log/logger';
+import { ConsoleLogger, type Logger } from './log/logger';
 
 /**
  * Registers hooks from configuration into the Lithia instance.
@@ -14,10 +9,7 @@ import { ConsoleLogger, Logger } from './log/logger';
  * @param lithia - Lithia instance
  * @param hooksConfig - Hooks configuration from lithia.config.js
  */
-function registerHooksFromConfig(
-  lithia: Lithia,
-  hooksConfig: Lithia['options']['hooks'],
-): void {
+function registerHooksFromConfig(lithia: Lithia, hooksConfig: Lithia['options']['hooks']): void {
   if (!hooksConfig) return;
 
   // Register each hook type from configuration

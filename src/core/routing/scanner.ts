@@ -1,9 +1,6 @@
-import { Lithia, Route } from 'lithia/types';
-import {
-  DefaultFileSystemScanner,
-  FileSystemScanner,
-} from './file-system-scanner';
-import { DefaultRouteProcessor, RouteProcessor } from './route-processor';
+import type { Lithia, Route } from 'lithia/types';
+import { DefaultFileSystemScanner, type FileSystemScanner } from './file-system-scanner';
+import { DefaultRouteProcessor, type RouteProcessor } from './route-processor';
 
 /**
  * Interface for route scanning implementations.
@@ -59,12 +56,8 @@ export class DefaultFileScanner implements FileScanner {
    * @param fileSystemScanner - Optional custom filesystem scanner implementation
    * @param routeProcessor - Optional custom route processor implementation
    */
-  constructor(
-    fileSystemScanner?: FileSystemScanner,
-    routeProcessor?: RouteProcessor,
-  ) {
-    this.fileSystemScanner =
-      fileSystemScanner || new DefaultFileSystemScanner();
+  constructor(fileSystemScanner?: FileSystemScanner, routeProcessor?: RouteProcessor) {
+    this.fileSystemScanner = fileSystemScanner || new DefaultFileSystemScanner();
     this.routeProcessor = routeProcessor || new DefaultRouteProcessor();
   }
 

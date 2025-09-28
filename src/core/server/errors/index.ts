@@ -9,62 +9,57 @@
  * - Utility functions for error handling
  */
 
-// Types and Enums
-export { HttpStatusCode, type ErrorData } from './types';
-
 // Base Error Class
 export { HttpError } from './base-error';
-
 // Client Error Classes (4xx)
 export {
   BadRequestError,
-  UnauthorizedError,
-  PaymentRequiredError,
-  ForbiddenError,
-  NotFoundError,
-  MethodNotAllowedError,
-  NotAcceptableError,
-  ProxyAuthenticationRequiredError,
-  RequestTimeoutError,
   ConflictError,
-  GoneError,
-  LengthRequiredError,
-  PreconditionFailedError,
-  PayloadTooLargeError,
-  UriTooLongError,
-  UnsupportedMediaTypeError,
-  RangeNotSatisfiableError,
   ExpectationFailedError,
-  ImATeapotError,
-  MisdirectedRequestError,
-  UnprocessableEntityError,
-  LockedError,
   FailedDependencyError,
-  TooEarlyError,
-  UpgradeRequiredError,
+  ForbiddenError,
+  GoneError,
+  ImATeapotError,
+  LengthRequiredError,
+  LockedError,
+  MethodNotAllowedError,
+  MisdirectedRequestError,
+  NotAcceptableError,
+  NotFoundError,
+  PayloadTooLargeError,
+  PaymentRequiredError,
+  PreconditionFailedError,
   PreconditionRequiredError,
-  TooManyRequestsError,
+  ProxyAuthenticationRequiredError,
+  RangeNotSatisfiableError,
   RequestHeaderFieldsTooLargeError,
+  RequestTimeoutError,
+  TooEarlyError,
+  TooManyRequestsError,
+  UnauthorizedError,
   UnavailableForLegalReasonsError,
+  UnprocessableEntityError,
+  UnsupportedMediaTypeError,
+  UpgradeRequiredError,
+  UriTooLongError,
 } from './client-errors';
-
-// Server Error Classes (5xx)
-export {
-  InternalServerError,
-  NotImplementedError,
-  BadGatewayError,
-  ServiceUnavailableError,
-  GatewayTimeoutError,
-  HttpVersionNotSupportedError,
-  VariantAlsoNegotiatesError,
-  InsufficientStorageError,
-  LoopDetectedError,
-  NotExtendedError,
-  NetworkAuthenticationRequiredError,
-} from './server-errors';
-
 // Factory Classes and Methods
-export { HttpErrorFactory, ErrorFactory } from './error-factory';
-
+export { ErrorFactory, HttpErrorFactory } from './error-factory';
 // Utility Functions
 export { ErrorUtils } from './error-utils';
+// Server Error Classes (5xx)
+export {
+  BadGatewayError,
+  GatewayTimeoutError,
+  HttpVersionNotSupportedError,
+  InsufficientStorageError,
+  InternalServerError,
+  LoopDetectedError,
+  NetworkAuthenticationRequiredError,
+  NotExtendedError,
+  NotImplementedError,
+  ServiceUnavailableError,
+  VariantAlsoNegotiatesError,
+} from './server-errors';
+// Types and Enums
+export { type ErrorData, HttpStatusCode } from './types';

@@ -1,6 +1,6 @@
+import type { Server } from 'node:http';
 import { HttpServerManager } from 'lithia/core';
 import type { Lithia } from 'lithia/types';
-import { Server } from 'node:http';
 
 /**
  * Production server configuration options.
@@ -104,7 +104,7 @@ export class ProductionServerManager {
 
       if (this.server) {
         await new Promise<void>((resolve, reject) => {
-          this.server!.close((error) => {
+          this.server?.close((error) => {
             if (error) {
               reject(error);
             } else {

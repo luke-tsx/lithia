@@ -11,10 +11,7 @@ export class ErrorUtils {
   static isHttpError(error: unknown): error is HttpError {
     return (
       error instanceof HttpError ||
-      (typeof error === 'object' &&
-        error !== null &&
-        '_isHttpError' in error &&
-        (error as any)._isHttpError === true)
+      (typeof error === 'object' && error !== null && '_isHttpError' in error && (error as any)._isHttpError === true)
     );
   }
 
@@ -26,38 +23,25 @@ export class ErrorUtils {
     defaultStatus: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR,
     requestId?: string,
   ): HttpError {
-    if (this.isHttpError(error)) {
+    if (ErrorUtils.isHttpError(error)) {
       return error;
     }
 
     if (error instanceof Error) {
-      return new HttpError(
-        defaultStatus,
-        error.message,
-        { originalError: error.name, stack: error.stack },
-        requestId,
-      );
+      return new HttpError(defaultStatus, error.message, { originalError: error.name, stack: error.stack }, requestId);
     }
 
     if (typeof error === 'string') {
       return new HttpError(defaultStatus, error, undefined, requestId);
     }
 
-    return new HttpError(
-      defaultStatus,
-      'An unknown error occurred',
-      { originalError: error },
-      requestId,
-    );
+    return new HttpError(defaultStatus, 'An unknown error occurred', { originalError: error }, requestId);
   }
 
   /**
    * Creates a standardized error response object.
    */
-  static createErrorResponse(
-    error: HttpError,
-    includeStack = false,
-  ): Record<string, unknown> {
+  static createErrorResponse(error: HttpError, includeStack = false): Record<string, unknown> {
     const response: Record<string, unknown> = {
       error: {
         name: error.name,

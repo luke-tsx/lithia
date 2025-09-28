@@ -1,6 +1,6 @@
-import chokidar, { ChokidarOptions, FSWatcher } from 'chokidar';
-import path from 'path';
-import { DevServerEventEmitter, DevServerEventType } from './events';
+import path from 'node:path';
+import chokidar, { type ChokidarOptions, type FSWatcher } from 'chokidar';
+import { type DevServerEventEmitter, DevServerEventType } from './events';
 
 /**
  * Configuration options for the file watcher.
@@ -23,10 +23,7 @@ export class FileWatcher {
   private debounceTimer?: NodeJS.Timeout;
   private isWatching = false;
 
-  constructor(
-    eventEmitter: DevServerEventEmitter,
-    options: FileWatcherOptions,
-  ) {
+  constructor(eventEmitter: DevServerEventEmitter, options: FileWatcherOptions) {
     this.eventEmitter = eventEmitter;
     this.watchDir = options.watchDir;
   }
@@ -149,10 +146,7 @@ export class FileWatcher {
           });
         }
 
-        if (
-          filePath.startsWith(path.resolve(process.cwd(), 'src')) &&
-          filePath.endsWith('.ts')
-        ) {
+        if (filePath.startsWith(path.resolve(process.cwd(), 'src')) && filePath.endsWith('.ts')) {
           return debouncedEmit(DevServerEventType.FILE_CHANGED, filePath);
         }
       })
@@ -175,10 +169,7 @@ export class FileWatcher {
    * @param delay - Delay in milliseconds
    * @returns Debounced function
    */
-  private debounce<T extends (...args: any[]) => void>(
-    func: T,
-    delay: number,
-  ): T {
+  private debounce<T extends (...args: any[]) => void>(func: T, delay: number): T {
     return ((...args: Parameters<T>) => {
       if (this.debounceTimer) {
         clearTimeout(this.debounceTimer);

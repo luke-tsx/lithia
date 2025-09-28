@@ -1,4 +1,4 @@
-import { RouteBuilder } from './route-builder';
+import type { RouteBuilder } from './route-builder';
 import { FullBundleRouteBuilder, NoBundleRouteBuilder } from './route-builders';
 
 /**
@@ -72,22 +72,17 @@ export class BuildModeFactory {
    * // Returns: { mode: 'no-bundle', reason: 'High route count with large dependencies' }
    * ```
    */
-  static getRecommendation(
-    routeCount: number,
-    hasLargeDeps: boolean,
-  ): { mode: BuildMode; reason: string } {
+  static getRecommendation(routeCount: number, hasLargeDeps: boolean): { mode: BuildMode; reason: string } {
     if (routeCount > 20 || hasLargeDeps) {
       return {
         mode: 'no-bundle',
-        reason:
-          'Medium/high route count or large dependencies - no-bundle prevents duplicate bundling',
+        reason: 'Medium/high route count or large dependencies - no-bundle prevents duplicate bundling',
       };
     }
 
     return {
       mode: 'full-bundle',
-      reason:
-        'Low route count and small dependencies - full bundling provides maximum compatibility',
+      reason: 'Low route count and small dependencies - full bundling provides maximum compatibility',
     };
   }
 
@@ -112,16 +107,14 @@ export class BuildModeFactory {
         bundleSize: 'small',
         duplicateDeps: false,
         compatibility: 'medium',
-        description:
-          'Fastest builds, no duplicate dependencies, requires Node.js dependency resolution',
+        description: 'Fastest builds, no duplicate dependencies, requires Node.js dependency resolution',
       },
       'full-bundle': {
         buildSpeed: 'slow',
         bundleSize: 'large',
         duplicateDeps: true,
         compatibility: 'high',
-        description:
-          'Maximum compatibility, bundles everything, may duplicate large dependencies',
+        description: 'Maximum compatibility, bundles everything, may duplicate large dependencies',
       },
     };
   }

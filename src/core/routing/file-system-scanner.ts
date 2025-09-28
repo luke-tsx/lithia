@@ -1,6 +1,6 @@
-import { FileInfo } from 'lithia/types';
 import { readdir } from 'node:fs/promises';
 import nodePath from 'node:path';
+import type { FileInfo } from 'lithia/types';
 
 /**
  * Interface for filesystem scanning implementations.

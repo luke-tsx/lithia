@@ -1,4 +1,4 @@
-import { LithiaMiddleware } from './handler';
+import type { LithiaMiddleware } from './handler';
 
 /**
  * Information about a middleware being executed.

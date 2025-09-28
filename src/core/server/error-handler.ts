@@ -1,5 +1,5 @@
 import { ErrorUtils } from './errors';
-import { _LithiaResponse } from './response';
+import type { _LithiaResponse } from './response';
 
 /**
  * ErrorHandler manages HTTP error handling and response formatting.
@@ -19,11 +19,7 @@ export class ErrorHandler {
 
     try {
       // Convert any error to HttpError using ErrorUtils
-      const httpError = ErrorUtils.toHttpError(
-        error,
-        undefined,
-        this.generateRequestId(),
-      );
+      const httpError = ErrorUtils.toHttpError(error, undefined, this.generateRequestId());
 
       // Create standardized error response
       const errorResponse = ErrorUtils.createErrorResponse(httpError, isDev);

@@ -1,11 +1,11 @@
-import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { Lithia } from 'lithia/types';
+import { ErrorHandler } from './error-handler';
+import { MiddlewareManager } from './middleware-manager';
 import { _LithiaRequest } from './request';
+import { RequestProcessor } from './request-processor';
 import { _LithiaResponse } from './response';
 import { RouterManager } from './routing';
-import { MiddlewareManager } from './middleware-manager';
-import { ErrorHandler } from './error-handler';
-import { RequestProcessor } from './request-processor';
 
 /**
  * HttpServerManager manages HTTP server creation and request handling.
@@ -23,11 +23,7 @@ export class HttpServerManager {
     this.routerManager = new RouterManager(lithia);
     this.middlewareManager = new MiddlewareManager(lithia);
     this.errorHandler = new ErrorHandler();
-    this.requestProcessor = new RequestProcessor(
-      lithia,
-      this.routerManager,
-      this.middlewareManager,
-    );
+    this.requestProcessor = new RequestProcessor(lithia, this.routerManager, this.middlewareManager);
   }
 
   /**
@@ -35,14 +31,9 @@ export class HttpServerManager {
    * @returns {Server} Configured HTTP server
    */
   createServer(): Server {
-    const server = createServer(
-      async (httpReq: IncomingMessage, httpRes: ServerResponse) => {
-        await this.handleRequest(
-          new _LithiaRequest(httpReq, this.lithia),
-          new _LithiaResponse(httpRes),
-        );
-      },
-    );
+    const server = createServer(async (httpReq: IncomingMessage, httpRes: ServerResponse) => {
+      await this.handleRequest(new _LithiaRequest(httpReq, this.lithia), new _LithiaResponse(httpRes));
+    });
 
     return server;
   }
@@ -54,18 +45,11 @@ export class HttpServerManager {
    * @param {_LithiaRequest} req - Request object
    * @param {_LithiaResponse} res - Response object
    */
-  private async handleRequest(
-    req: _LithiaRequest,
-    res: _LithiaResponse,
-  ): Promise<void> {
+  private async handleRequest(req: _LithiaRequest, res: _LithiaResponse): Promise<void> {
     try {
       await this.requestProcessor.processRequest(req, res);
     } catch (error) {
-      this.errorHandler.handleError(
-        error,
-        res,
-        this.lithia.options._env === 'dev',
-      );
+      this.errorHandler.handleError(error, res, this.lithia.options._env === 'dev');
     }
   }
 }

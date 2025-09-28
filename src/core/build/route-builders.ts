@@ -1,10 +1,10 @@
+import path from 'node:path';
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import { Route } from 'lithia/types';
-import path from 'node:path';
+import type { Route } from 'lithia/types';
 import { getOutputPath } from '../_utils';
-import { BuildContext } from './context';
-import { RouteBuilder, RouteBuildError } from './route-builder';
+import type { BuildContext } from './context';
+import { RouteBuildError, type RouteBuilder } from './route-builder';
 
 /**
  * No-bundle route builder that compiles TypeScript without bundling dependencies.
@@ -102,9 +102,7 @@ export class FullBundleRouteBuilder implements RouteBuilder {
    */
   async buildRoute(context: BuildContext, route: Route): Promise<void> {
     try {
-      const outputDir = path.dirname(
-        getOutputPath(context.lithia, route.filePath),
-      );
+      const outputDir = path.dirname(getOutputPath(context.lithia, route.filePath));
 
       await esbuild.build({
         entryPoints: [route.filePath],

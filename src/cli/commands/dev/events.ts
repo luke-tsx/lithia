@@ -11,9 +11,7 @@ export interface DevServerEvent {
   data?: any;
 }
 
-export interface DevServerEventListener {
-  (event: DevServerEvent): void | Promise<void>;
-}
+export type DevServerEventListener = (event: DevServerEvent) => void | Promise<void>;
 
 /**
  * Event types for the development server.
@@ -68,7 +66,7 @@ export class DevServerEventEmitter {
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, []);
     }
-    this.listeners.get(eventType)!.push(listener);
+    this.listeners.get(eventType)?.push(listener);
   }
 
   /**

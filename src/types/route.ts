@@ -1,14 +1,6 @@
-import { Operation, Parameter } from './open-api';
+import type { Operation, Parameter } from './open-api';
 
-export type MatchedMethodSuffix =
-  | 'delete'
-  | 'get'
-  | 'head'
-  | 'options'
-  | 'patch'
-  | 'post'
-  | 'put'
-  | 'trace';
+export type MatchedMethodSuffix = 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace';
 
 export type MatchedEnvSuffix = 'dev' | 'prod';
 

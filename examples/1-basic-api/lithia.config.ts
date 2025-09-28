@@ -33,7 +33,7 @@ const config: LithiaConfig = {
   },
   hooks: {
     'request:after': [
-      (req: LithiaRequest, res: LithiaResponse) => {
+      (_req: LithiaRequest, _res: LithiaResponse) => {
         console.log('Request after');
       },
     ],

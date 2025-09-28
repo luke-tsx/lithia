@@ -1,8 +1,8 @@
-import type { Lithia, Route, RouteModule, Params } from 'lithia/types';
+import type { Lithia, Params, Route, RouteModule } from 'lithia/types';
 import { ManifestManager } from './manifest-manager';
+import { ParameterExtractor } from './parameter-extractor';
 import { RouteImporter } from './route-importer';
 import { RouteMetadataManager } from './route-metadata';
-import { ParameterExtractor } from './parameter-extractor';
 import { RouteUtils } from './utils';
 
 /**
@@ -12,14 +12,12 @@ import { RouteUtils } from './utils';
  * route importing, metadata extraction, and parameter parsing.
  */
 export class RouterManager {
-  private lithia: Lithia;
   private manifestManager: ManifestManager;
   private routeImporter: RouteImporter;
   private metadataManager: RouteMetadataManager;
   private parameterExtractor: ParameterExtractor;
 
   constructor(lithia: Lithia) {
-    this.lithia = lithia;
     this.manifestManager = new ManifestManager(lithia);
     this.routeImporter = new RouteImporter();
     this.metadataManager = new RouteMetadataManager(lithia);
@@ -87,10 +85,7 @@ export class RouterManager {
    * @param {string} method - HTTP method
    * @returns {Promise<Route | undefined>} Matching route
    */
-  async findRoute(
-    pathname: string,
-    method: string,
-  ): Promise<Route | undefined> {
+  async findRoute(pathname: string, method: string): Promise<Route | undefined> {
     const routes = this.getRoutesFromManifest();
     return RouteUtils.findMatchingRoute(routes, pathname, method);
   }

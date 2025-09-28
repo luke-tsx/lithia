@@ -27,9 +27,7 @@ export class ParameterExtractor {
 
       return this.buildParamsObject(paramNames, matches);
     } catch (error) {
-      throw new Error(
-        `Failed to extract parameters for route ${route.path}: ${error.message}`,
-      );
+      throw new Error(`Failed to extract parameters for route ${route.path}: ${error.message}`);
     }
   }
 
@@ -40,10 +38,7 @@ export class ParameterExtractor {
    * @param {Route} route - Route configuration
    * @returns {RegExpMatchArray | null} Regex matches
    */
-  private getPathMatches(
-    pathname: string,
-    route: Route,
-  ): RegExpMatchArray | null {
+  private getPathMatches(pathname: string, route: Route): RegExpMatchArray | null {
     return pathname.match(new RegExp(route.regex));
   }
 
@@ -65,10 +60,7 @@ export class ParameterExtractor {
    * @param {RegExpMatchArray | null} matches - Regex matches
    * @returns {Params} Parameters object
    */
-  private buildParamsObject(
-    paramNames: string[],
-    matches: RegExpMatchArray | null,
-  ): Params {
+  private buildParamsObject(paramNames: string[], matches: RegExpMatchArray | null): Params {
     if (!matches) {
       return {};
     }

@@ -1,7 +1,7 @@
+import path from 'node:path';
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import { Lithia, Route } from 'lithia/types';
-import path from 'path';
+import type { Lithia, Route } from 'lithia/types';
 import { getOutputPath } from '../_utils';
 import { scanServerRoutes } from '../routing/index';
 import { RouterManager } from '../server/routing';

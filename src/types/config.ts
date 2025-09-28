@@ -1,11 +1,6 @@
-import {
-  C12InputConfig,
-  ConfigWatcher,
-  ResolvedConfig,
-  WatchConfigOptions,
-} from 'c12';
+import type { C12InputConfig, ConfigWatcher, ResolvedConfig, WatchConfigOptions } from 'c12';
 import type { DeepPartial } from './_utils';
-import { LithiaHooks } from './hooks';
+import type { LithiaHooks } from './hooks';
 
 export interface LithiaOptions {
   // Internal
@@ -68,9 +63,7 @@ export interface LithiaOptions {
   };
 }
 
-export interface LithiaConfig
-  extends DeepPartial<LithiaOptions>,
-    C12InputConfig<LithiaConfig> {}
+export interface LithiaConfig extends DeepPartial<LithiaOptions>, C12InputConfig<LithiaConfig> {}
 
 export interface LoadConfigOptions {
   watch?: boolean;

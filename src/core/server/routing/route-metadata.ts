@@ -31,9 +31,7 @@ export class RouteMetadataManager {
     try {
       return await this.routeImporter.getRouteMetadata(route);
     } catch (error) {
-      this.lithia.logger.warn(
-        `Failed to get metadata for route ${route.path}: ${error.message}`,
-      );
+      this.lithia.logger.warn(`Failed to get metadata for route ${route.path}: ${error.message}`);
       return undefined;
     }
   }
@@ -57,9 +55,7 @@ export class RouteMetadataManager {
    * @param {Route[]} routes - Array of routes
    * @returns {Promise<Map<string, Metadata>>} Map of route paths to metadata
    */
-  async getMultipleRouteMetadata(
-    routes: Route[],
-  ): Promise<Map<string, Metadata>> {
+  async getMultipleRouteMetadata(routes: Route[]): Promise<Map<string, Metadata>> {
     const metadataMap = new Map<string, Metadata>();
 
     const promises = routes.map(async (route) => {
@@ -69,9 +65,7 @@ export class RouteMetadataManager {
           metadataMap.set(route.path, metadata);
         }
       } catch {
-        this.lithia.logger.warn(
-          `Failed to get metadata for route ${route.path}`,
-        );
+        this.lithia.logger.warn(`Failed to get metadata for route ${route.path}`);
       }
     });
 

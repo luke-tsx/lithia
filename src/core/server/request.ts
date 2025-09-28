@@ -1,7 +1,7 @@
-import { IncomingHttpHeaders, IncomingMessage } from 'http';
-import { Lithia, LithiaRequest, Params, Query } from 'lithia/types';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import { parse } from 'node:url';
 import { parse as parseCookie } from 'cookie';
+import type { Lithia, LithiaRequest, Params, Query } from 'lithia/types';
 
 /**
  * Enhanced HTTP request handler wrapping Node.js IncomingMessage
@@ -51,10 +51,7 @@ export class _LithiaRequest implements LithiaRequest {
    * @param {'data' | 'end' | 'error'} event - Stream event type
    * @param {(chunk: unknown) => void} listener - Event handler callback
    */
-  on: (
-    event: 'data' | 'end' | 'error',
-    listener: (chunk: unknown) => void,
-  ) => void;
+  on: (event: 'data' | 'end' | 'error', listener: (chunk: unknown) => void) => void;
 
   /**
    * Parses request body based on content-type with caching and validation
@@ -87,12 +84,9 @@ export class _LithiaRequest implements LithiaRequest {
     const contentLength = parseInt(this.headers['content-length'] || '0', 10);
 
     // Check body size limit
-    const maxBodySize =
-      this.lithia.options.server.request.maxBodySize || 1024 * 1024; // 1MB default
+    const maxBodySize = this.lithia.options.server.request.maxBodySize || 1024 * 1024; // 1MB default
     if (contentLength > maxBodySize) {
-      throw new Error(
-        `Request body too large: ${contentLength} bytes (max: ${maxBodySize})`,
-      );
+      throw new Error(`Request body too large: ${contentLength} bytes (max: ${maxBodySize})`);
     }
 
     const body = await new Promise<T>((resolve, reject) => {
@@ -104,11 +98,7 @@ export class _LithiaRequest implements LithiaRequest {
 
         // Check received length against max body size
         if (receivedLength > maxBodySize) {
-          reject(
-            new Error(
-              `Request body too large: ${receivedLength} bytes (max: ${maxBodySize})`,
-            ),
-          );
+          reject(new Error(`Request body too large: ${receivedLength} bytes (max: ${maxBodySize})`));
           return;
         }
 
@@ -149,10 +139,7 @@ export class _LithiaRequest implements LithiaRequest {
    * @returns {unknown} Parsed body content
    * @throws {Error} For unsupported content-types or parsing errors
    */
-  private parseBodyByContentType(
-    bodyData: string,
-    contentType: string,
-  ): unknown {
+  private parseBodyByContentType(bodyData: string, contentType: string): unknown {
     const [type] = contentType.split(';');
 
     switch (type.trim()) {
@@ -194,9 +181,7 @@ export class _LithiaRequest implements LithiaRequest {
     for (const pair of pairs) {
       const [key, value] = pair.split('=');
       if (key) {
-        result[decodeURIComponent(key)] = value
-          ? decodeURIComponent(value)
-          : '';
+        result[decodeURIComponent(key)] = value ? decodeURIComponent(value) : '';
       }
     }
 
@@ -275,10 +260,7 @@ export class _LithiaRequest implements LithiaRequest {
    */
   isFormData(): boolean {
     const contentType = this.headers['content-type'] || '';
-    return (
-      contentType.includes('application/x-www-form-urlencoded') ||
-      contentType.includes('multipart/form-data')
-    );
+    return contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data');
   }
 
   /**
@@ -320,10 +302,7 @@ export class _LithiaRequest implements LithiaRequest {
    * @returns {boolean} True if request is secure
    */
   isSecure(): boolean {
-    return (
-      this.headers['x-forwarded-proto'] === 'https' ||
-      (this.req.connection as any)?.encrypted === true
-    );
+    return this.headers['x-forwarded-proto'] === 'https' || (this.req.connection as any)?.encrypted === true;
   }
 
   /**
@@ -370,7 +349,7 @@ export function parseQuery(url: URLSearchParams, lithia: Lithia): Query {
   const query: Query = {};
 
   for (const [key, value] of url.entries()) {
-    if (number.enabled && !isNaN(Number(value)) && value !== '') {
+    if (number.enabled && !Number.isNaN(Number(value)) && value !== '') {
       query[key] = Number(value);
       continue;
     }

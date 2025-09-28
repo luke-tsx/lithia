@@ -1,4 +1,4 @@
-import { LithiaConfig } from 'lithia/types';
+import type { LithiaConfig } from 'lithia/types';
 import { isDebug } from 'std-env';
 
 /**

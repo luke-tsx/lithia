@@ -1,4 +1,4 @@
-import { ConsoleLogger, LogEntry } from 'lithia/core';
+import { ConsoleLogger, type LogEntry } from 'lithia/core';
 import type { Lithia } from 'lithia/types';
 
 /**

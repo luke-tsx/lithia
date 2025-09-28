@@ -1,5 +1,5 @@
-import { Lithia, Route } from 'lithia/types';
-import { BuildModeConfig } from './modes';
+import type { Lithia, Route } from 'lithia/types';
+import type { BuildModeConfig } from './modes';
 
 /**
  * Build configuration options for esbuild.

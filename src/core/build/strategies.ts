@@ -1,9 +1,9 @@
-import { Lithia } from 'lithia/types';
+import type { Lithia } from 'lithia/types';
 import { scanServerRoutes } from '../routing/index';
 import { RouterManager } from '../server/routing';
-import { BuildContext, BuildResult } from './context';
+import { BuildContext, type BuildResult } from './context';
 import { BuildModeFactory } from './modes';
-import { ParallelRouteBuilder, RouteBuilder } from './route-builder';
+import { ParallelRouteBuilder, type RouteBuilder } from './route-builder';
 
 /**
  * Interface for build strategy implementations.
@@ -33,15 +33,13 @@ export interface BuildStrategy {
  * @implements {BuildStrategy}
  */
 export class DevelopmentBuildStrategy implements BuildStrategy {
-  private readonly routeBuilder: RouteBuilder;
-
   /**
    * Creates a new DevelopmentBuildStrategy instance.
    *
    * @param routeBuilder - Optional custom route builder
    */
   constructor(routeBuilder?: RouteBuilder) {
-    this.routeBuilder =
+    routeBuilder =
       routeBuilder ||
       new ParallelRouteBuilder(
         BuildModeFactory.createBuilder('no-bundle'), // Will be overridden by context
@@ -71,8 +69,7 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
 
       return context.createBuildResult(true, errors);
     } catch (error) {
-      const errorObj =
-        error instanceof Error ? error : new Error(String(error));
+      const errorObj = error instanceof Error ? error : new Error(String(error));
       lithia.logger.error(errorObj.message);
 
       lithia.logger.wait(
@@ -101,9 +98,7 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
     }
 
     // Create route builder based on context configuration
-    const routeBuilder = BuildModeFactory.createBuilder(
-      context.config.mode.mode,
-    );
+    const routeBuilder = BuildModeFactory.createBuilder(context.config.mode.mode);
 
     const parallelBuilder = new ParallelRouteBuilder(routeBuilder, 5);
 
@@ -132,15 +127,13 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
  * @implements {BuildStrategy}
  */
 export class ProductionBuildStrategy implements BuildStrategy {
-  private readonly routeBuilder: RouteBuilder;
-
   /**
    * Creates a new ProductionBuildStrategy instance.
    *
    * @param routeBuilder - Optional custom route builder
    */
   constructor(routeBuilder?: RouteBuilder) {
-    this.routeBuilder =
+    routeBuilder =
       routeBuilder ||
       new ParallelRouteBuilder(
         BuildModeFactory.createBuilder('no-bundle'), // Will be overridden by context
@@ -175,8 +168,7 @@ export class ProductionBuildStrategy implements BuildStrategy {
 
       return context.createBuildResult(true);
     } catch (error) {
-      const errorObj =
-        error instanceof Error ? error : new Error(String(error));
+      const errorObj = error instanceof Error ? error : new Error(String(error));
       lithia.logger.error(`Error during production build: ${errorObj.message}`);
       process.exit(1);
     }
@@ -195,9 +187,7 @@ export class ProductionBuildStrategy implements BuildStrategy {
     }
 
     // Create route builder based on context configuration
-    const routeBuilder = BuildModeFactory.createBuilder(
-      context.config.mode.mode,
-    );
+    const routeBuilder = BuildModeFactory.createBuilder(context.config.mode.mode);
 
     const parallelBuilder = new ParallelRouteBuilder(routeBuilder, 10);
 

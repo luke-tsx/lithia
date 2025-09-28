@@ -1,5 +1,5 @@
-import { Route, RouteModule } from 'lithia/types';
 import { isAsyncFunction } from 'node:util/types';
+import type { Route, RouteModule } from 'lithia/types';
 
 export interface ValidationResult {
   isValid: boolean;

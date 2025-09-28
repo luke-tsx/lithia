@@ -20,15 +20,10 @@ export class RouteUtils {
    * const route = utils.findMatchingRoute(routes, '/users/123', 'GET');
    * ```
    */
-  static findMatchingRoute(
-    routes: Route[],
-    pathname: string,
-    method: string,
-  ): Route | undefined {
+  static findMatchingRoute(routes: Route[], pathname: string, method: string): Route | undefined {
     return routes.find((route) => {
-      const methodMatches =
-        !route.method || route.method.toLowerCase() === method.toLowerCase();
-      const pathMatches = this.matchesPath(pathname, route);
+      const methodMatches = !route.method || route.method.toLowerCase() === method.toLowerCase();
+      const pathMatches = RouteUtils.matchesPath(pathname, route);
       return methodMatches && pathMatches;
     });
   }

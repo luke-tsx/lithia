@@ -1,14 +1,14 @@
 import { HttpError } from './base-error';
-import { HttpStatusCode, ErrorData } from './types';
 import {
-  UnprocessableEntityError,
-  UnauthorizedError,
-  ForbiddenError,
-  TooManyRequestsError,
-  NotFoundError,
-  MethodNotAllowedError,
   ConflictError,
+  ForbiddenError,
+  MethodNotAllowedError,
+  NotFoundError,
+  TooManyRequestsError,
+  UnauthorizedError,
+  UnprocessableEntityError,
 } from './client-errors';
+import type { ErrorData, HttpStatusCode } from './types';
 
 /**
  * Factory class for creating HTTP errors with consistent patterns.
@@ -17,25 +17,15 @@ export class HttpErrorFactory {
   /**
    * Creates a new HTTP error with the specified status code and message.
    */
-  static create(
-    status: HttpStatusCode,
-    message: string,
-    data?: ErrorData,
-    requestId?: string,
-  ): HttpError {
+  static create(status: HttpStatusCode, message: string, data?: ErrorData, requestId?: string): HttpError {
     return new HttpError(status, message, data, requestId);
   }
 
   /**
    * Creates a client error (4xx).
    */
-  static clientError(
-    status: HttpStatusCode,
-    message: string,
-    data?: ErrorData,
-    requestId?: string,
-  ): HttpError {
-    if (!this.isClientError(status)) {
+  static clientError(status: HttpStatusCode, message: string, data?: ErrorData, requestId?: string): HttpError {
+    if (!HttpErrorFactory.isClientError(status)) {
       throw new Error(`Status ${status} is not a client error`);
     }
     return new HttpError(status, message, data, requestId);
@@ -44,13 +34,8 @@ export class HttpErrorFactory {
   /**
    * Creates a server error (5xx).
    */
-  static serverError(
-    status: HttpStatusCode,
-    message: string,
-    data?: ErrorData,
-    requestId?: string,
-  ): HttpError {
-    if (!this.isServerError(status)) {
+  static serverError(status: HttpStatusCode, message: string, data?: ErrorData, requestId?: string): HttpError {
+    if (!HttpErrorFactory.isServerError(status)) {
       throw new Error(`Status ${status} is not a server error`);
     }
     return new HttpError(status, message, data, requestId);
@@ -78,12 +63,7 @@ export const ErrorFactory = {
   /**
    * Creates a validation error with field information.
    */
-  validationError(
-    message: string,
-    field?: string,
-    details?: unknown,
-    requestId?: string,
-  ): UnprocessableEntityError {
+  validationError(message: string, field?: string, details?: unknown, requestId?: string): UnprocessableEntityError {
     return new UnprocessableEntityError(
       message,
       {
@@ -98,10 +78,7 @@ export const ErrorFactory = {
   /**
    * Creates an authentication error.
    */
-  authenticationError(
-    message = 'Authentication failed',
-    requestId?: string,
-  ): UnauthorizedError {
+  authenticationError(message = 'Authentication failed', requestId?: string): UnauthorizedError {
     return new UnauthorizedError(
       message,
       {
@@ -114,10 +91,7 @@ export const ErrorFactory = {
   /**
    * Creates an authorization error.
    */
-  authorizationError(
-    message = 'Insufficient permissions',
-    requestId?: string,
-  ): ForbiddenError {
+  authorizationError(message = 'Insufficient permissions', requestId?: string): ForbiddenError {
     return new ForbiddenError(
       message,
       {
@@ -130,11 +104,7 @@ export const ErrorFactory = {
   /**
    * Creates a rate limit error.
    */
-  rateLimitError(
-    message = 'Rate limit exceeded',
-    retryAfter?: number,
-    requestId?: string,
-  ): TooManyRequestsError {
+  rateLimitError(message = 'Rate limit exceeded', retryAfter?: number, requestId?: string): TooManyRequestsError {
     return new TooManyRequestsError(
       message,
       {
@@ -148,14 +118,8 @@ export const ErrorFactory = {
   /**
    * Creates a resource not found error.
    */
-  resourceNotFoundError(
-    resource: string,
-    id?: string | number,
-    requestId?: string,
-  ): NotFoundError {
-    const message = id
-      ? `${resource} with id '${id}' not found`
-      : `${resource} not found`;
+  resourceNotFoundError(resource: string, id?: string | number, requestId?: string): NotFoundError {
+    const message = id ? `${resource} with id '${id}' not found` : `${resource} not found`;
     return new NotFoundError(
       message,
       {
@@ -170,11 +134,7 @@ export const ErrorFactory = {
   /**
    * Creates a method not allowed error.
    */
-  methodNotAllowedError(
-    method: string,
-    allowedMethods?: string[],
-    requestId?: string,
-  ): MethodNotAllowedError {
+  methodNotAllowedError(method: string, allowedMethods?: string[], requestId?: string): MethodNotAllowedError {
     const message = `Method '${method}' not allowed`;
     return new MethodNotAllowedError(
       message,
@@ -190,15 +150,8 @@ export const ErrorFactory = {
   /**
    * Creates a conflict error for duplicate resources.
    */
-  duplicateError(
-    resource: string,
-    field?: string,
-    value?: unknown,
-    requestId?: string,
-  ): ConflictError {
-    const message = field
-      ? `${resource} with ${field} '${value}' already exists`
-      : `${resource} already exists`;
+  duplicateError(resource: string, field?: string, value?: unknown, requestId?: string): ConflictError {
+    const message = field ? `${resource} with ${field} '${value}' already exists` : `${resource} already exists`;
     return new ConflictError(
       message,
       {

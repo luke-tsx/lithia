@@ -1,9 +1,9 @@
+import path from 'node:path';
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import esbuild from 'esbuild';
-import { Route } from 'lithia/types';
-import path from 'node:path';
+import type { Route } from 'lithia/types';
 import { getOutputPath } from '../_utils';
-import { BuildContext } from './context';
+import type { BuildContext } from './context';
 
 /**
  * Interface for route builder implementations.
@@ -63,12 +63,9 @@ export class EsbuildRouteBuilder implements RouteBuilder {
    */
   async buildRoute(context: BuildContext, route: Route): Promise<void> {
     try {
-      const outputDir = path.dirname(
-        getOutputPath(context.lithia, route.filePath),
-      );
+      const outputDir = path.dirname(getOutputPath(context.lithia, route.filePath));
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { mode, ...esbuildConfig } = context.config;
+      const { mode: _mode, ...esbuildConfig } = context.config;
 
       await esbuild.build({
         entryPoints: [route.filePath],

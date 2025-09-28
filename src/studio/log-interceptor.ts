@@ -1,5 +1,5 @@
-import { LogEntry } from 'lithia/core';
 import path from 'node:path';
+import type { LogEntry } from 'lithia/core';
 
 /**
  * Intercepts global console methods to capture user logs.
@@ -124,10 +124,7 @@ export class LogInterceptor {
    */
   private interceptConsoleMethods(): void {
     // Helper function to create log entry from console call
-    const createLogEntry = (
-      level: LogEntry['level'],
-      args: unknown[],
-    ): LogEntry => {
+    const createLogEntry = (level: LogEntry['level'], args: unknown[]): LogEntry => {
       const message = args
         .map((arg) => {
           if (typeof arg === 'object') {

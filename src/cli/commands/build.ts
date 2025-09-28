@@ -1,7 +1,7 @@
-import { defineCommand } from 'citty';
-import { buildLithia, createLithia, prepare } from 'lithia/core';
 import { rm } from 'node:fs/promises';
 import path from 'node:path';
+import { defineCommand } from 'citty';
+import { buildLithia, createLithia, prepare } from 'lithia/core';
 
 type BuildMode = 'no-bundle' | 'full-bundle';
 
@@ -83,7 +83,7 @@ export default defineCommand({
           if (options.verbose) {
             lithia.logger.info(`Cleaned output directory: ${outputPath}`);
           }
-        } catch (error) {
+        } catch (_error) {
           // Directory might not exist, which is fine
         }
       }

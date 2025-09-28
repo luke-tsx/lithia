@@ -1,4 +1,4 @@
-import { Server, createServer } from 'http';
+import { createServer, type Server } from 'node:http';
 import { RouterManager } from 'lithia/core';
 import type { Lithia } from 'lithia/types';
 import { LogInterceptor } from './log-interceptor';
@@ -18,7 +18,6 @@ export class LithiaStudio {
   private lithia: Lithia;
   private isRunning = false;
   private webSocketManager: WebSocketManager;
-  private staticServer: StaticServer;
   private loggerIntegration: LoggerIntegration;
   private logInterceptor: LogInterceptor;
   private serverMonitor: ServerMonitor;
@@ -33,9 +32,9 @@ export class LithiaStudio {
     this.httpServer = createServer();
 
     // Initialize components
-    this.routerManager = new RouterManager(this.lithia);
-    this.webSocketManager = new WebSocketManager(this.httpServer, this.lithia);
-    this.staticServer = new StaticServer(this.httpServer);
+    this.routerManager = new RouterManager(lithia);
+    this.webSocketManager = new WebSocketManager(this.httpServer);
+    new StaticServer(this.httpServer);
     this.loggerIntegration = new LoggerIntegration(this.lithia, (entry) => {
       this.webSocketManager.emitLogEntry(entry);
     });
@@ -116,9 +115,7 @@ export class LithiaStudio {
     await new Promise<void>((resolve, reject) => {
       this.httpServer.listen(studioPort, () => {
         this.isRunning = true;
-        this.lithia.logger.ready(
-          `Studio listening on http://localhost:${studioPort}`,
-        );
+        this.lithia.logger.ready(`Studio listening on http://localhost:${studioPort}`);
         resolve();
       });
 

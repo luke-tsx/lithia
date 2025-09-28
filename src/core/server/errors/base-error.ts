@@ -1,4 +1,4 @@
-import { HttpStatusCode, ErrorData } from './types';
+import { type ErrorData, HttpStatusCode } from './types';
 
 /**
  * Base HTTP error class with comprehensive error handling.
@@ -11,12 +11,7 @@ export class HttpError extends Error {
   public readonly timestamp: string;
   public readonly requestId?: string;
 
-  constructor(
-    status: HttpStatusCode,
-    message: string,
-    data?: ErrorData,
-    requestId?: string,
-  ) {
+  constructor(status: HttpStatusCode, message: string, data?: ErrorData, requestId?: string) {
     super(message);
     this.name = this.constructor.name;
     this.status = status;

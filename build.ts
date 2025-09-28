@@ -1,6 +1,5 @@
 import { spawn } from 'node:child_process';
-import { cpSync } from 'node:fs';
-import { cp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { cp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { build } from 'tsup';
 
@@ -16,15 +15,7 @@ enum BuildStep {
   FINALIZE = '✨ Finalize Build',
 }
 
-const subpaths = [
-  'cli',
-  'config',
-  'core',
-  'meta',
-  'studio',
-  'swagger',
-  'types',
-];
+const subpaths = ['cli', 'config', 'core', 'meta', 'studio', 'swagger', 'types'];
 
 /**
  * Logs a build step start.
@@ -50,10 +41,7 @@ function logStepError(step: BuildStep, error: string): void {
 /**
  * Executes a build step with proper logging and error handling.
  */
-async function executeStep<T>(
-  step: BuildStep,
-  stepFunction: () => Promise<T>,
-): Promise<T> {
+async function executeStep<T>(step: BuildStep, stepFunction: () => Promise<T>): Promise<T> {
   logStepStart(step);
   try {
     const result = await stepFunction();
@@ -80,9 +68,7 @@ async function installStudioDependencies(): Promise<void> {
       if (code === 0) {
         resolve();
       } else {
-        reject(
-          new Error(`Studio dependency installation failed with code ${code}`),
-        );
+        reject(new Error(`Studio dependency installation failed with code ${code}`));
       }
     });
 
@@ -126,13 +112,9 @@ async function copyStudioDist() {
     force: true,
   });
 
-  await cp(
-    join(process.cwd(), 'studio', 'out'),
-    join(process.cwd(), 'dist', 'studio', 'app'),
-    {
-      recursive: true,
-    },
-  );
+  await cp(join(process.cwd(), 'studio', 'out'), join(process.cwd(), 'dist', 'studio', 'app'), {
+    recursive: true,
+  });
 }
 
 /**
@@ -141,10 +123,7 @@ async function copyStudioDist() {
 async function buildLithia() {
   await build({
     name: 'lithia',
-    entry: [
-      ...subpaths.map((subpath) => `src/${subpath}/index.ts`),
-      'src/index.ts',
-    ],
+    entry: [...subpaths.map((subpath) => `src/${subpath}/index.ts`), 'src/index.ts'],
     target: 'esnext',
     platform: 'node',
     bundle: true,
@@ -183,34 +162,31 @@ async function updateImportPaths(fullPath: string) {
   let updatedContent = '';
 
   if (fullPath.endsWith('.js')) {
-    updatedContent = content.replace(
-      /require\(['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]\)/g,
-      (items, lithiaPath) => {
-        const pathMap: Record<string, string> = {
-          'lithia/cli': './cli',
-          'lithia/config': './config',
-          'lithia/core': './core',
-          'lithia/meta': './meta',
-          'lithia/studio': './studio',
-          'lithia/swagger': './swagger',
-          'lithia/types': './types',
-        };
+    updatedContent = content.replace(/require\(['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]\)/g, (items, lithiaPath) => {
+      const pathMap: Record<string, string> = {
+        'lithia/cli': './cli',
+        'lithia/config': './config',
+        'lithia/core': './core',
+        'lithia/meta': './meta',
+        'lithia/studio': './studio',
+        'lithia/swagger': './swagger',
+        'lithia/types': './types',
+      };
 
-        const resolvedPath = pathMap[lithiaPath];
-        if (!resolvedPath) return items;
+      const resolvedPath = pathMap[lithiaPath];
+      if (!resolvedPath) return items;
 
-        let relativePath = relative(
-          dirname(fullPath),
-          join(process.cwd(), 'dist', resolvedPath, 'index.js'),
-        ).replace(/\\/g, '/');
+      let relativePath = relative(dirname(fullPath), join(process.cwd(), 'dist', resolvedPath, 'index.js')).replace(
+        /\\/g,
+        '/',
+      );
 
-        if (relativePath[0] !== '.') {
-          relativePath = `./${relativePath}`;
-        }
+      if (relativePath[0] !== '.') {
+        relativePath = `./${relativePath}`;
+      }
 
-        return `require("${relativePath}")`;
-      },
-    );
+      return `require("${relativePath}")`;
+    });
   } else {
     updatedContent = content.replace(
       /(import|export)\s*\{([a-zA-Z0-9_,\s$]*)\}\s*from\s*['"](lithia(?:\/[a-zA-Z0-9_-]+)?)['"]/g,
@@ -228,10 +204,10 @@ async function updateImportPaths(fullPath: string) {
         const resolvedPath = pathMap[lithiaPath];
         if (!resolvedPath) return match;
 
-        let relativePath = relative(
-          dirname(fullPath),
-          join(process.cwd(), 'dist', resolvedPath, 'index.js'),
-        ).replace(/\\/g, '/');
+        let relativePath = relative(dirname(fullPath), join(process.cwd(), 'dist', resolvedPath, 'index.js')).replace(
+          /\\/g,
+          '/',
+        );
 
         if (relativePath[0] !== '.') {
           relativePath = `./${relativePath}`;
@@ -279,10 +255,7 @@ async function main() {
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.error(`\n💥 Build pipeline failed after ${duration}s`);
     console.error('═'.repeat(50));
-    console.error(
-      '❌ Error:',
-      error instanceof Error ? error.message : String(error),
-    );
+    console.error('❌ Error:', error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 }

@@ -1,7 +1,6 @@
-import { Server } from 'http';
-import { LogEntry } from 'lithia/core';
-import type { Lithia } from 'lithia/types';
-import { Socket, Server as SocketIOServer } from 'socket.io';
+import type { Server } from 'node:http';
+import type { LogEntry } from 'lithia/core';
+import { type Socket, Server as SocketIOServer } from 'socket.io';
 
 /**
  * Manages WebSocket connections and events for the Lithia Studio.
@@ -11,12 +10,9 @@ import { Socket, Server as SocketIOServer } from 'socket.io';
  */
 export class WebSocketManager {
   private io: SocketIOServer;
-  private lithia: Lithia;
-  private eventHandlers: Map<string, (socket: Socket, data?: any) => void> =
-    new Map();
+  private eventHandlers: Map<string, (socket: Socket, data?: any) => void> = new Map();
 
-  constructor(httpServer: Server, lithia: Lithia) {
-    this.lithia = lithia;
+  constructor(httpServer: Server) {
     // Initialize Socket.IO with proper CORS
     this.io = new SocketIOServer(httpServer, {
       cors: {

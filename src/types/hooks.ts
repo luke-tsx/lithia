@@ -1,5 +1,5 @@
-import { LithiaRequest, LithiaResponse } from './handler';
-import { MiddlewareInfo } from './middleware';
+import type { LithiaRequest, LithiaResponse } from './handler';
+import type { MiddlewareInfo } from './middleware';
 
 type HookResult = void | Promise<void>;
 
@@ -11,27 +11,10 @@ export type LithiaHooks = {
   // Request lifecycle hooks
   'request:before': (req: LithiaRequest, res: LithiaResponse) => HookResult;
   'request:after': (req: LithiaRequest, res: LithiaResponse) => HookResult;
-  'request:error': (
-    req: LithiaRequest,
-    res: LithiaResponse,
-    error: Error,
-  ) => HookResult;
+  'request:error': (req: LithiaRequest, res: LithiaResponse, error: Error) => HookResult;
 
   // Middleware lifecycle hooks
-  'middleware:beforeExecute': (
-    middleware: MiddlewareInfo,
-    req: LithiaRequest,
-    res: LithiaResponse,
-  ) => HookResult;
-  'middleware:afterExecute': (
-    middleware: MiddlewareInfo,
-    req: LithiaRequest,
-    res: LithiaResponse,
-  ) => HookResult;
-  'middleware:error': (
-    middleware: MiddlewareInfo,
-    req: LithiaRequest,
-    res: LithiaResponse,
-    error: Error,
-  ) => HookResult;
+  'middleware:beforeExecute': (middleware: MiddlewareInfo, req: LithiaRequest, res: LithiaResponse) => HookResult;
+  'middleware:afterExecute': (middleware: MiddlewareInfo, req: LithiaRequest, res: LithiaResponse) => HookResult;
+  'middleware:error': (middleware: MiddlewareInfo, req: LithiaRequest, res: LithiaResponse, error: Error) => HookResult;
 };

@@ -1,8 +1,8 @@
+import type { LithiaMiddleware, LithiaRequest, LithiaResponse } from 'lithia';
 import { z } from 'zod';
-import { LithiaMiddleware, LithiaRequest, LithiaResponse } from 'lithia';
 import { validateRequestBody } from '../../middlewares/auth';
 
-export default async function handler(req: LithiaRequest, res: LithiaResponse) {
+export default async function handler(_req: LithiaRequest, res: LithiaResponse) {
   res.json({
     message: 'Hello, from Lithia! 🚀',
   });

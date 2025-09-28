@@ -32,11 +32,8 @@ jobs:
       - name: Build project
         run: pnpm run build
 
-      - name: Lint code
-        run: pnpm run lint
-
-      - name: Format check
-        run: pnpm run format:check
+      - name: Lint and format check
+        run: pnpm run check
 
       - name: Type check
         run: pnpm run type-check

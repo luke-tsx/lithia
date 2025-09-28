@@ -13,9 +13,7 @@ export class RouteImporter {
 
   constructor() {
     this.isDevelopment =
-      process.env.NODE_ENV === 'development' ||
-      process.env.LITHIA_ENV === 'dev' ||
-      !process.env.NODE_ENV;
+      process.env.NODE_ENV === 'development' || process.env.LITHIA_ENV === 'dev' || !process.env.NODE_ENV;
   }
 
   /**
@@ -44,9 +42,7 @@ export class RouteImporter {
       const importUrl = pathToFileURL(route.filePath).href;
       return await import(importUrl).then((m) => m.default);
     } catch (error) {
-      throw new Error(
-        `Failed to import route module ${route.filePath}: ${error.message}`,
-      );
+      throw new Error(`Failed to import route module ${route.filePath}: ${error.message}`);
     }
   }
 

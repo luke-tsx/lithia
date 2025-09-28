@@ -1,4 +1,4 @@
-import { Lithia, Route } from 'lithia/types';
+import type { Lithia, Route } from 'lithia/types';
 import { DefaultFileScanner } from './scanner';
 
 /**

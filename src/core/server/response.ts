@@ -1,8 +1,8 @@
-import { OutgoingHttpHeaders, ServerResponse } from 'http';
-import { LithiaResponse } from 'lithia/types';
+import { createReadStream, statSync } from 'node:fs';
+import type { OutgoingHttpHeaders, ServerResponse } from 'node:http';
+import { join } from 'node:path';
 import { serialize as serializeCookie } from 'cookie';
-import { createReadStream, statSync } from 'fs';
-import { join } from 'path';
+import type { LithiaResponse } from 'lithia/types';
 
 /**
  * Enhanced HTTP response handler wrapping Node.js ServerResponse
@@ -34,10 +34,7 @@ export class _LithiaResponse implements LithiaResponse {
    * @param {'data' | 'end' | 'error'} event - Stream event type
    * @param {(chunk: unknown) => void} listener - Event handler callback
    */
-  on: (
-    event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe',
-    listener: (chunk: unknown) => void,
-  ) => void;
+  on: (event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe', listener: (chunk: unknown) => void) => void;
 
   /**
    * Validates response state before allowing modifications
@@ -312,12 +309,7 @@ export class _LithiaResponse implements LithiaResponse {
    * @returns {LithiaResponse} Current instance for chaining
    */
   cors(
-    options: {
-      origin?: string | string[];
-      methods?: string[];
-      headers?: string[];
-      credentials?: boolean;
-    } = {},
+    options: { origin?: string | string[]; methods?: string[]; headers?: string[]; credentials?: boolean } = {},
   ): LithiaResponse {
     this.checkIfEnded();
 
@@ -328,10 +320,7 @@ export class _LithiaResponse implements LithiaResponse {
       credentials = false,
     } = options;
 
-    this.addHeader(
-      'Access-Control-Allow-Origin',
-      Array.isArray(origin) ? origin.join(', ') : origin,
-    );
+    this.addHeader('Access-Control-Allow-Origin', Array.isArray(origin) ? origin.join(', ') : origin);
     this.addHeader('Access-Control-Allow-Methods', methods.join(', '));
     this.addHeader('Access-Control-Allow-Headers', headers.join(', '));
 
@@ -362,15 +351,7 @@ export class _LithiaResponse implements LithiaResponse {
   ): LithiaResponse {
     this.checkIfEnded();
 
-    const {
-      maxAge,
-      sMaxAge,
-      private: isPrivate,
-      noCache,
-      noStore,
-      mustRevalidate,
-      etag,
-    } = options;
+    const { maxAge, sMaxAge, private: isPrivate, noCache, noStore, mustRevalidate, etag } = options;
 
     if (noStore) {
       this.addHeader('Cache-Control', 'no-store');
@@ -424,10 +405,7 @@ export class _LithiaResponse implements LithiaResponse {
 
       const downloadName = filename || filePath.split('/').pop() || 'download';
 
-      this.addHeader(
-        'Content-Disposition',
-        `attachment; filename="${downloadName}"`,
-      );
+      this.addHeader('Content-Disposition', `attachment; filename="${downloadName}"`);
       this.addHeader('Content-Length', stats.size.toString());
 
       // Set additional headers if provided
@@ -513,10 +491,7 @@ export class _LithiaResponse implements LithiaResponse {
     if (this._cookies.length > 0) {
       this._cookies.forEach(({ name, value, options }) => {
         const cookieString = serializeCookie(name, value, options);
-        this.res.setHeader('Set-Cookie', [
-          ...((this.res.getHeader('Set-Cookie') as string[]) || []),
-          cookieString,
-        ]);
+        this.res.setHeader('Set-Cookie', [...((this.res.getHeader('Set-Cookie') as string[]) || []), cookieString]);
       });
       this._cookies = [];
     }
@@ -526,7 +501,8 @@ export class _LithiaResponse implements LithiaResponse {
 
     try {
       if (data === undefined || data === null) {
-        return this.end();
+        this.end();
+        return;
       }
 
       switch (typeof data) {

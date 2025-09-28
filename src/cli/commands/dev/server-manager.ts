@@ -1,7 +1,7 @@
+import type { Server } from 'node:http';
 import { HttpServerManager } from 'lithia/core';
 import type { Lithia } from 'lithia/types';
-import { Server } from 'node:http';
-import { DevServerEventEmitter, DevServerEventType } from './events';
+import { type DevServerEventEmitter, DevServerEventType } from './events';
 
 /**
  * Server configuration options.
@@ -127,7 +127,7 @@ export class ServerManager {
 
       if (this.server) {
         await new Promise<void>((resolve, reject) => {
-          this.server!.close((error) => {
+          this.server?.close((error) => {
             if (error) {
               reject(error);
             } else {
@@ -233,9 +233,7 @@ export class ServerManager {
       }
 
       this.server.listen(this.config.port, this.config.host, () => {
-        this.lithia.logger.ready(
-          `Server listening on http://${this.config.host}:${this.config.port}`,
-        );
+        this.lithia.logger.ready(`Server listening on http://${this.config.host}:${this.config.port}`);
         resolve();
       });
 

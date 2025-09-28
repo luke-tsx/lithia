@@ -3,16 +3,7 @@ import { bold, green, magenta, red, white, yellow } from './picocolors';
 export interface LogEntry {
   id: string;
   timestamp: Date;
-  level:
-    | 'info'
-    | 'warn'
-    | 'error'
-    | 'debug'
-    | 'success'
-    | 'ready'
-    | 'wait'
-    | 'event'
-    | 'trace';
+  level: 'info' | 'warn' | 'error' | 'debug' | 'success' | 'ready' | 'wait' | 'event' | 'trace';
   message: string;
   args?: unknown[];
   source?: string;
@@ -63,9 +54,7 @@ export class ConsoleLogger implements Logger {
   }
 
   private formatMessage(prefix: string, message: string): string {
-    const coloredPrefix = this.colors
-      ? prefix
-      : prefix.replace(/\[[0-9;]*m/g, '');
+    const coloredPrefix = this.colors ? prefix : prefix.replace(/\[[0-9;]*m/g, '');
     return ` ${coloredPrefix} ${message}`;
   }
 
@@ -77,11 +66,7 @@ export class ConsoleLogger implements Logger {
     return true;
   }
 
-  private emitLogEntry(
-    level: LogEntry['level'],
-    message: string,
-    args: unknown[],
-  ): void {
+  private emitLogEntry(level: LogEntry['level'], message: string, args: unknown[]): void {
     if (this.onLogEntry) {
       const entry: LogEntry = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -160,7 +145,7 @@ export class ConsoleLogger implements Logger {
 
   bootstrap(...message: string[]): void {
     if (!this.shouldLog('info')) return;
-    this.console.log('   ' + message.join(' '));
+    this.console.log(`   ${message.join(' ')}`);
   }
 
   warnOnce(message: string): void {
