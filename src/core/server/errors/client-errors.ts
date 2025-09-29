@@ -18,7 +18,11 @@ export class UnauthorizedError extends HttpError {
 }
 
 export class PaymentRequiredError extends HttpError {
-  constructor(message = 'Payment Required', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Payment Required',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.PAYMENT_REQUIRED, message, data, requestId);
   }
 }
@@ -36,25 +40,46 @@ export class NotFoundError extends HttpError {
 }
 
 export class MethodNotAllowedError extends HttpError {
-  constructor(message = 'Method Not Allowed', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Method Not Allowed',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.METHOD_NOT_ALLOWED, message, data, requestId);
   }
 }
 
 export class NotAcceptableError extends HttpError {
-  constructor(message = 'Not Acceptable', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Not Acceptable',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.NOT_ACCEPTABLE, message, data, requestId);
   }
 }
 
 export class ProxyAuthenticationRequiredError extends HttpError {
-  constructor(message = 'Proxy Authentication Required', data?: ErrorData, requestId?: string) {
-    super(HttpStatusCode.PROXY_AUTHENTICATION_REQUIRED, message, data, requestId);
+  constructor(
+    message = 'Proxy Authentication Required',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
+    super(
+      HttpStatusCode.PROXY_AUTHENTICATION_REQUIRED,
+      message,
+      data,
+      requestId,
+    );
   }
 }
 
 export class RequestTimeoutError extends HttpError {
-  constructor(message = 'Request Timeout', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Request Timeout',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.REQUEST_TIMEOUT, message, data, requestId);
   }
 }
@@ -72,19 +97,31 @@ export class GoneError extends HttpError {
 }
 
 export class LengthRequiredError extends HttpError {
-  constructor(message = 'Length Required', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Length Required',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.LENGTH_REQUIRED, message, data, requestId);
   }
 }
 
 export class PreconditionFailedError extends HttpError {
-  constructor(message = 'Precondition Failed', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Precondition Failed',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.PRECONDITION_FAILED, message, data, requestId);
   }
 }
 
 export class PayloadTooLargeError extends HttpError {
-  constructor(message = 'Payload Too Large', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Payload Too Large',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.PAYLOAD_TOO_LARGE, message, data, requestId);
   }
 }
@@ -96,19 +133,31 @@ export class UriTooLongError extends HttpError {
 }
 
 export class UnsupportedMediaTypeError extends HttpError {
-  constructor(message = 'Unsupported Media Type', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Unsupported Media Type',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.UNSUPPORTED_MEDIA_TYPE, message, data, requestId);
   }
 }
 
 export class RangeNotSatisfiableError extends HttpError {
-  constructor(message = 'Range Not Satisfiable', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Range Not Satisfiable',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.RANGE_NOT_SATISFIABLE, message, data, requestId);
   }
 }
 
 export class ExpectationFailedError extends HttpError {
-  constructor(message = 'Expectation Failed', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Expectation Failed',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.EXPECTATION_FAILED, message, data, requestId);
   }
 }
@@ -120,13 +169,21 @@ export class ImATeapotError extends HttpError {
 }
 
 export class MisdirectedRequestError extends HttpError {
-  constructor(message = 'Misdirected Request', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Misdirected Request',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.MISDIRECTED_REQUEST, message, data, requestId);
   }
 }
 
 export class UnprocessableEntityError extends HttpError {
-  constructor(message = 'Unprocessable Entity', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Unprocessable Entity',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.UNPROCESSABLE_ENTITY, message, data, requestId);
   }
 }
@@ -138,7 +195,11 @@ export class LockedError extends HttpError {
 }
 
 export class FailedDependencyError extends HttpError {
-  constructor(message = 'Failed Dependency', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Failed Dependency',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.FAILED_DEPENDENCY, message, data, requestId);
   }
 }
@@ -150,31 +211,61 @@ export class TooEarlyError extends HttpError {
 }
 
 export class UpgradeRequiredError extends HttpError {
-  constructor(message = 'Upgrade Required', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Upgrade Required',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.UPGRADE_REQUIRED, message, data, requestId);
   }
 }
 
 export class PreconditionRequiredError extends HttpError {
-  constructor(message = 'Precondition Required', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Precondition Required',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.PRECONDITION_REQUIRED, message, data, requestId);
   }
 }
 
 export class TooManyRequestsError extends HttpError {
-  constructor(message = 'Too Many Requests', data?: ErrorData, requestId?: string) {
+  constructor(
+    message = 'Too Many Requests',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(HttpStatusCode.TOO_MANY_REQUESTS, message, data, requestId);
   }
 }
 
 export class RequestHeaderFieldsTooLargeError extends HttpError {
-  constructor(message = 'Request Header Fields Too Large', data?: ErrorData, requestId?: string) {
-    super(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, message, data, requestId);
+  constructor(
+    message = 'Request Header Fields Too Large',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
+    super(
+      HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE,
+      message,
+      data,
+      requestId,
+    );
   }
 }
 
 export class UnavailableForLegalReasonsError extends HttpError {
-  constructor(message = 'Unavailable For Legal Reasons', data?: ErrorData, requestId?: string) {
-    super(HttpStatusCode.UNAVAILABLE_FOR_LEGAL_REASONS, message, data, requestId);
+  constructor(
+    message = 'Unavailable For Legal Reasons',
+    data?: ErrorData,
+    requestId?: string,
+  ) {
+    super(
+      HttpStatusCode.UNAVAILABLE_FOR_LEGAL_REASONS,
+      message,
+      data,
+      requestId,
+    );
   }
 }

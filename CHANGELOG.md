@@ -1,46 +1,24 @@
 # Changelog
-## 3.0.0
 
-### Major Changes
+## 3.1.0
 
-- Version 3 of Lithia, now with integrated studio!
+### Minor Changes
 
-### Patch Changes
+- Improve Studio UI.
 
-- 75884f8: Fix merge conflicts, update ESLint configuration, and add Changesets for release management
+### Bug Fixes
 
-  - Resolve merge conflicts in pnpm-lock.yaml
-  - Update ESLint to v9.x compatibility
-  - Add Changesets for automated release workflow
-  - Fix TypeScript configuration and CI/CD pipeline
-  - Improve release process with canary support
+- Fix hook update when updating lithia.config.ts
+- Fix build process.
 
-All notable changes to this project will be documented in this file.
+### Breaking Changes
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+- Now routes are defined using `route.ts` file.
 
-## [Unreleased]
+###
 
-### Added
+- Now you can create routes using the new route builder from Lithia Studio.
 
-- CLI tool for managing examples
-- Examples directory with basic API example
-- Simplified versioning workflow
+### Observations
 
-### Changed
-
-- Removed Changesets dependency
-- Simplified package.json scripts
-
-## [2.1.28] - 2024-01-XX
-
-### Fixed
-
-- CORS middleware implementation
-
-## [2.1.27] - 2024-01-XX
-
-### Added
-
-- New use-cors middleware
+- All releases behind this version should not be used, as they were released for testing purposes.

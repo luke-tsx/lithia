@@ -1,6 +1,10 @@
 import { loadConfig, watchConfig } from 'c12';
 import { klona } from 'klona/full';
-import type { LithiaConfig, LithiaOptions, LoadConfigOptions } from 'lithia/types';
+import type {
+  LithiaConfig,
+  LithiaOptions,
+  LoadConfigOptions,
+} from 'lithia/types';
 import { LithiaDefaults } from './defaults';
 
 /**
@@ -19,7 +23,10 @@ export interface ConfigProvider {
    * @param opts - Loading options including watch mode and c12 options
    * @returns Promise that resolves to validated LithiaOptions
    */
-  loadConfig(overrides: LithiaConfig, opts: LoadConfigOptions): Promise<LithiaOptions>;
+  loadConfig(
+    overrides: LithiaConfig,
+    opts: LoadConfigOptions,
+  ): Promise<LithiaOptions>;
 }
 
 export interface DiffHashedObject {
@@ -42,7 +49,9 @@ export interface ConfigUpdateContext {
   oldConfig: LithiaOptions;
 }
 
-export type ConfigUpdateCallback = (context: ConfigUpdateContext) => void | Promise<void>;
+export type ConfigUpdateCallback = (
+  context: ConfigUpdateContext,
+) => void | Promise<void>;
 
 /**
  * Configuration validation error.
@@ -91,7 +100,10 @@ export class C12ConfigProvider implements ConfigProvider {
    * @returns Promise that resolves to validated LithiaOptions
    * @throws {ConfigValidationError} When configuration validation fails
    */
-  async loadConfig(overrides: LithiaConfig = {}, opts: LoadConfigOptions = {}): Promise<LithiaOptions> {
+  async loadConfig(
+    overrides: LithiaConfig = {},
+    opts: LoadConfigOptions = {},
+  ): Promise<LithiaOptions> {
     overrides = klona(overrides);
 
     const configOptions = {
@@ -104,12 +116,16 @@ export class C12ConfigProvider implements ConfigProvider {
       ...opts.c12,
     };
 
-    const loadedConfig = await (opts.watch ? watchConfig<LithiaConfig> : loadConfig<LithiaConfig>)(
+    const loadedConfig = await (
+      opts.watch ? watchConfig<LithiaConfig> : loadConfig<LithiaConfig>
+    )(
       opts.watch && this.configUpdateCallback
         ? {
             ...configOptions,
             onUpdate: async (context) => {
-              const newOptions = klona(context.newConfig.config) as LithiaOptions;
+              const newOptions = klona(
+                context.newConfig.config,
+              ) as LithiaOptions;
               this.validateConfig(newOptions);
 
               newOptions._config = overrides;
@@ -147,7 +163,10 @@ export class C12ConfigProvider implements ConfigProvider {
    */
   private validateConfig(config: LithiaOptions): void {
     if (config.server.port < 1 || config.server.port > 65535) {
-      throw new ConfigValidationError('Server port must be between 1 and 65535', 'server.port');
+      throw new ConfigValidationError(
+        'Server port must be between 1 and 65535',
+        'server.port',
+      );
     }
   }
 }

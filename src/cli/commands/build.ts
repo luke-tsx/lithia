@@ -83,7 +83,7 @@ export default defineCommand({
           if (options.verbose) {
             lithia.logger.info(`Cleaned output directory: ${outputPath}`);
           }
-        } catch (_error) {
+        } catch {
           // Directory might not exist, which is fine
         }
       }

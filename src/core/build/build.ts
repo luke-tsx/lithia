@@ -19,7 +19,9 @@ export async function build(lithia: Lithia): Promise<boolean> {
     const result = await buildLithia(lithia);
     return result.success;
   } catch (error) {
-    lithia.logger.error(`Build failed: ${error instanceof Error ? error.message : String(error)}`);
+    lithia.logger.error(
+      `Build failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return false;
   }
 }
@@ -67,9 +69,19 @@ export function printRoutesOverview(routes: Route[]): void {
   routes.forEach((route) => {
     try {
       const fileSize = readFileSync(route.filePath).length;
-      table.push([route.method || 'ALL', route.path, route.env || 'all', `${fileSize} bytes`]);
+      table.push([
+        route.method || 'ALL',
+        route.path,
+        route.env || 'all',
+        `${fileSize} bytes`,
+      ]);
     } catch {
-      table.push([route.method || 'ALL', route.path, route.env || 'all', 'N/A']);
+      table.push([
+        route.method || 'ALL',
+        route.path,
+        route.env || 'all',
+        'N/A',
+      ]);
     }
   });
 

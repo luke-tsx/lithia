@@ -39,7 +39,10 @@ export class NodeCacheManager {
       });
 
       // Clear ES modules cache if available (Node.js 20.6+)
-      if (typeof globalThis.import !== 'undefined' && 'cache' in globalThis.import) {
+      if (
+        typeof globalThis.import !== 'undefined' &&
+        'cache' in globalThis.import
+      ) {
         const esModuleCache = (globalThis.import as any).cache;
         if (esModuleCache && typeof esModuleCache.delete === 'function') {
           // Clear ES modules from output directory
@@ -88,7 +91,10 @@ export class NodeCacheManager {
       }
 
       // Clear from ES modules cache if available
-      if (typeof globalThis.import !== 'undefined' && 'cache' in globalThis.import) {
+      if (
+        typeof globalThis.import !== 'undefined' &&
+        'cache' in globalThis.import
+      ) {
         const esModuleCache = (globalThis.import as any).cache;
         if (esModuleCache && typeof esModuleCache.delete === 'function') {
           esModuleCache.delete(normalizedPath);
@@ -113,7 +119,10 @@ export class NodeCacheManager {
         // Ignore file URL conversion errors
       }
     } catch (error) {
-      this.lithia.logger.error(`Error clearing cache for module ${filePath}:`, error);
+      this.lithia.logger.error(
+        `Error clearing cache for module ${filePath}:`,
+        error,
+      );
     }
   }
 
@@ -128,7 +137,9 @@ export class NodeCacheManager {
     const outputDir = path.join(process.cwd(), '.lithia');
 
     const cachedModules = Object.keys(require.cache);
-    const outputModules = cachedModules.filter((modulePath) => path.normalize(modulePath).startsWith(outputDir)).length;
+    const outputModules = cachedModules.filter((modulePath) =>
+      path.normalize(modulePath).startsWith(outputDir),
+    ).length;
 
     return {
       totalModules: cachedModules.length,

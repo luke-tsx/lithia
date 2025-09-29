@@ -1,15 +1,30 @@
 #!/usr/bin/env node
 
-const { defineCommand, runMain } = require('citty');
-const prompts = require('prompts');
-const { spawn } = require('node:child_process');
-const fs = require('node:fs');
-const path = require('node:path');
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { defineCommand, runMain } from 'citty';
+import prompts from 'prompts';
 
-// Function to scan examples folder and find projects
-function scanExamples() {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+interface Project {
+  name: string;
+  displayName: string;
+  path: string;
+  description: string;
+}
+
+interface PackageJson {
+  description?: string;
+  [key: string]: unknown;
+}
+
+function scanExamples(): Project[] {
   const examplesDir = __dirname;
-  const projects = [];
+  const projects: Project[] = [];
 
   try {
     const items = fs.readdirSync(examplesDir, { withFileTypes: true });
@@ -19,10 +34,11 @@ function scanExamples() {
         const projectPath = path.join(examplesDir, item.name);
         const packageJsonPath = path.join(projectPath, 'package.json');
 
-        // Check if it has package.json
         if (fs.existsSync(packageJsonPath)) {
           try {
-            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+            const packageJson: PackageJson = JSON.parse(
+              fs.readFileSync(packageJsonPath, 'utf8'),
+            );
             projects.push({
               name: item.name,
               displayName: item.name
@@ -33,28 +49,32 @@ function scanExamples() {
               description: packageJson.description || 'Lithia example',
             });
           } catch (error) {
-            console.warn(`Error reading package.json from ${item.name}:`, error.message);
+            console.warn(
+              `Error reading package.json from ${item.name}:`,
+              error instanceof Error ? error.message : String(error),
+            );
           }
         }
       }
     }
 
-    // Sort by number
     projects.sort((a, b) => {
-      const numA = parseInt(a.name.match(/^(\d+)-/)?.[1] || '0', 10);
-      const numB = parseInt(b.name.match(/^(\d+)-/)?.[1] || '0', 10);
+      const numA = Number.parseInt(a.name.match(/^(\d+)-/)?.[1] || '0', 10);
+      const numB = Number.parseInt(b.name.match(/^(\d+)-/)?.[1] || '0', 10);
       return numA - numB;
     });
   } catch (error) {
-    console.error('Error scanning examples folder:', error.message);
+    console.error(
+      'Error scanning examples folder:',
+      error instanceof Error ? error.message : String(error),
+    );
     process.exit(1);
   }
 
   return projects;
 }
 
-// Function to run the server
-function runServer(project) {
+function runServer(project: Project): void {
   console.log(`\nStarting ${project.displayName}...`);
   console.log(`Folder: ${project.path}`);
   console.log(`\nServer will start at http://localhost:3000`);
@@ -66,9 +86,7 @@ function runServer(project) {
     shell: true,
   });
 
-  // Signal handling to stop the server
   const cleanup = () => {
-    console.log('\n\nStopping server...');
     child.kill('SIGTERM');
     process.exit(0);
   };
@@ -84,12 +102,11 @@ function runServer(project) {
   child.on('exit', (code) => {
     if (code !== 0) {
       console.error(`Server exited with code ${code}`);
-      process.exit(code);
+      process.exit(code || 1);
     }
   });
 }
 
-// Main command to run examples
 const runCommand = defineCommand({
   meta: {
     name: 'run',
@@ -112,10 +129,9 @@ const runCommand = defineCommand({
         process.exit(1);
       }
 
-      let selectedProject;
+      let selectedProject: Project | undefined;
 
       if (args.project) {
-        // Projeto especificado via argumento
         selectedProject = projects.find(
           (p) =>
             p.name === args.project ||
@@ -126,13 +142,12 @@ const runCommand = defineCommand({
         if (!selectedProject) {
           console.log(`Project "${args.project}" not found`);
           console.log('Available projects:');
-          projects.forEach((p) => {
+          for (const p of projects) {
             console.log(`  - ${p.name} (${p.displayName})`);
-          });
+          }
           process.exit(1);
         }
       } else {
-        // Interactive selection
         console.log('Select an example to run:\n');
 
         const response = await prompts({
@@ -154,7 +169,11 @@ const runCommand = defineCommand({
         selectedProject = response.project;
       }
 
-      // Check if project has dependencies installed
+      if (!selectedProject) {
+        console.log('No project selected');
+        process.exit(1);
+      }
+
       const nodeModulesPath = path.join(selectedProject.path, 'node_modules');
       if (!fs.existsSync(nodeModulesPath)) {
         console.log('Installing dependencies...');
@@ -165,7 +184,7 @@ const runCommand = defineCommand({
         });
 
         installProcess.on('exit', (code) => {
-          if (code === 0) {
+          if (code === 0 && selectedProject) {
             runServer(selectedProject);
           } else {
             console.error('Error installing dependencies');
@@ -176,13 +195,15 @@ const runCommand = defineCommand({
         runServer(selectedProject);
       }
     } catch (error) {
-      console.error('Error:', error.message);
+      console.error(
+        'Error:',
+        error instanceof Error ? error.message : String(error),
+      );
       process.exit(1);
     }
   },
 });
 
-// Command to list projects
 const listCommand = defineCommand({
   meta: {
     name: 'list',
@@ -197,16 +218,15 @@ const listCommand = defineCommand({
     }
 
     console.log('Available examples:\n');
-    projects.forEach((project) => {
+    for (const project of projects) {
       console.log(`  ${project.name}`);
       console.log(`    ${project.displayName}`);
       console.log(`    ${project.path}`);
       console.log(`    ${project.description}\n`);
-    });
+    }
   },
 });
 
-// Command to create new example
 const createCommand = defineCommand({
   meta: {
     name: 'create',
@@ -233,13 +253,11 @@ const createCommand = defineCommand({
     console.log(`Creating project ${projectName}...`);
 
     try {
-      // Create basic structure
       fs.mkdirSync(projectPath, { recursive: true });
       fs.mkdirSync(path.join(projectPath, 'src', 'routes'), {
         recursive: true,
       });
 
-      // Create package.json
       const packageJson = {
         name: `lithia-example-${args.name}`,
         version: '1.0.0',
@@ -255,9 +273,11 @@ const createCommand = defineCommand({
         },
       };
 
-      fs.writeFileSync(path.join(projectPath, 'package.json'), JSON.stringify(packageJson, null, 2));
+      fs.writeFileSync(
+        path.join(projectPath, 'package.json'),
+        JSON.stringify(packageJson, null, 2),
+      );
 
-      // Create tsconfig.json
       const tsconfig = {
         compilerOptions: {
           target: 'ESNext',
@@ -277,16 +297,20 @@ const createCommand = defineCommand({
         exclude: [],
       };
 
-      fs.writeFileSync(path.join(projectPath, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2));
+      fs.writeFileSync(
+        path.join(projectPath, 'tsconfig.json'),
+        JSON.stringify(tsconfig, null, 2),
+      );
 
-      // Create lithia.config.js
       const lithiaConfig = `import { defineLithiaConfig } from 'lithia';
 
 export default defineLithiaConfig({});`;
 
-      fs.writeFileSync(path.join(projectPath, 'lithia.config.js'), lithiaConfig);
+      fs.writeFileSync(
+        path.join(projectPath, 'lithia.config.js'),
+        lithiaConfig,
+      );
 
-      // Create example route
       const helloRoute = `import { LithiaRequest, LithiaResponse } from 'lithia';
 
 export default async function handler(req: LithiaRequest, res: LithiaResponse) {
@@ -295,7 +319,10 @@ export default async function handler(req: LithiaRequest, res: LithiaResponse) {
   });
 }`;
 
-      fs.writeFileSync(path.join(projectPath, 'src', 'routes', 'hello.get.ts'), helloRoute);
+      fs.writeFileSync(
+        path.join(projectPath, 'src', 'routes', 'hello.get.ts'),
+        helloRoute,
+      );
 
       console.log(`Project ${projectName} created successfully!`);
       console.log(`Location: ${projectPath}`);
@@ -304,13 +331,15 @@ export default async function handler(req: LithiaRequest, res: LithiaResponse) {
       console.log(`  npm install`);
       console.log(`  npm run dev`);
     } catch (error) {
-      console.error('Error creating project:', error.message);
+      console.error(
+        'Error creating project:',
+        error instanceof Error ? error.message : String(error),
+      );
       process.exit(1);
     }
   },
 });
 
-// Main command
 const main = defineCommand({
   meta: {
     name: 'lithia-examples',
@@ -324,19 +353,14 @@ const main = defineCommand({
   },
 });
 
-// Uncaught error handling
 process.on('uncaughtException', (error) => {
   console.error('Uncaught error:', error.message);
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, _promise) => {
+process.on('unhandledRejection', (reason) => {
   console.error('Unhandled promise rejection:', reason);
   process.exit(1);
 });
 
-// Export for testing
-module.exports = { main, runCommand, listCommand, createCommand };
-
-// Run CLI
 runMain(main);

@@ -1,4 +1,11 @@
-import { C12ConfigProvider, type ConfigUpdateContext, createLithia, type DiffEntry } from 'lithia/core';
+import { createHooks } from 'hookable';
+import {
+  C12ConfigProvider,
+  type ConfigUpdateContext,
+  createLithia,
+  type DiffEntry,
+  registerHooksFromConfig,
+} from 'lithia/core';
 import { LithiaStudio } from 'lithia/studio';
 import type { Lithia } from 'lithia/types';
 import { BuildMonitor } from './build-monitor';
@@ -40,7 +47,11 @@ export class DevServerManager {
   private isInitialized = false;
   private isRunning = false;
   private startTime?: number;
-  private criticalChanges: string[] = ['server.port', 'server.host', 'studio.enabled'];
+  private criticalChanges: string[] = [
+    'server.port',
+    'server.host',
+    'studio.enabled',
+  ];
 
   constructor(
     options: {
@@ -215,9 +226,11 @@ export class DevServerManager {
   private async setupConfigWatching(): Promise<void> {
     this.configProvider = new C12ConfigProvider();
 
-    this.configProvider.setConfigUpdateCallback(async (context: ConfigUpdateContext) => {
-      await this.handleConfigUpdate(context);
-    });
+    this.configProvider.setConfigUpdateCallback(
+      async (context: ConfigUpdateContext) => {
+        await this.handleConfigUpdate(context);
+      },
+    );
 
     // Load config with watch enabled
     await this.configProvider.loadConfig({}, { watch: true });
@@ -226,7 +239,9 @@ export class DevServerManager {
   /**
    * Handle configuration updates with diff detection.
    */
-  private async handleConfigUpdate(context: ConfigUpdateContext): Promise<void> {
+  private async handleConfigUpdate(
+    context: ConfigUpdateContext,
+  ): Promise<void> {
     if (!this.isRunning) {
       return;
     }
@@ -236,6 +251,13 @@ export class DevServerManager {
 
     try {
       this.lithia.options = context.newConfig;
+
+      // Check if hooks configuration changed and reload if necessary
+      const hooksChanged = this.detectHooksChanges(diff);
+      if (hooksChanged) {
+        this.reloadHooks();
+      }
+
       this.lithia.logger.success('Lithia configuration updated');
 
       // Notify Studio of configuration update
@@ -253,8 +275,39 @@ export class DevServerManager {
     }
   }
 
+  /**
+   * Detect if hooks configuration has changed.
+   * @param diff - Configuration diff entries
+   * @returns true if hooks changed, false otherwise
+   */
+  private detectHooksChanges(diff: DiffEntry[]): boolean {
+    return diff.some((entry) => entry.key.startsWith('hooks'));
+  }
+
+  /**
+   * Reload hooks from the updated configuration.
+   * This clears existing hooks and registers new ones from the config.
+   */
+  private reloadHooks(): void {
+    try {
+      // Clear existing hooks by creating a new hooks instance
+      this.lithia.hooks = createHooks();
+
+      // Register hooks from updated configuration using existing function
+      registerHooksFromConfig(this.lithia, this.lithia.options.hooks);
+
+      const hooksCount = Object.keys(this.lithia.options.hooks || {}).length;
+      this.lithia.logger.debug(`Reloaded ${hooksCount} hook types`);
+    } catch (error) {
+      this.lithia.logger.error('Failed to reload hooks:', error);
+    }
+  }
+
   private detectCriticalChanges(diff: DiffEntry[]) {
-    return diff.filter((entry) => this.criticalChanges.includes(entry.key) && entry.type === 'changed');
+    return diff.filter(
+      (entry) =>
+        this.criticalChanges.includes(entry.key) && entry.type === 'changed',
+    );
   }
 
   /**
@@ -286,7 +339,9 @@ export class DevServerManager {
    */
   async reloadConfig(): Promise<void> {
     // This method is now handled by the config watching system
-    this.lithia.logger.info('Configuration watching is active - changes are applied automatically');
+    this.lithia.logger.info(
+      'Configuration watching is active - changes are applied automatically',
+    );
   }
 
   /**
@@ -300,7 +355,11 @@ export class DevServerManager {
     try {
       const envKeys = Object.keys(process.env);
       envKeys.forEach((key) => {
-        if (!key.startsWith('NODE_') && !key.startsWith('LITHIA_') && !key.startsWith('PATH')) {
+        if (
+          !key.startsWith('NODE_') &&
+          !key.startsWith('LITHIA_') &&
+          !key.startsWith('PATH')
+        ) {
           delete process.env[key];
         }
       });
@@ -310,7 +369,10 @@ export class DevServerManager {
 
       this.lithia.logger.info('Environment variables reloaded successfully');
     } catch (error) {
-      this.lithia.logger.error('Failed to reload environment variables:', error);
+      this.lithia.logger.error(
+        'Failed to reload environment variables:',
+        error,
+      );
     }
   }
 
@@ -450,7 +512,10 @@ export class DevServerManager {
 
       // Emit to Studio if enabled
       if (this.studio) {
-        this.studio.emitBuildStatus(false, event.data?.errors?.[0]?.message || 'Build failed');
+        this.studio.emitBuildStatus(
+          false,
+          event.data?.errors?.[0]?.message || 'Build failed',
+        );
         // Send updated statistics
         this.sendStatisticsToStudio();
       }

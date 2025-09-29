@@ -133,6 +133,8 @@ export class DefaultPathTransformer implements PathTransformer {
    */
   generateRouteRegex(path: string): string {
     const namedRegex = path.replace(/:(\w+)/g, (_, key) => `:${key}`);
-    return new RegExp(`^${namedRegex.replace(/\//g, '\\/').replace(/:\w+/g, '([^\\/]+)')}$`).source;
+    return new RegExp(
+      `^${namedRegex.replace(/\//g, '\\/').replace(/:\w+/g, '([^\\/]+)')}$`,
+    ).source;
   }
 }

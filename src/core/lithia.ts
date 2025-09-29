@@ -1,5 +1,10 @@
 import { createDebugger, createHooks } from 'hookable';
-import type { Lithia, LithiaConfig, LithiaHooks, LoadConfigOptions } from 'lithia/types';
+import type {
+  Lithia,
+  LithiaConfig,
+  LithiaHooks,
+  LoadConfigOptions,
+} from 'lithia/types';
 import { loadOptions } from './config/loader';
 import { ConsoleLogger, type Logger } from './log/logger';
 
@@ -9,15 +14,16 @@ import { ConsoleLogger, type Logger } from './log/logger';
  * @param lithia - Lithia instance
  * @param hooksConfig - Hooks configuration from lithia.config.js
  */
-function registerHooksFromConfig(lithia: Lithia, hooksConfig: Lithia['options']['hooks']): void {
+export function registerHooksFromConfig(
+  lithia: Lithia,
+  hooksConfig: Lithia['options']['hooks'],
+): void {
   if (!hooksConfig) return;
 
   // Register each hook type from configuration
-  for (const [hookName, handlers] of Object.entries(hooksConfig)) {
-    if (Array.isArray(handlers)) {
-      for (const handler of handlers) {
-        lithia.hooks.hook(hookName as keyof LithiaHooks, handler);
-      }
+  for (const [hookName, handler] of Object.entries(hooksConfig)) {
+    if (typeof handler === 'function') {
+      lithia.hooks.hook(hookName as keyof LithiaHooks, handler);
     }
   }
 }
@@ -72,17 +78,6 @@ export async function createLithia(
   if (lithia.options.debug) {
     createDebugger(lithia.hooks, { tag: 'lithia' });
   }
-
-  // Log successful initialization
-  lithiaLogger.debug(`Lithia instance created successfully`);
-  lithiaLogger.debug('Configuration loaded:', {
-    port: options.server.port,
-    host: options.server.host,
-    buildMode: options.build.mode,
-    environment: options._env,
-    hooksEnabled: true,
-    registeredHooks: Object.keys(options.hooks || {}).length,
-  });
 
   return lithia;
 }

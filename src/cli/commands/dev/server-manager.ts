@@ -233,7 +233,9 @@ export class ServerManager {
       }
 
       this.server.listen(this.config.port, this.config.host, () => {
-        this.lithia.logger.ready(`Server listening on http://${this.config.host}:${this.config.port}`);
+        this.lithia.logger.ready(
+          `Server listening on http://${this.config.host}:${this.config.port}`,
+        );
         resolve();
       });
 

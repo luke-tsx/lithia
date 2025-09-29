@@ -47,7 +47,9 @@ export default defineCommand({
       // Keep the process running
       if (devServer.isDebugEnabled) {
         const lithia = devServer.lithiaInstance;
-        lithia?.logger.info('Development server is running. Press Ctrl+C to stop.');
+        lithia?.logger.info(
+          'Development server is running. Press Ctrl+C to stop.',
+        );
         lithia?.logger.info('Use --debug flag for detailed logs');
       }
     } catch (error) {

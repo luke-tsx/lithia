@@ -219,13 +219,11 @@ export class ProductionServerManager {
 
     // Graceful shutdown handlers
     process.on('SIGINT', async () => {
-      this.lithia.logger.info('Received SIGINT. Shutting down gracefully...');
       await this.stop();
       process.exit(0);
     });
 
     process.on('SIGTERM', async () => {
-      this.lithia.logger.info('Received SIGTERM. Shutting down gracefully...');
       await this.stop();
       process.exit(0);
     });

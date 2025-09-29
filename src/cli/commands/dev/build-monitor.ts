@@ -133,7 +133,9 @@ export class BuildMonitor {
           reason,
         });
 
-        this.lithia.logger.success(`Build completed successfully in ${buildTime}ms`);
+        this.lithia.logger.success(
+          `Build completed successfully in ${buildTime}ms`,
+        );
         this.lithia.logger.info(`Routes built: ${result.routesBuilt}`);
       } else {
         await this.eventEmitter.emit(DevServerEventType.BUILD_ERROR, {
@@ -166,7 +168,10 @@ export class BuildMonitor {
         reason,
       });
 
-      this.lithia.logger.error(`Build failed with error in ${buildTime}ms:`, error);
+      this.lithia.logger.error(
+        `Build failed with error in ${buildTime}ms:`,
+        error,
+      );
       return false;
     } finally {
       this.isBuilding = false;
@@ -215,7 +220,8 @@ export class BuildMonitor {
 
     // Update average build time
     this.stats.averageBuildTime =
-      (this.stats.averageBuildTime * (this.stats.totalBuilds - 1) + buildTime) / this.stats.totalBuilds;
+      (this.stats.averageBuildTime * (this.stats.totalBuilds - 1) + buildTime) /
+      this.stats.totalBuilds;
   }
 
   /**
@@ -241,7 +247,10 @@ export class BuildMonitor {
     stats: BuildStats;
     successRate: number;
   } {
-    const successRate = this.stats.totalBuilds > 0 ? (this.stats.successfulBuilds / this.stats.totalBuilds) * 100 : 0;
+    const successRate =
+      this.stats.totalBuilds > 0
+        ? (this.stats.successfulBuilds / this.stats.totalBuilds) * 100
+        : 0;
 
     return {
       isBuilding: this.isBuilding,

@@ -44,7 +44,10 @@ export interface LithiaRequest {
    * @param {'data' | 'end' | 'error'} event - Event type
    * @param {(chunk: unknown) => void} listener - Event handler
    */
-  on: (event: 'data' | 'end' | 'error', listener: (chunk: unknown) => void) => void;
+  on: (
+    event: 'data' | 'end' | 'error',
+    listener: (chunk: unknown) => void,
+  ) => void;
 
   // Enhanced helper methods
   /** Gets request cookies as parsed object */
@@ -99,7 +102,10 @@ export interface LithiaResponse {
    * @param {string} value - Header value
    * @returns {LithiaResponse} Instance for chaining
    */
-  addHeader: (name: string, value: string | number | string[]) => LithiaResponse;
+  addHeader: (
+    name: string,
+    value: string | number | string[],
+  ) => LithiaResponse;
 
   /**
    * Removes a response header
@@ -142,7 +148,10 @@ export interface LithiaResponse {
    * @param {'data' | 'end' | 'error'} event - Event type
    * @param {(chunk: unknown) => void} listener - Event handler
    */
-  on: (event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe', listener: (chunk: unknown) => void) => void;
+  on: (
+    event: 'close' | 'drain' | 'error' | 'finish' | 'pipe' | 'unpipe',
+    listener: (chunk: unknown) => void,
+  ) => void;
 
   // HTTP Status Code Helpers
   /** Sends 200 OK response */
@@ -228,7 +237,10 @@ export interface LithiaResponse {
  * @param {LithiaResponse} res - Response object
  * @returns {Promise<void>}
  */
-export type LithiaHandler = (req: LithiaRequest, res: LithiaResponse) => Promise<void>;
+export type LithiaHandler = (
+  req: LithiaRequest,
+  res: LithiaResponse,
+) => Promise<void>;
 
 /**
  * Middleware handler type for pre/post processing
@@ -239,7 +251,11 @@ export type LithiaHandler = (req: LithiaRequest, res: LithiaResponse) => Promise
  * @param {Function} next - Proceeds to next middleware/handler
  * @returns {Promise<void>}
  */
-export type LithiaMiddleware = (req: LithiaRequest, res: LithiaResponse, next: () => void) => Promise<void>;
+export type LithiaMiddleware = (
+  req: LithiaRequest,
+  res: LithiaResponse,
+  next: () => void,
+) => Promise<void>;
 
 /**
  * Route module definition structure

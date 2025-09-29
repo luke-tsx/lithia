@@ -24,7 +24,6 @@
       "lithia/core": ["./src/core"],
       "lithia/meta": ["./src/meta"],
       "lithia/types": ["./src/types"],
-      "lithia/swagger": ["./src/swagger"],
       "lithia/studio": ["./src/studio"]
     }
   },

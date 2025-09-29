@@ -1,6 +1,9 @@
 import type { FileInfo, Lithia, Route } from 'lithia/types';
-import { DefaultRouteConvention } from './convention';
-import { DefaultPathTransformer, type PathTransformer } from './path-transformer';
+import { StandardizedRouteConvention } from './convention';
+import {
+  DefaultPathTransformer,
+  type PathTransformer,
+} from './path-transformer';
 
 /**
  * Interface for route processing implementations.
@@ -32,7 +35,7 @@ export interface RouteProcessor {
  * @implements {RouteProcessor}
  */
 export class DefaultRouteProcessor implements RouteProcessor {
-  private convention = new DefaultRouteConvention();
+  private convention = new StandardizedRouteConvention();
   private pathTransformer: PathTransformer;
 
   /**
@@ -56,11 +59,12 @@ export class DefaultRouteProcessor implements RouteProcessor {
    * @returns A complete Route object ready for use by the routing system
    */
   processFile(file: FileInfo, _lithia: Lithia): Route {
-    let path = this.convention.transformPath(file.path);
-    path = this.pathTransformer.normalizePath(path, '');
+    // First extract method from the original file path
+    const { method, updatedPath } = this.convention.extractMethod(file.path);
 
-    const { method, env, updatedPath } = this.convention.extractMethodAndEnv(path);
-    path = updatedPath;
+    // Then transform the path (this will remove /route.ts and other transformations)
+    let path = this.convention.transformPath(updatedPath);
+    path = this.pathTransformer.normalizePath(path, '');
 
     path = this.pathTransformer.removeIndexSuffix(path);
     const filePath = file.fullPath;
@@ -68,7 +72,6 @@ export class DefaultRouteProcessor implements RouteProcessor {
     const regex = this.pathTransformer.generateRouteRegex(path);
 
     return {
-      env,
       method,
       path,
       dynamic,

@@ -10,7 +10,8 @@ import { type Socket, Server as SocketIOServer } from 'socket.io';
  */
 export class WebSocketManager {
   private io: SocketIOServer;
-  private eventHandlers: Map<string, (socket: Socket, data?: any) => void> = new Map();
+  private eventHandlers: Map<string, (socket: Socket, data?: any) => void> =
+    new Map();
 
   constructor(httpServer: Server) {
     // Initialize Socket.IO with proper CORS

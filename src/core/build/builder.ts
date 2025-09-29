@@ -1,6 +1,10 @@
 import type { Lithia } from 'lithia/types';
 import type { BuildResult } from './context';
-import { type BuildStrategy, DevelopmentBuildStrategy, ProductionBuildStrategy } from './strategies';
+import {
+  type BuildStrategy,
+  DevelopmentBuildStrategy,
+  ProductionBuildStrategy,
+} from './strategies';
 
 /**
  * Interface for build manager implementations.
@@ -71,7 +75,8 @@ export class DefaultBuildManager implements BuildManager {
     const isDev = lithia.options._cli?.command === 'dev';
 
     // Check environment variables as fallback
-    const isDevEnv = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+    const isDevEnv =
+      process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
     return isDev || isDevEnv ? this.devStrategy : this.prodStrategy;
   }
@@ -122,6 +127,9 @@ export async function buildLithia(lithia: Lithia): Promise<BuildResult> {
  * const result = await manager.build(lithia);
  * ```
  */
-export function createBuildManager(devStrategy?: BuildStrategy, prodStrategy?: BuildStrategy): BuildManager {
+export function createBuildManager(
+  devStrategy?: BuildStrategy,
+  prodStrategy?: BuildStrategy,
+): BuildManager {
   return new DefaultBuildManager(devStrategy, prodStrategy);
 }

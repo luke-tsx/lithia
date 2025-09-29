@@ -35,12 +35,12 @@ export class LithiaStudio {
     this.routerManager = new RouterManager(lithia);
     this.webSocketManager = new WebSocketManager(this.httpServer);
     new StaticServer(this.httpServer);
-    this.loggerIntegration = new LoggerIntegration(this.lithia, (entry) => {
-      this.webSocketManager.emitLogEntry(entry);
-    });
-    this.logInterceptor = new LogInterceptor((entry) => {
-      this.webSocketManager.emitLogEntry(entry);
-    });
+    this.loggerIntegration = new LoggerIntegration(this.lithia, (entry) =>
+      this.webSocketManager.emitLogEntry(entry),
+    );
+    this.logInterceptor = new LogInterceptor((entry) =>
+      this.webSocketManager.emitLogEntry(entry),
+    );
     this.serverMonitor = new ServerMonitor(this.lithia);
 
     // Setup logger integration
@@ -93,9 +93,49 @@ export class LithiaStudio {
       if (this.onImmediateStatsRequest) {
         this.onImmediateStatsRequest();
       }
-      // Force server monitor to emit current stats immediately
       this.serverMonitor.emitCurrentStats();
     });
+
+    this.webSocketManager.on('create-route', async (socket, data) => {
+      try {
+        await this.routerManager.createRoute(data);
+        this.webSocketManager.sendToClient(socket, 'route-created', {
+          success: true,
+        });
+        this.emitManifestUpdate();
+      } catch (error) {
+        this.webSocketManager.sendToClient(
+          socket,
+          'route-create-error',
+          error instanceof Error ? error.message : 'Failed to create route',
+        );
+      }
+    });
+
+    this.webSocketManager.on(
+      'validate-route-conflicts',
+      async (socket, data) => {
+        try {
+          const result = await this.routerManager.validateRouteConflicts(
+            data.path,
+            data.method,
+          );
+          this.webSocketManager.sendToClient(
+            socket,
+            'route-conflicts-validated',
+            result,
+          );
+        } catch (error) {
+          this.webSocketManager.sendToClient(
+            socket,
+            'route-validation-error',
+            error instanceof Error
+              ? error.message
+              : 'Failed to validate route conflicts',
+          );
+        }
+      },
+    );
   }
 
   /**
@@ -115,7 +155,9 @@ export class LithiaStudio {
     await new Promise<void>((resolve, reject) => {
       this.httpServer.listen(studioPort, () => {
         this.isRunning = true;
-        this.lithia.logger.ready(`Studio listening on http://localhost:${studioPort}`);
+        this.lithia.logger.ready(
+          `Studio listening on http://localhost:${studioPort}`,
+        );
         resolve();
       });
 

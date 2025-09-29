@@ -59,15 +59,31 @@ export class MiddlewareManager {
 
       try {
         // Call middleware:beforeExecute hook
-        await this.lithia.hooks.callHook('middleware:beforeExecute', middlewareInfo, req, res);
+        await this.lithia.hooks.callHook(
+          'middleware:beforeExecute',
+          middlewareInfo,
+          req,
+          res,
+        );
 
         await middleware(req, res, async () => await next(index + 1));
 
         // Call middleware:afterExecute hook
-        await this.lithia.hooks.callHook('middleware:afterExecute', middlewareInfo, req, res);
+        await this.lithia.hooks.callHook(
+          'middleware:afterExecute',
+          middlewareInfo,
+          req,
+          res,
+        );
       } catch (error) {
         // Call middleware:error hook
-        await this.lithia.hooks.callHook('middleware:error', middlewareInfo, req, res, error as Error);
+        await this.lithia.hooks.callHook(
+          'middleware:error',
+          middlewareInfo,
+          req,
+          res,
+          error as Error,
+        );
         throw error;
       }
     };
@@ -83,13 +99,20 @@ export class MiddlewareManager {
    * @param index - Index of middleware in chain (for error messages)
    * @throws {InternalServerError} When validation fails
    */
-  private validateMiddleware(middleware: LithiaMiddleware, index: number): void {
+  private validateMiddleware(
+    middleware: LithiaMiddleware,
+    index: number,
+  ): void {
     if (typeof middleware !== 'function') {
-      throw new InternalServerError(`Middleware at index ${index} must be a function`);
+      throw new InternalServerError(
+        `Middleware at index ${index} must be a function`,
+      );
     }
 
     if (!isAsyncFunction(middleware)) {
-      throw new InternalServerError(`Middleware at index ${index} must be an async function`);
+      throw new InternalServerError(
+        `Middleware at index ${index} must be an async function`,
+      );
     }
   }
 

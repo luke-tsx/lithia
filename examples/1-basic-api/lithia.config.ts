@@ -31,13 +31,7 @@ const config: LithiaConfig = {
   cors: {
     exposedHeaders: ['X-Powered-By'],
   },
-  hooks: {
-    'request:after': [
-      (_req: LithiaRequest, _res: LithiaResponse) => {
-        console.log('Request after');
-      },
-    ],
-  },
+  hooks: {},
 };
 
 export default defineLithiaConfig(config);
