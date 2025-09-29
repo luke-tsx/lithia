@@ -73,7 +73,7 @@ export class EsbuildRouteBuilder implements RouteBuilder {
         ...esbuildConfig,
         plugins: [
           TsconfigPathsPlugin({
-            tsconfig: path.join(process.cwd(), 'tsconfig.json'),
+            tsconfig: path.join((context.lithia.options._c12 as any)?.cwd || process.cwd(), 'tsconfig.json'),
           }),
         ],
         banner: {

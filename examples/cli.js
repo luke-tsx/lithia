@@ -68,7 +68,6 @@ function runServer(project) {
 
   // Signal handling to stop the server
   const cleanup = () => {
-    console.log('\n\nStopping server...');
     child.kill('SIGTERM');
     process.exit(0);
   };

@@ -3,7 +3,7 @@ import { scanServerRoutes } from '../routing/index';
 import { RouterManager } from '../server/routing';
 import { BuildContext, type BuildResult } from './context';
 import { BuildModeFactory } from './modes';
-import { ParallelRouteBuilder, type RouteBuilder } from './route-builder';
+import { ParallelRouteBuilder } from './route-builder';
 
 /**
  * Interface for build strategy implementations.
@@ -33,20 +33,6 @@ export interface BuildStrategy {
  * @implements {BuildStrategy}
  */
 export class DevelopmentBuildStrategy implements BuildStrategy {
-  /**
-   * Creates a new DevelopmentBuildStrategy instance.
-   *
-   * @param routeBuilder - Optional custom route builder
-   */
-  constructor(routeBuilder?: RouteBuilder) {
-    routeBuilder =
-      routeBuilder ||
-      new ParallelRouteBuilder(
-        BuildModeFactory.createBuilder('no-bundle'), // Will be overridden by context
-        5,
-      );
-  }
-
   /**
    * Executes development build process.
    *
@@ -127,20 +113,6 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
  * @implements {BuildStrategy}
  */
 export class ProductionBuildStrategy implements BuildStrategy {
-  /**
-   * Creates a new ProductionBuildStrategy instance.
-   *
-   * @param routeBuilder - Optional custom route builder
-   */
-  constructor(routeBuilder?: RouteBuilder) {
-    routeBuilder =
-      routeBuilder ||
-      new ParallelRouteBuilder(
-        BuildModeFactory.createBuilder('no-bundle'), // Will be overridden by context
-        10,
-      );
-  }
-
   /**
    * Executes production build process.
    *
