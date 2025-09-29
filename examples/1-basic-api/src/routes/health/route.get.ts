@@ -1,7 +1,7 @@
-import type { LithiaRequest, LithiaResponse } from "lithia";
+import type { LithiaRequest, LithiaResponse } from 'lithia';
 
-export default async function handler(_: LithiaRequest, res: LithiaResponse) {
+export default async (_: LithiaRequest, res: LithiaResponse) => {
   res.json({
-    status: "ok",
+    status: 'ok',
   });
-}
+};

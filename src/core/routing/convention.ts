@@ -1,4 +1,4 @@
-import type { MatchedMethodSuffix } from "lithia/types";
+import type { MatchedMethodSuffix } from 'lithia/types';
 
 /**
  * Interface for route convention implementations.
@@ -103,12 +103,12 @@ export class DefaultRouteConvention implements RouteConvention {
    */
   transformPath(path: string): string {
     return path
-      .replace(/\.[A-Za-z]+$/, "")
-      .replace(/\(([^(/\\]+)\)[/\\]/g, "")
-      .replace(/\[\.{3}]/g, "**")
-      .replace(/\[\.{3}(\w+)]/g, "**:$1")
-      .replace(/\[([^/\]]+)]/g, ":$1")
-      .replace(/\\/g, "/");
+      .replace(/\.[A-Za-z]+$/, '')
+      .replace(/\(([^(/\\]+)\)[/\\]/g, '')
+      .replace(/\[\.{3}]/g, '**')
+      .replace(/\[\.{3}(\w+)]/g, '**:$1')
+      .replace(/\[([^/\]]+)]/g, ':$1')
+      .replace(/\\/g, '/');
   }
 
   /**
@@ -207,14 +207,14 @@ export class StandardizedRouteConvention implements RouteConvention {
    */
   transformPath(path: string): string {
     return path
-      .replace(/\/route\.ts$/, "") // Remove standardized route.ts filename
-      .replace(/\.[A-Za-z]+$/, "") // Remove any remaining extensions
-      .replace(/\(([^(/\\]+)\)[/\\]/g, "") // Remove optional route groups
-      .replace(/\[\.{3}]/g, "**") // Convert catch-all [...]
-      .replace(/\[\.{3}(\w+)]/g, "**:$1") // Convert catch-all [...param]
-      .replace(/\[([^/\]]+)]/g, ":$1") // Convert dynamic [param]
-      .replace(/\\/g, "/") // Normalize separators
-      .replace(/^\/?/, "/"); // Ensure path starts with /
+      .replace(/\/route\.ts$/, '') // Remove standardized route.ts filename
+      .replace(/\.[A-Za-z]+$/, '') // Remove any remaining extensions
+      .replace(/\(([^(/\\]+)\)[/\\]/g, '') // Remove optional route groups
+      .replace(/\[\.{3}]/g, '**') // Convert catch-all [...]
+      .replace(/\[\.{3}(\w+)]/g, '**:$1') // Convert catch-all [...param]
+      .replace(/\[([^/\]]+)]/g, ':$1') // Convert dynamic [param]
+      .replace(/\\/g, '/') // Normalize separators
+      .replace(/^\/?/, '/'); // Ensure path starts with /
   }
 
   /**
@@ -235,14 +235,14 @@ export class StandardizedRouteConvention implements RouteConvention {
   } {
     // Extract method from route.ts filename
     const routeMatch = path.match(
-      /\/route(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?\.ts$/
+      /\/route(\.(?<method>connect|delete|get|head|options|patch|post|put|trace))?\.ts$/,
     );
 
     if (routeMatch) {
       const method = routeMatch.groups?.method?.toUpperCase() as
         | MatchedMethodSuffix
         | undefined;
-      const updatedPath = path.replace(/\/route(\.\w+)?\.ts$/, "");
+      const updatedPath = path.replace(/\/route(\.\w+)?\.ts$/, '');
 
       return { method, updatedPath };
     }

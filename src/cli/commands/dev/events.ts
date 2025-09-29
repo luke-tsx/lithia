@@ -8,10 +8,12 @@
 export interface DevServerEvent {
   type: string;
   timestamp: number;
-  data?: any;
+  data?: unknown;
 }
 
-export type DevServerEventListener = (event: DevServerEvent) => void | Promise<void>;
+export type DevServerEventListener = (
+  event: DevServerEvent,
+) => void | Promise<void>;
 
 /**
  * Event types for the development server.
@@ -91,7 +93,7 @@ export class DevServerEventEmitter {
    * @param eventType - The type of event to emit
    * @param data - Optional data to pass with the event
    */
-  async emit(eventType: string, data?: any): Promise<void> {
+  async emit(eventType: string, data?: unknown): Promise<void> {
     const listeners = this.listeners.get(eventType);
     if (listeners && listeners.length > 0) {
       const event: DevServerEvent = {

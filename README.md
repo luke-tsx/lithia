@@ -1,391 +1,454 @@
 <div align="center">
-  <a href="https://github.com/lithiajs/lithia">
-    <img alt="Lithia logo" src="https://raw.githubusercontent.com/lithiajs/lithia/main/studio/public/logo.svg" height="128">
+  <a href="https://github.com/lithia-framework/lithia">
+    <img alt="Lithia logo" src="https://raw.githubusercontent.com/lithia-framework/lithia/main/studio/public/logo.svg" height="128">
   </a>
   <h1>Lithia</h1>
+  <p><strong>The Node.js framework that makes API development feel like magic</strong></p>
 
-<a href="https://github.com/lithiajs/lithia"><img alt="GitHub repository" src="https://img.shields.io/badge/GITHUB-000000.svg?style=for-the-badge&logo=GitHub&labelColor=000"></a>
+<a href="https://github.com/lithia-framework/lithia"><img alt="GitHub repository" src="https://img.shields.io/badge/GITHUB-000000.svg?style=for-the-badge&logo=GitHub&labelColor=000"></a>
 <a href="https://www.npmjs.com/package/lithia"><img alt="NPM version" src="https://img.shields.io/npm/v/lithia.svg?style=for-the-badge&labelColor=000000"></a>
-<a href="https://github.com/lithiajs/lithia/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/lithia.svg?style=for-the-badge&labelColor=000000"></a>
-<a href="https://opencollective.com/lithiajs"><img alt="Support Lithia" src="https://img.shields.io/badge/Support%20Lithia-blueviolet.svg?style=for-the-badge&logo=OpenCollective&labelColor=000000&logoWidth=20"></a>
+<a href="https://github.com/lithia-framework/lithia/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/lithia.svg?style=for-the-badge&labelColor=000000"></a>
+<a href="https://opencollective.com/lithia-framework"><img alt="Support Lithia" src="https://img.shields.io/badge/Support%20Lithia-blueviolet.svg?style=for-the-badge&logo=OpenCollective&labelColor=000000&logoWidth=20"></a>
 
 </div>
 
-## 🚀 Sobre o Lithia
+---
 
-Lithia é um framework **next-generation** para construir aplicações server-side com Node.js e TypeScript. Projetado com foco em **simplicidade**, **performance** e **developer experience**, o Lithia oferece uma abordagem moderna para desenvolvimento de APIs RESTful.
+## Why Lithia?
 
-### ✨ Características Principais
-
-- **🎯 File-based Routing** - Sistema de roteamento baseado em arquivos intuitivo e poderoso
-- **⚡ TypeScript First** - Suporte completo ao TypeScript com tipagem forte
-- **🔧 CLI Integrado** - Ferramentas de linha de comando para desenvolvimento e produção
-- **🎨 Lithia Studio** - Interface web para desenvolvimento, debugging e monitoramento
-- **🪝 Sistema de Hooks** - Lifecycle hooks para extensibilidade máxima
-- **🛡️ Middleware System** - Sistema robusto de middleware com suporte a async/await
-- **📊 OpenAPI Integration** - Geração automática de documentação OpenAPI
-- **🌍 CORS Ready** - Configuração CORS integrada e flexível
-- **📝 Logging Avançado** - Sistema de logging colorido e estruturado
-- **⚙️ Hot Reload** - Recarga automática durante desenvolvimento
-
-## 🏁 Começando
-
-### Instalação
+Building APIs shouldn't require endless boilerplate, complex routing configurations, or juggling between multiple tools. **Lithia changes that.**
 
 ```bash
-# Instalar globalmente
-npm install -g lithia
-
-# Ou usar com npx
-npx lithia@latest
+# Create a new Lithia project
+npx create-lithia-app my-api
+cd my-api
+npm run dev
 ```
 
-### Primeiro Projeto
+**That's it.** Your API is running, hot-reloading, and ready to develop with a beautiful web interface.
+
+### The Problem Lithia Solves
+
+Traditional Node.js frameworks force you to:
+
+- ❌ Manually configure every route
+- ❌ Switch between code editor, terminal, and Postman/Insomnia
+- ❌ Lose time with server restarts and debugging
+- ❌ Fight with TypeScript configurations
+
+**Lithia gives you:**
+
+- ✅ File-based routing - folders become routes automatically
+- ✅ Lithia Studio - develop, test, and debug in one place
+- ✅ Instant hot reload - see changes in milliseconds
+- ✅ TypeScript-first - full type safety out of the box
+
+---
+
+## Quick Start
+
+### Create Your First API
 
 ```bash
-# Criar novo projeto
-mkdir meu-projeto-lithia
-cd meu-projeto-lithia
-
-# Inicializar projeto
-npm init -y
-npm install lithia
-
-# Criar estrutura básica
-mkdir -p src/routes
+npx create-lithia-app my-api
+cd my-api
+npm run dev
 ```
 
-### Exemplo Básico
-
-**`src/routes/hello/route.ts`**
+### Create Your First Route
 
 ```typescript
-import type { LithiaRequest, LithiaResponse } from "lithia";
+// src/routes/users/route.get.ts
+export default async (req, res) => {
+  const users = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ];
 
-export default async function handler(_: LithiaRequest, res: LithiaResponse) {
-  res.json({
-    message: "Hello, from Lithia! 🚀",
-    timestamp: new Date().toISOString(),
-  });
-}
+  return res.json(users);
+};
 ```
 
-**`lithia.config.ts`**
+**That's it!** `GET /users` is now live at `http://localhost:3000/users`
+
+### Add a Dynamic Route
 
 ```typescript
-import { defineLithiaConfig } from "lithia";
+// src/routes/users/[id]/route.get.ts
+export default async (req, res) => {
+  const { id } = req.params;
 
-export default defineLithiaConfig({
-  server: {
-    port: 3000,
-    host: "0.0.0.0",
-  },
-  debug: true,
-  studio: {
-    enabled: true,
-  },
-});
+  // Your database logic here
+  const user = await db.users.findById(id);
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  return res.json(user);
+};
 ```
 
-**Executar o projeto:**
+Now `GET /users/123` works automatically!
 
-```bash
-# Modo desenvolvimento
-lithia dev
+---
 
-# Modo produção
-lithia build
-lithia start
-```
+## File-based Routing
 
-## 📁 File-based Routing
-
-O Lithia utiliza um sistema de roteamento baseado em arquivos que transforma a estrutura de pastas em rotas da API:
+Lithia's killer feature: **your folder structure IS your API structure**. No configuration needed.
 
 ```
 src/routes/
 ├── users/
-│   ├── route.ts          # GET /users
-│   ├── route.post.ts     # POST /users
+│   ├── route.ts          # Handles ALL methods on /users
+│   ├── route.post.ts     # Handles ONLY POST /users
 │   └── [id]/
-│       ├── route.ts      # GET /users/:id
-│       └── route.put.ts  # PUT /users/:id
-├── posts/
-│   └── [...slug]/
-│       └── route.ts      # GET /posts/* (catch-all)
+│       ├── route.ts      # All methods /users/:id
+│       └── route.put.ts  # Only PUT /users/:id
+├── products/
+│   ├── route.get.ts      # GET /products
+│   └── [slug]/
+│       └── route.ts      # All methods /products/:slug
 └── api/
     └── health/
         └── route.get.ts  # GET /api/health
 ```
 
-### Convenções de Roteamento
+### Routing Conventions
 
-- **`route.ts`** - Rota padrão (GET)
-- **`route.{method}.ts`** - Método HTTP específico (POST, PUT, DELETE, etc.)
-- **`[param]`** - Parâmetros dinâmicos
-- **`[...slug]`** - Catch-all routes
-- **`(group)`** - Route groups (não afetam a URL)
+| File Pattern      | What it does                 | Example URL                        |
+| ----------------- | ---------------------------- | ---------------------------------- |
+| `route.ts`        | Handles **all** HTTP methods | Any method on `/path`              |
+| `route.get.ts`    | Only GET requests            | `GET /path`                        |
+| `route.post.ts`   | Only POST requests           | `POST /path`                       |
+| `route.put.ts`    | Only PUT requests            | `PUT /path`                        |
+| `route.delete.ts` | Only DELETE requests         | `DELETE /path`                     |
+| `[param]/`        | Dynamic route parameter      | `/users/123` → `params.id = "123"` |
 
-## 🛠️ Configuração
-
-### Configuração Básica
+### Method-Specific Routes
 
 ```typescript
-import { defineLithiaConfig } from "lithia";
+// src/routes/posts/route.post.ts
+export default async (req, res) => {
+  const { title, content } = req.body;
 
-export default defineLithiaConfig({
-  // Servidor
+  const post = await db.posts.create({ title, content });
+
+  return res.status(201).json(post);
+};
+```
+
+```typescript
+// src/routes/posts/[id]/route.delete.ts
+export default async (req, res) => {
+  const { id } = req.params;
+
+  await db.posts.delete(id);
+
+  return res.status(204).send();
+};
+```
+
+---
+
+## Lithia Studio
+
+**The game-changer.** Lithia Studio is a complete development environment in your browser.
+
+> 🎯 **Note:** Add screenshots here when available
+>
+> - Screenshot of the dashboard showing real-time metrics
+> - GIF of hot reload in action
+> - Image of the route explorer interface
+
+### What Lithia Studio Gives You:
+
+#### Real-time Dashboard
+
+Monitor your server's health at a glance:
+
+- CPU and memory usage
+- Request/response metrics
+- Active connections
+- Performance graphs
+
+#### Interactive Route Explorer
+
+Visualize and test your entire API:
+
+- See all routes in a tree structure
+- Click to test any endpoint
+- View request/response in real-time
+- Inspect headers, body, and status codes
+
+#### Live Logs Viewer
+
+Never leave the browser:
+
+- Stream logs in real-time
+- Filter by level (info, warn, error)
+- Syntax highlighting
+- Search and export logs
+
+#### Live Configuration Viewer
+
+See your server configuration in real-time:
+
+- View current ports, CORS settings, middleware
+- Monitor active configuration
+- Inspect all server settings at a glance
+
+#### Hot Reload Integration
+
+The fastest development loop:
+
+- Change a file → see results in milliseconds
+- No manual server restarts
+- No cache issues
+- Just pure speed
+
+**Access Lithia Studio:** When your server is running, Lithia Studio is automatically available at `http://localhost:8473`
+
+---
+
+## Core Features
+
+### TypeScript-First
+
+Full type safety without configuration:
+
+```typescript
+// src/routes/api/users/route.post.ts
+import type { Request, Response } from 'lithia';
+
+interface CreateUserBody {
+  name: string;
+  email: string;
+  age: number;
+}
+
+export default async (req: Request<CreateUserBody>, res: Response) => {
+  const { name, email, age } = req.body; // Fully typed!
+
+  // Your logic here
+
+  return res.json({ success: true });
+};
+```
+
+### Hooks System
+
+Extend Lithia at every lifecycle point:
+
+```typescript
+// lithia.config.ts
+import { defineLithiaConfig } from 'lithia';
+import type { LithiaConfig, LithiaRequest, LithiaResponse } from 'lithia/types';
+
+const config: LithiaConfig = {
   server: {
     port: 3000,
-    host: "0.0.0.0",
-    request: {
-      queryParser: {
-        array: { enabled: true, delimiter: "," },
-        number: { enabled: true },
-        boolean: { enabled: true },
-      },
-      maxBodySize: 1048576, // 1MB
-    },
   },
-
-  // CORS
-  cors: {
-    origin: ["http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  },
-
-  // Build
-  build: {
-    mode: "no-bundle", // ou "full-bundle"
-    externalPackages: ["lodash", "axios"],
-  },
-
-  // Studio
-  studio: {
-    enabled: true,
-  },
-
-  // Debug
-  debug: process.env.NODE_ENV === "development",
-});
-```
-
-## 🪝 Sistema de Hooks
-
-O Lithia oferece um sistema de hooks poderoso para interceptar e modificar o comportamento da aplicação:
-
-```typescript
-export default defineLithiaConfig({
   hooks: {
-    // Antes de processar a requisição
-    "request:before": (req, res) => {
-      console.log(`Incoming request: ${req.method} ${req.url}`);
+    'request:before': (req: LithiaRequest, res: LithiaResponse) => {
+      console.log(`Incoming: ${req.method} ${req.url}`);
     },
-
-    // Após processar a requisição
-    "request:after": (req, res) => {
-      console.log(`Request completed: ${res.statusCode}`);
+    'request:after': (req: LithiaRequest, res: LithiaResponse) => {
+      console.log(`Completed: ${res.statusCode}`);
     },
-
-    // Em caso de erro
-    "request:error": (req, res, error) => {
-      console.error(`Request failed:`, error);
+    'request:error': (
+      req: LithiaRequest,
+      res: LithiaResponse,
+      error: Error,
+    ) => {
+      console.error('Request error:', error);
     },
-
-    // Middleware lifecycle
-    "middleware:beforeExecute": (middleware, req, res) => {
+    'middleware:beforeExecute': (middleware, req, res) => {
       console.log(`Executing middleware: ${middleware.name}`);
     },
-  },
-});
-```
-
-## 🛡️ Middleware
-
-### Middleware Global
-
-```typescript
-// src/middlewares/auth.ts
-import type { LithiaMiddleware } from "lithia";
-
-const authMiddleware: LithiaMiddleware = async (req, res, next) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ error: "Token required" });
-  }
-
-  // Validar token...
-  await next();
-};
-
-export default authMiddleware;
-```
-
-### Middleware por Rota
-
-```typescript
-// src/routes/protected/route.ts
-import authMiddleware from "../../middlewares/auth";
-
-export const middleware = [authMiddleware];
-
-export default async function handler(req: LithiaRequest, res: LithiaResponse) {
-  res.json({ message: "Protected route accessed!" });
-}
-```
-
-## 🎨 Lithia Studio
-
-O Lithia Studio é uma interface web integrada que oferece:
-
-- **📊 Dashboard** - Monitoramento em tempo real do servidor
-- **🛣️ Route Explorer** - Visualização e teste de rotas
-- **📝 Logs Viewer** - Visualização de logs em tempo real
-- **⚙️ Configuration** - Editor de configuração visual
-- **🧪 Route Tester** - Teste de rotas diretamente na interface
-
-Acesse o Studio em: `http://localhost:3000/studio`
-
-## 📚 Documentação OpenAPI
-
-O Lithia gera automaticamente documentação OpenAPI baseada nas suas rotas:
-
-```typescript
-// src/routes/users/route.post.ts
-import type { LithiaRequest, LithiaResponse, Metadata } from "lithia";
-
-export const metadata: Metadata = {
-  openAPI: {
-    summary: "Create a new user",
-    description: "Creates a new user in the system",
-    tags: ["Users"],
-    requestBody: {
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              email: { type: "string", format: "email" },
-            },
-            required: ["name", "email"],
-          },
-        },
-      },
+    'middleware:afterExecute': (middleware, req, res) => {
+      console.log(`Middleware completed: ${middleware.name}`);
     },
-    responses: {
-      "201": {
-        description: "User created successfully",
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                id: { type: "string" },
-                name: { type: "string" },
-                email: { type: "string" },
-              },
-            },
-          },
-        },
-      },
+    'middleware:error': (middleware, req, res, error) => {
+      console.error(`Middleware error in ${middleware.name}:`, error);
     },
   },
 };
 
-export default async function handler(req: LithiaRequest, res: LithiaResponse) {
-  const { name, email } = req.body;
-
-  // Criar usuário...
-
-  res.status(201).json({
-    id: "user-123",
-    name,
-    email,
-  });
-}
+export default defineLithiaConfig(config);
 ```
 
-## 🚀 CLI Commands
+Available hooks:
 
-```bash
-# Desenvolvimento com hot reload
-lithia dev
+- **`request:before`** - Before request processing
+- **`request:after`** - After request completion
+- **`request:error`** - When request fails
+- **`middleware:beforeExecute`** - Before each middleware runs
+- **`middleware:afterExecute`** - After each middleware completes
+- **`middleware:error`** - When middleware throws error
 
-# Build para produção
-lithia build
+### Lightning-Fast Hot Reload
 
-# Iniciar servidor de produção
-lithia start
+Change your code and see results **instantly**:
 
-# Ajuda
-lithia --help
+- No server restarts
+- No manual refreshes
+- State preservation when possible
+- Works with Lithia Studio
+
+### Route-Level Middleware
+
+Add middleware directly to your routes:
+
+```typescript
+// src/routes/api/users/route.get.ts
+
+// Define middlewares for this route
+export const middlewares = [
+  async (req, res, next) => {
+    // Authentication middleware
+    if (!req.headers.authorization) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    next();
+  },
+  async (req, res, next) => {
+    // Logging middleware
+    console.log(`${req.method} ${req.url}`);
+    next();
+  },
+];
+
+// Your route handler
+export default async (req, res) => {
+  const users = await db.users.findAll();
+  return res.json(users);
+};
 ```
 
-## 🏗️ Build Modes
+---
 
-### No Bundle Mode
+## Comparison
 
-- Execução direta dos arquivos TypeScript
-- Ideal para desenvolvimento
-- Hot reload automático
+| Feature                | Lithia  | Express | NestJS |
+| ---------------------- | ------- | ------- | ------ |
+| File-based Routing     | ✅      | ❌      | ❌     |
+| Built-in Dev Interface | ✅      | ❌      | ❌     |
+| TypeScript-First       | ✅      | ⚠️      | ✅     |
+| Hot Reload             | ✅      | ❌      | ❌     |
+| Zero Configuration     | ✅      | ❌      | ❌     |
+| Learning Curve         | Low     | Low     | High   |
+| Boilerplate            | Minimal | Medium  | Heavy  |
 
-### Full Bundle Mode
+---
 
-- Bundle completo com esbuild
-- Otimizado para produção
-- Menor tempo de inicialização
+## Real-World Example
 
-## 🤝 Contribuindo
+```typescript
+// src/routes/api/todos/route.get.ts
+export default async (req, res) => {
+  const todos = await db.todos.findAll();
+  return res.json(todos);
+};
 
-Contribuições para o Lithia são muito bem-vindas! Antes de começar, leia nossas [Diretrizes de Contribuição](CONTRIBUTING.md).
+// src/routes/api/todos/route.post.ts
+export default async (req, res) => {
+  const { title } = req.body;
+  const todo = await db.todos.create({ title, completed: false });
+  return res.status(201).json(todo);
+};
 
-### Primeiros Passos
+// src/routes/api/todos/[id]/route.put.ts
+export default async (req, res) => {
+  const { id } = req.params;
+  const { completed } = req.body;
 
-1. Fork o repositório
-2. Clone seu fork: `git clone https://github.com/seu-usuario/lithia.git`
-3. Instale dependências: `npm install`
-4. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
-5. Faça suas alterações
-6. Execute testes: `npm test`
-7. Commit suas alterações: `git commit -m "feat: adiciona nova funcionalidade"`
-8. Push para sua branch: `git push origin feature/nova-funcionalidade`
-9. Abra um Pull Request
+  const todo = await db.todos.update(id, { completed });
+  return res.json(todo);
+};
 
-### Issues
+// src/routes/api/todos/[id]/route.delete.ts
+export default async (req, res) => {
+  const { id } = req.params;
+  await db.todos.delete(id);
+  return res.status(204).send();
+};
+```
 
-- 🐛 **Bug Reports** - Use o template de bug report
-- 💡 **Feature Requests** - Use o template de feature request
-- 📖 **Documentação** - Melhorias na documentação são sempre bem-vindas
+**That's a complete CRUD API in 4 files.** No routing configuration. No boilerplate.
 
-## 📄 Licença
+---
 
-Este projeto está licenciado sob a [Licença MIT](LICENSE).
+## Documentation
 
-## 🙏 Apoio
+Visit **[lithiajs.com](https://lithiajs.com)** for:
 
-Se você gosta do Lithia e quer apoiar o projeto:
+- Complete API reference
+- In-depth guides and tutorials
+- Best practices
+- Migration guides
+- Examples and templates
 
-- ⭐ **Star** o repositório no GitHub
-- 🐦 **Compartilhe** nas redes sociais
-- 💰 **Contribua** financeiramente via [OpenCollective](https://opencollective.com/lithiajs)
-- 🐛 **Reporte bugs** e **sugira melhorias**
+---
 
-## 🌟 Comunidade
+## Contributing
 
-- 💬 [GitHub Discussions](https://github.com/lithiajs/lithia/discussions) - Para dúvidas e discussões
-- 🐛 [GitHub Issues](https://github.com/lithiajs/lithia/issues) - Para reportar bugs
-- 📧 [Email](mailto:contato@lithiajs.dev) - Contato direto
+We love contributions! Before getting started, please read our [Contributing Guidelines](CONTRIBUTING.md).
+
+### How to Contribute
+
+1. **Fork** the repository
+2. **Clone** your fork: `git clone https://github.com/your-username/lithia.git`
+3. **Install** dependencies: `npm install`
+4. **Create** a branch: `git checkout -b feature/amazing-feature`
+5. **Make** your changes
+6. **Test** your changes: `npm test`
+7. **Commit** using conventional commits: `git commit -m "feat: add amazing feature"`
+8. **Push** to your branch: `git push origin feature/amazing-feature`
+9. **Open** a Pull Request
+
+### Types of Contributions
+
+- **Bug Reports** - Use the bug report template
+- **Feature Requests** - Use the feature request template
+- **Documentation** - Improvements always welcome
+- **Ideas** - Share in [Discussions](https://github.com/lithia-framework/lithia/discussions)
+
+---
+
+## Community & Support
+
+- [**GitHub Discussions**](https://github.com/lithia-framework/lithia/discussions) - Ask questions, share ideas
+- [**GitHub Issues**](https://github.com/lithia-framework/lithia/issues) - Report bugs
+- [**Email**](mailto:support@lithiajs.com) - Direct contact
+- [**OpenCollective**](https://opencollective.com/lithia-framework) - Support the project
+
+---
+
+## Support the Project
+
+If Lithia makes your life easier, consider supporting it:
+
+- **Star** this repository
+- **Share** on social media
+- **Sponsor** via [OpenCollective](https://opencollective.com/lithia-framework)
+- **Report bugs** and suggest improvements
+- **Improve documentation**
+
+---
+
+## License
+
+Lithia is [MIT licensed](LICENSE). Free for personal and commercial use.
 
 ---
 
 <div align="center">
-  <p>Feito com ❤️ pela comunidade Lithia</p>
+  <p><strong>Built with ❤️ by the Lithia community</strong></p>
   <p>
-    <a href="https://github.com/lithiajs/lithia">GitHub</a> •
-    <a href="https://opencollective.com/lithiajs">OpenCollective</a> •
-    <a href="https://github.com/lithiajs/lithia/discussions">Discussions</a>
+    <a href="https://github.com/lithia-framework/lithia">GitHub</a> •
+    <a href="https://lithiajs.com">Documentation</a> •
+    <a href="https://opencollective.com/lithia-framework">OpenCollective</a> •
+    <a href="https://github.com/lithia-framework/lithia/discussions">Discussions</a>
   </p>
 </div>

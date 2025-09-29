@@ -1,4 +1,8 @@
-import type { LithiaConfig, LithiaOptions, LoadConfigOptions } from 'lithia/types';
+import type {
+  LithiaConfig,
+  LithiaOptions,
+  LoadConfigOptions,
+} from 'lithia/types';
 import { C12ConfigProvider, type ConfigProvider } from './provider';
 
 /**
@@ -34,7 +38,10 @@ const defaultProvider = new C12ConfigProvider();
  * const config = await loadOptions({}, { watch: true });
  * ```
  */
-export async function loadOptions(overrides: LithiaConfig = {}, opts: LoadConfigOptions = {}): Promise<LithiaOptions> {
+export async function loadOptions(
+  overrides: LithiaConfig = {},
+  opts: LoadConfigOptions = {},
+): Promise<LithiaOptions> {
   return await defaultProvider.loadConfig(overrides, opts);
 }
 
@@ -55,7 +62,10 @@ export async function loadOptions(overrides: LithiaConfig = {}, opts: LoadConfig
  * ```
  */
 export function createConfigLoader(provider: ConfigProvider) {
-  return async (overrides: LithiaConfig = {}, opts: LoadConfigOptions = {}): Promise<LithiaOptions> => {
+  return async (
+    overrides: LithiaConfig = {},
+    opts: LoadConfigOptions = {},
+  ): Promise<LithiaOptions> => {
     return await provider.loadConfig(overrides, opts);
   };
 }

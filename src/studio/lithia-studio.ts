@@ -1,11 +1,11 @@
-import { createServer, type Server } from "node:http";
-import { RouterManager } from "lithia/core";
-import type { Lithia } from "lithia/types";
-import { LogInterceptor } from "./log-interceptor";
-import { LoggerIntegration } from "./logger-integration";
-import { ServerMonitor } from "./server-monitor";
-import { StaticServer } from "./static-server";
-import { WebSocketManager } from "./websocket-manager";
+import { createServer, type Server } from 'node:http';
+import { RouterManager } from 'lithia/core';
+import type { Lithia } from 'lithia/types';
+import { LogInterceptor } from './log-interceptor';
+import { LoggerIntegration } from './logger-integration';
+import { ServerMonitor } from './server-monitor';
+import { StaticServer } from './static-server';
+import { WebSocketManager } from './websocket-manager';
 
 /**
  * Lithia Studio WebSocket and static file server.
@@ -36,10 +36,10 @@ export class LithiaStudio {
     this.webSocketManager = new WebSocketManager(this.httpServer);
     new StaticServer(this.httpServer);
     this.loggerIntegration = new LoggerIntegration(this.lithia, (entry) =>
-      this.webSocketManager.emitLogEntry(entry)
+      this.webSocketManager.emitLogEntry(entry),
     );
     this.logInterceptor = new LogInterceptor((entry) =>
-      this.webSocketManager.emitLogEntry(entry)
+      this.webSocketManager.emitLogEntry(entry),
     );
     this.serverMonitor = new ServerMonitor(this.lithia);
 
@@ -47,8 +47,8 @@ export class LithiaStudio {
     this.loggerIntegration.setup();
 
     // Setup server monitoring
-    this.serverMonitor.on("stats", (stats) => {
-      this.webSocketManager.sendToAll("server-stats", stats);
+    this.serverMonitor.on('stats', (stats) => {
+      this.webSocketManager.sendToAll('server-stats', stats);
     });
 
     // Setup WebSocket event handlers
@@ -60,18 +60,18 @@ export class LithiaStudio {
    */
   private setupWebSocketHandlers(): void {
     // Routes handlers
-    this.webSocketManager.on("get-routes", (socket) => {
+    this.webSocketManager.on('get-routes', (socket) => {
       const routes = this.routerManager.getRoutesFromManifest();
-      this.webSocketManager.sendToClient(socket, "routes", routes);
+      this.webSocketManager.sendToClient(socket, 'routes', routes);
     });
 
-    this.webSocketManager.on("get-manifest", (socket) => {
+    this.webSocketManager.on('get-manifest', (socket) => {
       const routes = this.routerManager.getRoutesFromManifest();
-      this.webSocketManager.sendToClient(socket, "update-manifest", { routes });
+      this.webSocketManager.sendToClient(socket, 'update-manifest', { routes });
     });
 
     // Config handlers
-    this.webSocketManager.on("get-lithia-config", (socket) => {
+    this.webSocketManager.on('get-lithia-config', (socket) => {
       const config = {
         debug: this.lithia.options.debug,
         server: {
@@ -85,56 +85,56 @@ export class LithiaStudio {
         },
         cors: this.lithia.options.cors,
       };
-      this.webSocketManager.sendToClient(socket, "lithia-config", { config });
+      this.webSocketManager.sendToClient(socket, 'lithia-config', { config });
     });
 
     // Stats handlers
-    this.webSocketManager.on("request-immediate-stats", () => {
+    this.webSocketManager.on('request-immediate-stats', () => {
       if (this.onImmediateStatsRequest) {
         this.onImmediateStatsRequest();
       }
       this.serverMonitor.emitCurrentStats();
     });
 
-    this.webSocketManager.on("create-route", async (socket, data) => {
+    this.webSocketManager.on('create-route', async (socket, data) => {
       try {
         await this.routerManager.createRoute(data);
-        this.webSocketManager.sendToClient(socket, "route-created", {
+        this.webSocketManager.sendToClient(socket, 'route-created', {
           success: true,
         });
         this.emitManifestUpdate();
       } catch (error) {
         this.webSocketManager.sendToClient(
           socket,
-          "route-create-error",
-          error instanceof Error ? error.message : "Failed to create route"
+          'route-create-error',
+          error instanceof Error ? error.message : 'Failed to create route',
         );
       }
     });
 
     this.webSocketManager.on(
-      "validate-route-conflicts",
+      'validate-route-conflicts',
       async (socket, data) => {
         try {
           const result = await this.routerManager.validateRouteConflicts(
             data.path,
-            data.method
+            data.method,
           );
           this.webSocketManager.sendToClient(
             socket,
-            "route-conflicts-validated",
-            result
+            'route-conflicts-validated',
+            result,
           );
         } catch (error) {
           this.webSocketManager.sendToClient(
             socket,
-            "route-validation-error",
+            'route-validation-error',
             error instanceof Error
               ? error.message
-              : "Failed to validate route conflicts"
+              : 'Failed to validate route conflicts',
           );
         }
-      }
+      },
     );
   }
 
@@ -156,13 +156,13 @@ export class LithiaStudio {
       this.httpServer.listen(studioPort, () => {
         this.isRunning = true;
         this.lithia.logger.ready(
-          `Studio listening on http://localhost:${studioPort}`
+          `Studio listening on http://localhost:${studioPort}`,
         );
         resolve();
       });
 
-      this.httpServer.on("error", (error) => {
-        this.lithia.logger.error("Studio HTTP server error:", error);
+      this.httpServer.on('error', (error) => {
+        this.lithia.logger.error('Studio HTTP server error:', error);
         reject(error);
       });
     });
@@ -183,11 +183,11 @@ export class LithiaStudio {
     await new Promise<void>((resolve, reject) => {
       this.httpServer.close((error) => {
         if (error) {
-          this.lithia.logger.error("Error stopping Studio HTTP server:", error);
+          this.lithia.logger.error('Error stopping Studio HTTP server:', error);
           return reject(error);
         }
         this.isRunning = false;
-        this.lithia.logger.info("Studio HTTP server stopped");
+        this.lithia.logger.info('Studio HTTP server stopped');
         resolve();
       });
     });
@@ -218,7 +218,7 @@ export class LithiaStudio {
    * Emit build status to all connected Studio clients.
    */
   emitBuildStatus(success: boolean, error?: string): void {
-    this.webSocketManager.sendToAll("build-status", {
+    this.webSocketManager.sendToAll('build-status', {
       success,
       error,
       timestamp: new Date(),
@@ -229,7 +229,7 @@ export class LithiaStudio {
    * Emit manifest update to all connected Studio clients.
    */
   emitManifestUpdate(): void {
-    this.webSocketManager.sendToAll("manifest-update", {
+    this.webSocketManager.sendToAll('manifest-update', {
       timestamp: new Date(),
     });
   }
@@ -238,13 +238,13 @@ export class LithiaStudio {
    * Send build statistics to connected clients.
    */
   emitBuildStats(buildStats: any): void {
-    this.webSocketManager.sendToAll("build-stats", buildStats);
+    this.webSocketManager.sendToAll('build-stats', buildStats);
   }
 
   /**
    * Send dev server statistics to connected clients.
    */
   emitDevServerStats(devServerStats: any): void {
-    this.webSocketManager.sendToAll("dev-server-stats", devServerStats);
+    this.webSocketManager.sendToAll('dev-server-stats', devServerStats);
   }
 }

@@ -19,7 +19,11 @@ export class ErrorHandler {
 
     try {
       // Convert any error to HttpError using ErrorUtils
-      const httpError = ErrorUtils.toHttpError(error, undefined, this.generateRequestId());
+      const httpError = ErrorUtils.toHttpError(
+        error,
+        undefined,
+        this.generateRequestId(),
+      );
 
       // Create standardized error response
       const errorResponse = ErrorUtils.createErrorResponse(httpError, isDev);

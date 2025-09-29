@@ -1,18 +1,18 @@
-import { createHooks } from "hookable";
+import { createHooks } from 'hookable';
 import {
   C12ConfigProvider,
   type ConfigUpdateContext,
   createLithia,
   type DiffEntry,
   registerHooksFromConfig,
-} from "lithia/core";
-import { LithiaStudio } from "lithia/studio";
-import type { Lithia } from "lithia/types";
-import { BuildMonitor } from "./build-monitor";
-import { loadEnvironmentFiles } from "./env-loader";
-import { DevServerEventEmitter, DevServerEventType } from "./events";
-import { FileWatcher } from "./file-watcher";
-import { ServerManager } from "./server-manager";
+} from 'lithia/core';
+import { LithiaStudio } from 'lithia/studio';
+import type { Lithia } from 'lithia/types';
+import { BuildMonitor } from './build-monitor';
+import { loadEnvironmentFiles } from './env-loader';
+import { DevServerEventEmitter, DevServerEventType } from './events';
+import { FileWatcher } from './file-watcher';
+import { ServerManager } from './server-manager';
 
 /**
  * Development server statistics.
@@ -48,9 +48,9 @@ export class DevServerManager {
   private isRunning = false;
   private startTime?: number;
   private criticalChanges: string[] = [
-    "server.port",
-    "server.host",
-    "studio.enabled",
+    'server.port',
+    'server.host',
+    'studio.enabled',
   ];
 
   constructor(
@@ -58,7 +58,7 @@ export class DevServerManager {
       autoReload?: boolean;
       debug?: boolean;
       maxReloadAttempts?: number;
-    } = {}
+    } = {},
   ) {
     this.autoReload = options.autoReload ?? true;
     this.debugMode = options.debug ?? false;
@@ -79,8 +79,8 @@ export class DevServerManager {
     try {
       // Create Lithia instance
       this.lithia = await createLithia({
-        _env: "dev",
-        _cli: { command: "dev" },
+        _env: 'dev',
+        _cli: { command: 'dev' },
         debug: this.debugMode,
       });
 
@@ -108,7 +108,7 @@ export class DevServerManager {
 
       this.isInitialized = true;
 
-      this.lithia.logger.info("Development server initialized");
+      this.lithia.logger.info('Development server initialized');
     } catch (error) {
       throw new Error(`Failed to initialize development server: ${error}`);
     }
@@ -136,7 +136,7 @@ export class DevServerManager {
       }
 
       // Perform initial build
-      await this.buildMonitor?.build("Initial build");
+      await this.buildMonitor?.build('Initial build');
 
       // Start HTTP server
       await this.serverManager?.start();
@@ -146,10 +146,10 @@ export class DevServerManager {
         await this.studio.start();
       }
 
-      this.lithia.logger.info("Development server started successfully");
+      this.lithia.logger.info('Development server started successfully');
     } catch (error) {
       this.isRunning = false;
-      this.lithia.logger.error("Failed to start development server:", error);
+      this.lithia.logger.error('Failed to start development server:', error);
       throw error;
     }
   }
@@ -178,9 +178,9 @@ export class DevServerManager {
         await this.fileWatcher.stop();
       }
 
-      this.lithia.logger.info("Development server stopped");
+      this.lithia.logger.info('Development server stopped');
     } catch (error) {
-      this.lithia.logger.error("Error stopping development server:", error);
+      this.lithia.logger.error('Error stopping development server:', error);
       throw error;
     }
   }
@@ -189,15 +189,15 @@ export class DevServerManager {
    * Restart the development server.
    */
   async restart(): Promise<void> {
-    this.lithia.logger.wait("Restarting development server...");
+    this.lithia.logger.wait('Restarting development server...');
 
     try {
       await this.stop();
       await this.start();
 
-      this.lithia.logger.success("Development server restarted successfully");
+      this.lithia.logger.success('Development server restarted successfully');
     } catch (error) {
-      this.lithia.logger.error("Failed to restart development server:", error);
+      this.lithia.logger.error('Failed to restart development server:', error);
       throw error;
     }
   }
@@ -211,9 +211,9 @@ export class DevServerManager {
     }
 
     try {
-      await this.buildMonitor.build("File change detected");
+      await this.buildMonitor.build('File change detected');
     } catch (error) {
-      this.lithia.logger.error("Soft reload failed:", error);
+      this.lithia.logger.error('Soft reload failed:', error);
     }
   }
 
@@ -229,7 +229,7 @@ export class DevServerManager {
     this.configProvider.setConfigUpdateCallback(
       async (context: ConfigUpdateContext) => {
         await this.handleConfigUpdate(context);
-      }
+      },
     );
 
     // Load config with watch enabled
@@ -240,7 +240,7 @@ export class DevServerManager {
    * Handle configuration updates with diff detection.
    */
   private async handleConfigUpdate(
-    context: ConfigUpdateContext
+    context: ConfigUpdateContext,
   ): Promise<void> {
     if (!this.isRunning) {
       return;
@@ -258,7 +258,7 @@ export class DevServerManager {
         this.reloadHooks();
       }
 
-      this.lithia.logger.success("Lithia configuration updated");
+      this.lithia.logger.success('Lithia configuration updated');
 
       // Notify Studio of configuration update
       this.notifyStudioConfigUpdate();
@@ -267,11 +267,11 @@ export class DevServerManager {
         this.lithia.logger.warn(
           `Critical configuration changes detected that require server restart: ${criticalChanges
             .map((change) => change.key)
-            .join(", ")}`
+            .join(', ')}`,
         );
       }
     } catch (error) {
-      this.lithia.logger.error("Failed to apply configuration changes:", error);
+      this.lithia.logger.error('Failed to apply configuration changes:', error);
     }
   }
 
@@ -281,7 +281,7 @@ export class DevServerManager {
    * @returns true if hooks changed, false otherwise
    */
   private detectHooksChanges(diff: DiffEntry[]): boolean {
-    return diff.some((entry) => entry.key.startsWith("hooks"));
+    return diff.some((entry) => entry.key.startsWith('hooks'));
   }
 
   /**
@@ -299,14 +299,14 @@ export class DevServerManager {
       const hooksCount = Object.keys(this.lithia.options.hooks || {}).length;
       this.lithia.logger.debug(`Reloaded ${hooksCount} hook types`);
     } catch (error) {
-      this.lithia.logger.error("Failed to reload hooks:", error);
+      this.lithia.logger.error('Failed to reload hooks:', error);
     }
   }
 
   private detectCriticalChanges(diff: DiffEntry[]) {
     return diff.filter(
       (entry) =>
-        this.criticalChanges.includes(entry.key) && entry.type === "changed"
+        this.criticalChanges.includes(entry.key) && entry.type === 'changed',
     );
   }
 
@@ -330,7 +330,7 @@ export class DevServerManager {
       };
 
       // Send config update to all connected Studio clients
-      this.studio.getWebSocketManager().sendToAll("lithia-config", { config });
+      this.studio.getWebSocketManager().sendToAll('lithia-config', { config });
     }
   }
 
@@ -340,7 +340,7 @@ export class DevServerManager {
   async reloadConfig(): Promise<void> {
     // This method is now handled by the config watching system
     this.lithia.logger.info(
-      "Configuration watching is active - changes are applied automatically"
+      'Configuration watching is active - changes are applied automatically',
     );
   }
 
@@ -356,9 +356,9 @@ export class DevServerManager {
       const envKeys = Object.keys(process.env);
       envKeys.forEach((key) => {
         if (
-          !key.startsWith("NODE_") &&
-          !key.startsWith("LITHIA_") &&
-          !key.startsWith("PATH")
+          !key.startsWith('NODE_') &&
+          !key.startsWith('LITHIA_') &&
+          !key.startsWith('PATH')
         ) {
           delete process.env[key];
         }
@@ -367,11 +367,11 @@ export class DevServerManager {
       // Load and merge .env and .env.local files
       await loadEnvironmentFiles();
 
-      this.lithia.logger.info("Environment variables reloaded successfully");
+      this.lithia.logger.info('Environment variables reloaded successfully');
     } catch (error) {
       this.lithia.logger.error(
-        "Failed to reload environment variables:",
-        error
+        'Failed to reload environment variables:',
+        error,
       );
     }
   }
@@ -448,7 +448,7 @@ export class DevServerManager {
       const devServerStats = this.getStatistics();
       this.studio.emitDevServerStats(devServerStats);
     } catch (error) {
-      this.lithia.logger.error("Error sending statistics to Studio:", error);
+      this.lithia.logger.error('Error sending statistics to Studio:', error);
     }
   }
 
@@ -491,7 +491,7 @@ export class DevServerManager {
 
     // Build events
     this.eventEmitter.on(DevServerEventType.BUILD_SUCCESS, async (event) => {
-      this.lithia.logger.debug("Build success:", event.data);
+      this.lithia.logger.debug('Build success:', event.data);
 
       // Emit to Studio if enabled
       if (this.studio) {
@@ -502,19 +502,19 @@ export class DevServerManager {
           // Send updated statistics
           this.sendStatisticsToStudio();
         } catch (error) {
-          this.lithia.logger.error("Error sending manifest to Studio:", error);
+          this.lithia.logger.error('Error sending manifest to Studio:', error);
         }
       }
     });
 
     this.eventEmitter.on(DevServerEventType.BUILD_ERROR, async (event) => {
-      this.lithia.logger.error("Build error:", event.data);
+      this.lithia.logger.error('Build error:', event.data);
 
       // Emit to Studio if enabled
       if (this.studio) {
         this.studio.emitBuildStatus(
           false,
-          event.data?.errors?.[0]?.message || "Build failed"
+          event.data?.errors?.[0]?.message || 'Build failed',
         );
         // Send updated statistics
         this.sendStatisticsToStudio();
@@ -523,12 +523,12 @@ export class DevServerManager {
 
     // Server events
     this.eventEmitter.on(DevServerEventType.SERVER_ERROR, async (event) => {
-      this.lithia.logger.error("Server error:", event.data);
+      this.lithia.logger.error('Server error:', event.data);
     });
 
     // Watcher events
     this.eventEmitter.on(DevServerEventType.WATCHER_ERROR, async (event) => {
-      this.lithia.logger.error("File watcher error:", event.data);
+      this.lithia.logger.error('File watcher error:', event.data);
     });
   }
 
@@ -575,7 +575,7 @@ export class DevServerManager {
       await this.stop();
       this.eventEmitter.removeAllListeners();
     } catch (error) {
-      this.lithia.logger.error("Error during cleanup:", error);
+      this.lithia.logger.error('Error during cleanup:', error);
     }
   }
 }

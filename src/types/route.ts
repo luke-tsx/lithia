@@ -1,15 +1,20 @@
-import type { Operation, Parameter } from './open-api';
-
-export type MatchedMethodSuffix = 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace';
+export type MatchedMethodSuffix =
+  | 'delete'
+  | 'get'
+  | 'head'
+  | 'options'
+  | 'patch'
+  | 'post'
+  | 'put'
+  | 'trace';
 
 export type MatchedEnvSuffix = 'dev' | 'prod';
 
 export type Metadata = {
-  openAPI?: Omit<Operation, 'servers'> & {
-    parameters?: (Omit<Parameter, 'in'> & {
-      in: 'query' | 'header';
-    })[];
-  };
+  // Future metadata for route documentation
+  description?: string;
+  summary?: string;
+  tags?: string[];
 };
 
 export type Route = {

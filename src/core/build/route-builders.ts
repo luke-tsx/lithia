@@ -61,7 +61,8 @@ export class NoBundleRouteBuilder implements RouteBuilder {
    */
   private async buildAllFiles(context: BuildContext): Promise<void> {
     try {
-      const projectRoot = (context.lithia.options._c12 as any)?.cwd || process.cwd();
+      const projectRoot =
+        (context.lithia.options._c12 as any)?.cwd || process.cwd();
       const srcDir = path.join(projectRoot, 'src');
       const outputDir = path.join(projectRoot, '.lithia');
 
@@ -103,7 +104,9 @@ export class NoBundleRouteBuilder implements RouteBuilder {
       await Promise.all(
         files.map(async (filePath) => {
           const relativePath = path.relative(srcDir, filePath);
-          const outputPath = path.join(outputDir, relativePath).replace(/\.tsx?$/, '.js');
+          const outputPath = path
+            .join(outputDir, relativePath)
+            .replace(/\.tsx?$/, '.js');
 
           // Criar diretório de saída
           await mkdir(path.dirname(outputPath), { recursive: true });
@@ -122,13 +125,17 @@ export class NoBundleRouteBuilder implements RouteBuilder {
       );
 
       // Resolver TypeScript path mappings com tsc-alias
-      execSync(`npx tsc-alias --project ${path.join(projectRoot, 'tsconfig.json')} --outDir ${outputDir}`, {
-        cwd: projectRoot,
-        stdio: 'pipe',
-        encoding: 'utf8',
-      });
+      execSync(
+        `npx tsc-alias --project ${path.join(projectRoot, 'tsconfig.json')} --outDir ${outputDir}`,
+        {
+          cwd: projectRoot,
+          stdio: 'pipe',
+          encoding: 'utf8',
+        },
+      );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       throw new RouteBuildError(
         `Failed to build TypeScript files with SWC: ${errorMessage}`,
         { path: 'all', filePath: 'all' } as Route,
@@ -160,8 +167,11 @@ export class FullBundleRouteBuilder implements RouteBuilder {
    */
   async buildRoute(context: BuildContext, route: Route): Promise<void> {
     try {
-      const projectRoot = (context.lithia.options._c12 as any)?.cwd || process.cwd();
-      const outputDir = path.dirname(getOutputPath(context.lithia, route.filePath));
+      const projectRoot =
+        (context.lithia.options._c12 as any)?.cwd || process.cwd();
+      const outputDir = path.dirname(
+        getOutputPath(context.lithia, route.filePath),
+      );
 
       await esbuild.build({
         entryPoints: [route.filePath],

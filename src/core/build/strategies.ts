@@ -55,7 +55,8 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
 
       return context.createBuildResult(true, errors);
     } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error(String(error));
+      const errorObj =
+        error instanceof Error ? error : new Error(String(error));
       lithia.logger.error(errorObj.message);
 
       lithia.logger.wait(
@@ -84,7 +85,9 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
     }
 
     // Create route builder based on context configuration
-    const routeBuilder = BuildModeFactory.createBuilder(context.config.mode.mode);
+    const routeBuilder = BuildModeFactory.createBuilder(
+      context.config.mode.mode,
+    );
 
     const parallelBuilder = new ParallelRouteBuilder(routeBuilder, 5);
 
@@ -140,7 +143,8 @@ export class ProductionBuildStrategy implements BuildStrategy {
 
       return context.createBuildResult(true);
     } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error(String(error));
+      const errorObj =
+        error instanceof Error ? error : new Error(String(error));
       lithia.logger.error(`Error during production build: ${errorObj.message}`);
       process.exit(1);
     }
@@ -159,7 +163,9 @@ export class ProductionBuildStrategy implements BuildStrategy {
     }
 
     // Create route builder based on context configuration
-    const routeBuilder = BuildModeFactory.createBuilder(context.config.mode.mode);
+    const routeBuilder = BuildModeFactory.createBuilder(
+      context.config.mode.mode,
+    );
 
     const parallelBuilder = new ParallelRouteBuilder(routeBuilder, 10);
 

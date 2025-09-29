@@ -124,7 +124,10 @@ export class LogInterceptor {
    */
   private interceptConsoleMethods(): void {
     // Helper function to create log entry from console call
-    const createLogEntry = (level: LogEntry['level'], args: unknown[]): LogEntry => {
+    const createLogEntry = (
+      level: LogEntry['level'],
+      args: unknown[],
+    ): LogEntry => {
       const message = args
         .map((arg) => {
           if (typeof arg === 'object') {

@@ -63,7 +63,9 @@ export class EsbuildRouteBuilder implements RouteBuilder {
    */
   async buildRoute(context: BuildContext, route: Route): Promise<void> {
     try {
-      const outputDir = path.dirname(getOutputPath(context.lithia, route.filePath));
+      const outputDir = path.dirname(
+        getOutputPath(context.lithia, route.filePath),
+      );
 
       const { mode: _mode, ...esbuildConfig } = context.config;
 
@@ -73,7 +75,10 @@ export class EsbuildRouteBuilder implements RouteBuilder {
         ...esbuildConfig,
         plugins: [
           TsconfigPathsPlugin({
-            tsconfig: path.join((context.lithia.options._c12 as any)?.cwd || process.cwd(), 'tsconfig.json'),
+            tsconfig: path.join(
+              (context.lithia.options._c12 as any)?.cwd || process.cwd(),
+              'tsconfig.json',
+            ),
           }),
         ],
         banner: {

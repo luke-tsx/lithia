@@ -2,7 +2,10 @@ import { access, constants } from 'node:fs/promises';
 import path from 'node:path';
 import { defineCommand } from 'citty';
 import { createLithia } from 'lithia/core';
-import { type ProductionServerConfig, ProductionServerManager } from './start/production-server-manager';
+import {
+  type ProductionServerConfig,
+  ProductionServerManager,
+} from './start/production-server-manager';
 
 interface StartOptions {
   port?: number;
@@ -111,7 +114,9 @@ export default defineCommand({
       });
 
       if (options.verbose) {
-        lithia.logger.info(`Starting production server on ${options.host}:${options.port}`);
+        lithia.logger.info(
+          `Starting production server on ${options.host}:${options.port}`,
+        );
         lithia.logger.info(`Output directory: ${outputPath}`);
         if (options.https) {
           lithia.logger.info(`HTTPS enabled with certificate: ${options.cert}`);
@@ -136,11 +141,15 @@ export default defineCommand({
       if (options.verbose) {
         const info = serverManager.getDetailedInfo();
         lithia.logger.info(`Server uptime: ${info.uptimeFormatted}`);
-        lithia.logger.info(`Memory usage: ${Math.round(info.stats.requestCount)} requests handled`);
+        lithia.logger.info(
+          `Memory usage: ${Math.round(info.stats.requestCount)} requests handled`,
+        );
 
         const health = serverManager.getHealthStatus();
         lithia.logger.info(`Health status: ${health.status}`);
-        lithia.logger.info(`Memory usage: ${Math.round(health.memoryUsage.heapUsed / 1024 / 1024)}MB`);
+        lithia.logger.info(
+          `Memory usage: ${Math.round(health.memoryUsage.heapUsed / 1024 / 1024)}MB`,
+        );
       }
 
       lithia.logger.ready(

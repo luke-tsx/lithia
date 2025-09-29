@@ -11,7 +11,12 @@ export class HttpError extends Error {
   public readonly timestamp: string;
   public readonly requestId?: string;
 
-  constructor(status: HttpStatusCode, message: string, data?: ErrorData, requestId?: string) {
+  constructor(
+    status: HttpStatusCode,
+    message: string,
+    data?: ErrorData,
+    requestId?: string,
+  ) {
     super(message);
     this.name = this.constructor.name;
     this.status = status;

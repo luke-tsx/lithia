@@ -23,11 +23,16 @@ export class RequestProcessor {
    * @param req - Request object
    * @param res - Response object
    */
-  async processRequest(req: _LithiaRequest, res: _LithiaResponse): Promise<void> {
+  async processRequest(
+    req: _LithiaRequest,
+    res: _LithiaResponse,
+  ): Promise<void> {
     try {
-      await this.lithia.hooks.callHook('request:before', req, res).catch((error) => {
-        this.lithia.logger.error('Error in request:before hook:', error);
-      });
+      await this.lithia.hooks
+        .callHook('request:before', req, res)
+        .catch((error) => {
+          this.lithia.logger.error('Error in request:before hook:', error);
+        });
 
       await this.executeGlobalMiddlewares(req, res);
 
@@ -45,9 +50,11 @@ export class RequestProcessor {
       await this.lithia.hooks.callHook('request:error', req, res, error);
       throw error;
     } finally {
-      await this.lithia.hooks.callHook('request:after', req, res).catch((error) => {
-        this.lithia.logger.error('Error in request:after hook:', error);
-      });
+      await this.lithia.hooks
+        .callHook('request:after', req, res)
+        .catch((error) => {
+          this.lithia.logger.error('Error in request:after hook:', error);
+        });
     }
   }
 
@@ -57,7 +64,10 @@ export class RequestProcessor {
    * @param req - Request object
    * @param res - Response object
    */
-  private async executeGlobalMiddlewares(req: _LithiaRequest, res: _LithiaResponse): Promise<void> {
+  private async executeGlobalMiddlewares(
+    req: _LithiaRequest,
+    res: _LithiaResponse,
+  ): Promise<void> {
     res.addHeader('X-Powered-By', 'Lithia');
 
     // Setup CORS from config
@@ -102,7 +112,9 @@ export class RequestProcessor {
     const validation = validator.validateRoute(route);
 
     if (!validation.isValid) {
-      throw new InternalServerError(`Invalid route: ${validation.errors.join(', ')}`);
+      throw new InternalServerError(
+        `Invalid route: ${validation.errors.join(', ')}`,
+      );
     }
 
     return route;
@@ -130,7 +142,9 @@ export class RequestProcessor {
     const validation = validator.validateModule(module);
 
     if (!validation.isValid) {
-      throw new InternalServerError(`Invalid module: ${validation.errors.join(', ')}`);
+      throw new InternalServerError(
+        `Invalid module: ${validation.errors.join(', ')}`,
+      );
     }
 
     return module;
@@ -156,7 +170,12 @@ export class RequestProcessor {
       dynamic: route.dynamic,
     };
 
-    await this.middlewareManager.executeRouteMiddlewares(module.middlewares || [], req, res, routeInfo);
+    await this.middlewareManager.executeRouteMiddlewares(
+      module.middlewares || [],
+      req,
+      res,
+      routeInfo,
+    );
   }
 
   /**
@@ -187,13 +206,19 @@ export class RequestProcessor {
    * @param req - Request object
    * @param res - Response object
    */
-  private async setupCors(req: _LithiaRequest, res: _LithiaResponse): Promise<void> {
+  private async setupCors(
+    req: _LithiaRequest,
+    res: _LithiaResponse,
+  ): Promise<void> {
     const corsConfig = this.lithia.options.cors;
     if (!corsConfig) return;
 
     // Prepare origins - add Studio origin if enabled
     let origins = corsConfig.origin || [];
-    if (this.lithia.options.studio.enabled && this.lithia.options._env === 'dev') {
+    if (
+      this.lithia.options.studio.enabled &&
+      this.lithia.options._env === 'dev'
+    ) {
       origins = [...origins, 'http://localhost:8473'];
     }
 
@@ -211,15 +236,24 @@ export class RequestProcessor {
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
       if (corsConfig.methods) {
-        res.addHeader('Access-Control-Allow-Methods', corsConfig.methods.join(', '));
+        res.addHeader(
+          'Access-Control-Allow-Methods',
+          corsConfig.methods.join(', '),
+        );
       }
 
       if (corsConfig.allowedHeaders) {
-        res.addHeader('Access-Control-Allow-Headers', corsConfig.allowedHeaders.join(', '));
+        res.addHeader(
+          'Access-Control-Allow-Headers',
+          corsConfig.allowedHeaders.join(', '),
+        );
       }
 
       if (corsConfig.exposedHeaders && corsConfig.exposedHeaders.length > 0) {
-        res.addHeader('Access-Control-Expose-Headers', corsConfig.exposedHeaders.join(', '));
+        res.addHeader(
+          'Access-Control-Expose-Headers',
+          corsConfig.exposedHeaders.join(', '),
+        );
       }
 
       if (corsConfig.maxAge && corsConfig.maxAge > 0) {
@@ -233,7 +267,10 @@ export class RequestProcessor {
 
     // Set exposed headers for non-preflight requests
     if (corsConfig.exposedHeaders && corsConfig.exposedHeaders.length > 0) {
-      res.addHeader('Access-Control-Expose-Headers', corsConfig.exposedHeaders.join(', '));
+      res.addHeader(
+        'Access-Control-Expose-Headers',
+        corsConfig.exposedHeaders.join(', '),
+      );
     }
   }
 

@@ -1,12 +1,12 @@
-import { createDebugger, createHooks } from "hookable";
+import { createDebugger, createHooks } from 'hookable';
 import type {
   Lithia,
   LithiaConfig,
   LithiaHooks,
   LoadConfigOptions,
-} from "lithia/types";
-import { loadOptions } from "./config/loader";
-import { ConsoleLogger, type Logger } from "./log/logger";
+} from 'lithia/types';
+import { loadOptions } from './config/loader';
+import { ConsoleLogger, type Logger } from './log/logger';
 
 /**
  * Registers hooks from configuration into the Lithia instance.
@@ -16,13 +16,13 @@ import { ConsoleLogger, type Logger } from "./log/logger";
  */
 export function registerHooksFromConfig(
   lithia: Lithia,
-  hooksConfig: Lithia["options"]["hooks"]
+  hooksConfig: Lithia['options']['hooks'],
 ): void {
   if (!hooksConfig) return;
 
   // Register each hook type from configuration
   for (const [hookName, handler] of Object.entries(hooksConfig)) {
-    if (typeof handler === "function") {
+    if (typeof handler === 'function') {
       lithia.hooks.hook(hookName as keyof LithiaHooks, handler);
     }
   }
@@ -52,7 +52,7 @@ export function registerHooksFromConfig(
 export async function createLithia(
   config: LithiaConfig = {},
   opts: LoadConfigOptions = {},
-  logger?: Logger
+  logger?: Logger,
 ): Promise<Lithia> {
   // Load and merge configuration
   const options = await loadOptions(config, opts);
@@ -76,7 +76,7 @@ export async function createLithia(
 
   // Enable debugger if debug mode is on
   if (lithia.options.debug) {
-    createDebugger(lithia.hooks, { tag: "lithia" });
+    createDebugger(lithia.hooks, { tag: 'lithia' });
   }
 
   return lithia;

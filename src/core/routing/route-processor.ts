@@ -1,9 +1,9 @@
-import type { FileInfo, Lithia, Route } from "lithia/types";
-import { StandardizedRouteConvention } from "./convention";
+import type { FileInfo, Lithia, Route } from 'lithia/types';
+import { StandardizedRouteConvention } from './convention';
 import {
   DefaultPathTransformer,
   type PathTransformer,
-} from "./path-transformer";
+} from './path-transformer';
 
 /**
  * Interface for route processing implementations.
@@ -64,7 +64,7 @@ export class DefaultRouteProcessor implements RouteProcessor {
 
     // Then transform the path (this will remove /route.ts and other transformations)
     let path = this.convention.transformPath(updatedPath);
-    path = this.pathTransformer.normalizePath(path, "");
+    path = this.pathTransformer.normalizePath(path, '');
 
     path = this.pathTransformer.removeIndexSuffix(path);
     const filePath = file.fullPath;
