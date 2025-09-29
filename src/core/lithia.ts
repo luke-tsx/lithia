@@ -79,16 +79,5 @@ export async function createLithia(
     createDebugger(lithia.hooks, { tag: "lithia" });
   }
 
-  // Log successful initialization
-  lithiaLogger.debug(`Lithia instance created successfully`);
-  lithiaLogger.debug("Configuration loaded:", {
-    port: options.server.port,
-    host: options.server.host,
-    buildMode: options.build.mode,
-    environment: options._env,
-    hooksEnabled: true,
-    registeredHooks: Object.keys(options.hooks || {}).length,
-  });
-
   return lithia;
 }

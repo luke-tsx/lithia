@@ -31,7 +31,9 @@
     "release": "changeset publish"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
