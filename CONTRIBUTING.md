@@ -5,6 +5,7 @@ First off, thank you for considering contributing to Lithia! We're building some
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
+- [Branch Strategy](#branch-strategy)
 - [How Can I Contribute?](#how-can-i-contribute)
 - [Development Setup](#development-setup)
 - [Pull Request Process](#pull-request-process)
@@ -17,6 +18,80 @@ First off, thank you for considering contributing to Lithia! We're building some
 ## Code of Conduct
 
 This project and everyone participating in it is governed by respect, professionalism, and inclusivity. By participating, you are expected to uphold these values. Please report unacceptable behavior to [support@lithiajs.com](mailto:support@lithiajs.com).
+
+## Branch Strategy
+
+Lithia uses a **Canary-style branching model** similar to Next.js and other modern frameworks:
+
+### Branch Overview
+
+```
+canary (default) → Active development, bleeding edge features
+  ↓
+main → Stable releases only
+  ↓
+v1.x, v2.x → Long-term support branches
+```
+
+### Branches Explained
+
+- **`canary`** (default branch)
+  - All active development happens here
+  - All PRs should target this branch
+  - Contains latest features and fixes
+  - May contain bugs or breaking changes
+  - Published as `lithia@canary` on npm
+
+- **`main`**
+  - Stable, production-ready code only
+  - Merged from `canary` during releases
+  - Published as `lithia@latest` on npm
+  - This is what users install by default
+
+- **`v1.x`, `v2.x`, etc.**
+  - Long-term support for major versions
+  - Only critical bug fixes and security patches
+  - Created when a new major version is released
+
+### For Contributors
+
+**Always work from the `canary` branch:**
+
+```bash
+# Clone and switch to canary
+git clone https://github.com/your-username/lithia.git
+cd lithia
+git checkout canary
+
+# Create your feature branch from canary
+git checkout -b feat/amazing-feature
+
+# All PRs go to canary
+```
+
+### For Users
+
+**Install stable version (recommended):**
+
+```bash
+npm install lithia
+```
+
+**Install canary version (for testing latest features):**
+
+```bash
+npm install lithia@canary
+```
+
+⚠️ **Warning:** Canary builds are experimental. Use in production at your own risk.
+
+### Release Process
+
+1. Development happens on `canary`
+2. Features are tested by early adopters using `lithia@canary`
+3. When stable, `canary` is merged into `main`
+4. A new version is published from `main` (e.g., `v1.5.0`)
+5. Users get the update via `npm install lithia@latest`
 
 ## How Can I Contribute?
 
@@ -32,6 +107,7 @@ When creating a bug report, include:
 - **Environment details** (OS, Node version, Lithia version)
 - **Code samples** or repository links if possible
 - **Screenshots** if applicable
+- **Which version** you're using (stable or canary)
 
 **Example:**
 
@@ -51,7 +127,8 @@ When creating a bug report, include:
 
 - OS: Ubuntu 22.04
 - Node: v20.10.0
-- Lithia: v3.1.0
+- Lithia: v3.1.0 (or canary)
+- Package Manager: pnpm 8.15.0
 ```
 
 ### Suggesting Enhancements
@@ -93,6 +170,9 @@ Don't be afraid to ask questions! We're here to help.
 git clone https://github.com/your-username/lithia.git
 cd lithia
 
+# Switch to canary (development branch)
+git checkout canary
+
 # Add upstream remote
 git remote add upstream https://github.com/lithia-framework/lithia.git
 
@@ -128,6 +208,13 @@ pnpm run dev
 ### Development Workflow
 
 ```bash
+# Make sure you're on canary
+git checkout canary
+git pull upstream canary
+
+# Create your feature branch
+git checkout -b feat/my-feature
+
 # Make changes to src/
 
 # Build to test changes
@@ -142,14 +229,27 @@ pnpm run lint
 pnpm run format:check
 ```
 
+### Testing Your Changes with npm link
+
+```bash
+# In the lithia directory
+pnpm run build
+npm link
+
+# In your test project
+npm link lithia
+
+# Now your test project uses your local lithia version
+```
+
 ## Pull Request Process
 
-1. **Create a branch** from `main`:
+1. **Ensure you're working from `canary`:**
 
    ```bash
+   git checkout canary
+   git pull upstream canary
    git checkout -b feature/amazing-feature
-   # or
-   git checkout -b fix/bug-description
    ```
 
 2. **Make your changes** following our [coding standards](#coding-standards)
@@ -178,17 +278,19 @@ pnpm run format:check
    git push origin feature/amazing-feature
    ```
 
-6. **Open a Pull Request** against `main`
+6. **Open a Pull Request** against **`canary`** (not `main`!)
 
 7. **Wait for review** - maintainers will review your PR and may request changes
 
 ### Pull Request Requirements
 
+- **Target `canary` branch** - All PRs must go to canary
 - **Clear description** of what the PR does
 - **Reference related issues** (e.g., "Fixes #123")
 - **All checks passing** (lint, format, type-check)
 - **No breaking changes** without discussion (or clearly marked)
 - **Updated documentation** if needed
+- **Tested with example projects**
 
 ### Pull Request Template
 
@@ -210,7 +312,12 @@ Fixes #(issue number)
 
 ## How Has This Been Tested?
 
-Describe the tests you ran and how to reproduce them
+Describe the tests you ran and how to reproduce them:
+
+- [ ] Tested with `examples/1-basic-api`
+- [ ] Tested hot reload functionality
+- [ ] Tested Lithia Studio integration
+- [ ] Tested with `lithia@canary` in a real project
 
 ## Checklist
 
@@ -220,6 +327,7 @@ Describe the tests you ran and how to reproduce them
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
 - [ ] I have tested this with the example projects
+- [ ] My PR targets the `canary` branch
 ```
 
 ## Coding Standards
@@ -272,11 +380,12 @@ pnpm run lint:fix
 
 ### Best Practices
 
-- **No comments in code** - Code should be self-explanatory
+- **Self-explanatory code** - Code should be clear without excessive comments
 - **Descriptive variable names** - Use clear, meaningful names
 - **Small functions** - Each function should do one thing well
 - **Error handling** - Always handle errors appropriately
 - **Async/await** - Use async/await over promises
+- **Immutability** - Prefer const over let, avoid mutations when possible
 
 **Good:**
 
@@ -302,6 +411,13 @@ function getUser(id) {
     .catch((e) => null);
 }
 ```
+
+### File Naming Conventions
+
+- **kebab-case** for file names: `http-server-manager.ts`
+- **PascalCase** for class names: `HttpServerManager`
+- **camelCase** for functions and variables: `getUserById`
+- **SCREAMING_SNAKE_CASE** for constants: `MAX_BODY_SIZE`
 
 ## Commit Guidelines
 
@@ -364,6 +480,9 @@ Common scopes:
 - `types` - TypeScript types
 - `docs` - Documentation
 - `examples` - Example projects
+- `config` - Configuration system
+- `hooks` - Hooks system
+- `middleware` - Middleware system
 
 ## Project Structure
 
@@ -377,11 +496,11 @@ lithia/
 │   │   ├── log/             # Logging
 │   │   ├── routing/         # Routing system
 │   │   └── server/          # HTTP server
-│   ├── studio/              # Lithia Studio
+│   ├── studio/              # Lithia Studio server
 │   └── types/               # TypeScript types
-├── studio/                   # Studio UI (Next.js)
+├── studio/                   # Studio UI (Next.js app)
 ├── examples/                 # Example projects
-├── dist/                     # Built files
+├── dist/                     # Built files (git ignored)
 └── build.ts                 # Build script
 ```
 
@@ -391,6 +510,7 @@ lithia/
 - `src/core/routing/convention.ts` - Routing conventions
 - `src/core/server/http-server-manager.ts` - HTTP server
 - `src/studio/lithia-studio.ts` - Studio server
+- `src/types/index.ts` - Public type exports
 - `build.ts` - Build pipeline
 
 ## Testing
@@ -408,9 +528,10 @@ pnpm run dev
 # Test features:
 # - Create new routes
 # - Test hot reload
-# - Test Lithia Studio
+# - Test Lithia Studio (http://localhost:8473)
 # - Test different HTTP methods
 # - Test dynamic routes
+# - Test middleware system
 ```
 
 ### Testing Checklist
@@ -419,11 +540,30 @@ Before submitting a PR, test:
 
 - [ ] Hot reload works with file changes
 - [ ] New routes are detected automatically
-- [ ] Lithia Studio displays correctly
+- [ ] Lithia Studio displays correctly at `http://localhost:8473`
 - [ ] CLI commands work (`dev`, `build`, `start`)
 - [ ] TypeScript types are correct
 - [ ] No console errors or warnings
 - [ ] Examples run without issues
+- [ ] Middleware executes in correct order
+- [ ] Dynamic routes work with parameters
+- [ ] Method-specific routes work correctly
+
+### Testing with Real Projects
+
+For significant changes, test with a real project:
+
+```bash
+# In lithia directory
+pnpm run build
+npm link
+
+# In your test project
+npm link lithia
+npm run dev
+
+# Test all functionality
+```
 
 ## Documentation
 
@@ -435,7 +575,7 @@ Before submitting a PR, test:
 
 **Example:**
 
-```typescript
+````typescript
 /**
  * Creates a new Lithia instance with the provided configuration.
  *
@@ -443,6 +583,13 @@ Before submitting a PR, test:
  * @param opts - Configuration loading options
  * @param logger - Optional custom logger instance
  * @returns Promise resolving to configured Lithia instance
+ *
+ * @example
+ * ```typescript
+ * const lithia = await createLithia({
+ *   server: { port: 3000 }
+ * });
+ * ```
  */
 export async function createLithia(
   config: LithiaConfig = {},
@@ -451,7 +598,7 @@ export async function createLithia(
 ): Promise<Lithia> {
   // implementation
 }
-```
+````
 
 ### Documentation Updates
 
@@ -460,13 +607,23 @@ When adding features or making changes, update:
 - **README.md** - If feature is user-facing
 - **Type definitions** - Keep types accurate
 - **Examples** - Add examples for new features
+- **CHANGELOG.md** - Document changes (maintainers handle this)
 - **Migration guides** - For breaking changes
+
+### Documentation Style
+
+- Use clear, simple language
+- Provide code examples
+- Include "why" not just "how"
+- Keep it up to date with code changes
 
 ## Getting Help
 
 - **GitHub Discussions**: [Ask questions](https://github.com/lithia-framework/lithia/discussions)
-- **Discord**: Join our community (coming soon)
+- **GitHub Issues**: For bug reports and feature requests
 - **Email**: [support@lithiajs.com](mailto:support@lithiajs.com)
+
+Don't hesitate to ask for help! We're all learning together.
 
 ## Recognition
 
@@ -475,6 +632,49 @@ Contributors are recognized in:
 - **GitHub Contributors page**
 - **Release notes** (for significant contributions)
 - **Special thanks** in README (for major features)
+- **OpenCollective** (for financial contributors)
+
+## Development Tips
+
+### Quick Commands Reference
+
+```bash
+# Development
+pnpm run build              # Build the project
+pnpm run dev                # Start with watch mode (if available)
+pnpm run lint               # Run ESLint
+pnpm run lint:fix           # Fix linting issues
+pnpm run format             # Format code with Prettier
+pnpm run format:check       # Check code formatting
+pnpm run type-check         # Run TypeScript type checking
+
+# Testing
+cd examples/1-basic-api && pnpm run dev
+
+# Branch management
+git checkout canary         # Switch to canary
+git pull upstream canary    # Update from upstream
+git checkout -b feat/new    # Create feature branch
+```
+
+### Common Issues
+
+**Build fails with TypeScript errors:**
+
+- Make sure you're on the latest `canary` branch
+- Run `pnpm install` to ensure dependencies are up to date
+- Check that your Node.js version is 18.x or higher
+
+**Examples don't work:**
+
+- Rebuild the main project: `pnpm run build`
+- Reinstall example dependencies: `cd examples/1-basic-api && pnpm install`
+- Clear any cached builds: `rm -rf dist`
+
+**Hot reload not working:**
+
+- Check file watcher limits on Linux: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
+- Restart the dev server
 
 ## License
 
@@ -484,4 +684,6 @@ By contributing to Lithia, you agree that your contributions will be licensed un
 
 **Thank you for contributing to Lithia!** 🚀
 
-Every contribution, no matter how small, helps make Lithia better for everyone.
+Every contribution, no matter how small, helps make Lithia better for everyone. We appreciate your time and effort in making this project great.
+
+**Remember:** All PRs go to `canary`, not `main`!

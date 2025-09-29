@@ -2,21 +2,67 @@
   "name": "lithia",
   "version": "3.1.0",
   "description": "Next-generation framework for building server-side applications with Node.js & TypeScript 🚀",
+  "keywords": [
+    "lithia",
+    "framework",
+    "typescript",
+    "nodejs",
+    "node",
+    "api",
+    "server",
+    "backend",
+    "file-based-routing",
+    "hot-reload",
+    "web-framework",
+    "rest-api",
+    "developer-experience",
+    "dx"
+  ],
+  "author": {
+    "name": "Lithia Team",
+    "email": "contact@lithiajs.com",
+    "url": "https://lithiajs.com"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lithiajs/lithia.git"
+    "url": "git+https://github.com/lithia-framework/lithia.git"
   },
-  "homepage": "https://nestjs.com",
+  "homepage": "https://lithiajs.com",
+  "bugs": {
+    "url": "https://github.com/lithia-framework/lithia/issues"
+  },
   "funding": {
     "type": "opencollective",
-    "url": "https://opencollective.com/lithiajs"
+    "url": "https://opencollective.com/lithia-framework"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
   "bin": {
     "lithia": "dist/cli/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsx build.ts",
     "format": "prettier --write .",
@@ -24,17 +70,13 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
-    "examples": "tsx examples/cli.ts",
+    "examples": "tsx examples/example-runner.ts",
     "studio": "cd studio && pnpm run dev",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "prepublishOnly": "pnpm run build"
   },
-  "files": [
-    "dist",
-    "LICENSE",
-    "CHANGELOG.md"
-  ],
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
     "@eslint/js": "^9.17.0",
@@ -51,9 +93,6 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.18.1"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "dependencies": {
     "@esbuild-plugins/tsconfig-paths": "^0.1.2",
@@ -76,5 +115,8 @@
     "tslib": "^2.8.1",
     "ufo": "^1.5.4",
     "zod": "^3.24.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

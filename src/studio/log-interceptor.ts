@@ -102,12 +102,16 @@ export class LogInterceptor {
       const match = line.match(/at\s+(?:.*\s+)?\(?(.+):(\d+):(\d+)\)?/);
       if (match) {
         const [, filePath] = match;
+
         // Skip if it's from node_modules, internal Node.js files, dist/studio, or Lithia core/cli
         if (
           !filePath.includes('node_modules') &&
           !filePath.includes('/dist/') &&
           !filePath.includes('\\dist\\') &&
-          filePath.includes('/')
+          !filePath.startsWith('node:internal/') &&
+          !filePath.startsWith('node:') &&
+          !filePath.includes('[eval]') &&
+          (filePath.includes('/') || filePath.includes('\\'))
         ) {
           const mappedFile = this.mapToSourcePath(filePath);
           // Clean up any trailing double colons from the file path
