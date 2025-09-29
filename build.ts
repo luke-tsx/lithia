@@ -7,7 +7,6 @@ import { build } from 'tsup';
  * Build pipeline steps for better organization and logging.
  */
 enum BuildStep {
-  INSTALL_STUDIO_DEPS = '📦 Install Studio Dependencies',
   BUILD_LITHIA_CORE = '⚙️ Build Lithia Core',
   PROCESS_DIST_FILES = '🔄 Process Distribution Files',
   BUILD_STUDIO_UI = '🎨 Build Studio UI',
@@ -54,33 +53,6 @@ async function executeStep<T>(
     logStepError(step, error instanceof Error ? error.message : String(error));
     throw error;
   }
-}
-
-/**
- * Installs Studio dependencies.
- */
-async function installStudioDependencies(): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const installProcess = spawn('pnpm', ['install'], {
-      cwd: join(process.cwd(), 'studio'),
-      stdio: 'inherit',
-      shell: true,
-    });
-
-    installProcess.on('close', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(
-          new Error(`Studio dependency installation failed with code ${code}`),
-        );
-      }
-    });
-
-    installProcess.on('error', (error) => {
-      reject(error);
-    });
-  });
 }
 
 /**
@@ -242,9 +214,6 @@ async function main() {
   try {
     console.log('🚀 Starting Lithia Build Pipeline...');
     console.log('═'.repeat(50));
-
-    // Step 1: Install Studio dependencies
-    await executeStep(BuildStep.INSTALL_STUDIO_DEPS, installStudioDependencies);
 
     // Step 2: Build Lithia core
     await executeStep(BuildStep.BUILD_LITHIA_CORE, buildLithia);
