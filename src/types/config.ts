@@ -1,13 +1,18 @@
-import type { C12InputConfig, ConfigWatcher, ResolvedConfig, WatchConfigOptions } from 'c12';
-import type { DeepPartial } from './_utils';
-import type { LithiaHooks } from './hooks';
+import type {
+  C12InputConfig,
+  ConfigWatcher,
+  ResolvedConfig,
+  WatchConfigOptions,
+} from "c12";
+import type { DeepPartial } from "./_utils";
+import type { LithiaHooks } from "./hooks";
 
 export interface LithiaOptions {
   // Internal
   _cli: {
     command: string;
   };
-  _env: 'dev' | 'prod';
+  _env: "dev" | "prod";
   _c12: ResolvedConfig<LithiaConfig> | ConfigWatcher<LithiaConfig>;
   _config: LithiaConfig;
 
@@ -48,13 +53,13 @@ export interface LithiaOptions {
 
   // Build
   build: {
-    mode: 'no-bundle' | 'full-bundle';
+    mode: "no-bundle" | "full-bundle";
     externalPackages: string[];
   };
 
   // Hooks configuration
   hooks: {
-    [K in keyof LithiaHooks]: LithiaHooks[K][];
+    [K in keyof LithiaHooks]: LithiaHooks[K];
   };
 
   // Studio configuration
@@ -63,7 +68,9 @@ export interface LithiaOptions {
   };
 }
 
-export interface LithiaConfig extends DeepPartial<LithiaOptions>, C12InputConfig<LithiaConfig> {}
+export interface LithiaConfig
+  extends DeepPartial<LithiaOptions>,
+    C12InputConfig<LithiaConfig> {}
 
 export interface LoadConfigOptions {
   watch?: boolean;

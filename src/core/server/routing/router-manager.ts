@@ -1,9 +1,11 @@
-import type { Lithia, Params, Route, RouteModule } from 'lithia/types';
-import { ManifestManager } from './manifest-manager';
-import { ParameterExtractor } from './parameter-extractor';
-import { RouteImporter } from './route-importer';
-import { RouteMetadataManager } from './route-metadata';
-import { RouteUtils } from './utils';
+import { promises as fs } from "node:fs";
+import { dirname, join } from "node:path";
+import type { Lithia, Params, Route, RouteModule } from "lithia/types";
+import { ManifestManager } from "./manifest-manager";
+import { ParameterExtractor } from "./parameter-extractor";
+import { RouteImporter } from "./route-importer";
+import { RouteMetadataManager } from "./route-metadata";
+import { RouteUtils } from "./utils";
 
 /**
  * Main router manager that coordinates all routing operations.
@@ -85,7 +87,10 @@ export class RouterManager {
    * @param {string} method - HTTP method
    * @returns {Promise<Route | undefined>} Matching route
    */
-  async findRoute(pathname: string, method: string): Promise<Route | undefined> {
+  async findRoute(
+    pathname: string,
+    method: string
+  ): Promise<Route | undefined> {
     const routes = this.getRoutesFromManifest();
     return RouteUtils.findMatchingRoute(routes, pathname, method);
   }
@@ -126,5 +131,78 @@ export class RouterManager {
    */
   async canImportRoute(route: Route): Promise<boolean> {
     return this.routeImporter.canImportRoute(route);
+  }
+
+  async createRoute(data: {
+    path: string;
+    method?: string;
+    env?: string;
+    fileName: string;
+    filePath: string;
+    code: string;
+  }): Promise<void> {
+    const fullPath = join(process.cwd(), data.filePath);
+    const dir = dirname(fullPath);
+
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(fullPath, data.code, "utf8");
+  }
+
+  /**
+   * Validates if a new route would conflict with existing routes.
+   * Uses the same logic as the framework's route matching.
+   * @param {string} path - Route path to validate
+   * @param {string} method - HTTP method
+   * @returns {Promise<{ hasConflicts: boolean; conflicts: string[] }>} Validation result
+   */
+  async validateRouteConflicts(
+    path: string,
+    method: string
+  ): Promise<{ hasConflicts: boolean; conflicts: string[] }> {
+    const conflicts: string[] = [];
+    const routes = this.getRoutesFromManifest();
+
+    // Normalize the path to ensure it starts with /
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+    for (const route of routes) {
+      // Check if paths match using the same logic as findMatchingRoute
+      const pathMatches = RouteUtils.matchesPath(normalizedPath, route);
+
+      if (pathMatches) {
+        // Check method conflicts
+        if (method === "None") {
+          // New route covers all methods
+          if (route.method) {
+            // Conflicts with specific method route
+            conflicts.push(
+              `Route ${route.method} ${route.path} already exists`
+            );
+          }
+          // If route.method is undefined, it also covers all methods - this is a conflict
+          else {
+            conflicts.push(
+              `Route ${route.path} already exists (covers all methods)`
+            );
+          }
+        } else {
+          // New route has specific method
+          if (!route.method) {
+            // Conflicts with route that covers all methods
+            conflicts.push(
+              `Route ${route.path} already exists (covers all methods)`
+            );
+          } else if (route.method === method) {
+            // Same method conflicts
+            conflicts.push(`Route ${method} ${route.path} already exists`);
+          }
+        }
+      }
+    }
+
+    return {
+      hasConflicts: conflicts.length > 0,
+      conflicts,
+    };
   }
 }
