@@ -36,7 +36,7 @@ jobs:
       - name: Install Studio dependencies
         run: |
           cd studio
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Build project
         run: pnpm run build
