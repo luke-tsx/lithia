@@ -1,6 +1,7 @@
 import type { LithiaRequest, LithiaResponse } from "lithia";
 
-export default async function handler(req: LithiaRequest, res: LithiaResponse) {
-  console.log("Health route");
-  res.send("Hello from your new route!");
+export default async function handler(_: LithiaRequest, res: LithiaResponse) {
+  res.json({
+    status: "ok",
+  });
 }
