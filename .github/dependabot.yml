@@ -6,6 +6,6 @@ updates:
       interval: 'weekly'
     open-pull-requests-limit: 10
     reviewers:
-      - 'lucas'
+      - 'luke-tsx'
     assignees:
-      - 'lucas'
+      - 'luke-tsx'

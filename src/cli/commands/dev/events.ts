@@ -8,7 +8,7 @@
 export interface DevServerEvent {
   type: string;
   timestamp: number;
-  data?: unknown;
+  data?: any;
 }
 
 export type DevServerEventListener = (

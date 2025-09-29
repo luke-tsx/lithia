@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-      - '*-canary*'
 
 permissions:
   contents: write
@@ -64,7 +63,7 @@ jobs:
             ## Installation
 
             ```bash
-            npm install lithia@${{ github.ref_name }}
+            ${{ contains(github.ref_name, 'canary') && format('npm install lithia@canary  # or npm install lithia@{0}', github.ref_name) || format('npm install lithia@{0}', github.ref_name) }}
             ```
           draft: false
           prerelease: ${{ contains(github.ref_name, 'canary') }}
