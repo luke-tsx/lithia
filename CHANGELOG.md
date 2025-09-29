@@ -1,4 +1,11 @@
 # Changelog
+
+## 3.0.2
+
+### Patch Changes
+
+- Add SWC Support and improve other build fixes
+
 ## 3.0.0
 
 ### Major Changes
