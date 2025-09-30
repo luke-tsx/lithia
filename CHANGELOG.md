@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** All versions prior to 4.0.1 were released for testing purposes and should not be used in production.
 
-## [4.0.3-canary.0] - 2025-09-30
+## [4.0.3] - 2025-01-27
 
 ### 🚀 Performance Improvements
 
