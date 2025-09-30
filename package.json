@@ -98,7 +98,7 @@
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
     "cli-table3": "^0.6.5",
-    "cookie": "^0.6.0",
+    "cookie": "^1.0.2",
     "esbuild": "^0.25.10",
     "glob": "^11.0.3",
     "hookable": "^5.5.3",
