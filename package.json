@@ -1,6 +1,6 @@
 {
   "name": "lithia",
-  "version": "4.0.2-0",
+  "version": "4.0.3-canary.0",
   "description": "Next-generation framework for building server-side applications with Node.js & TypeScript 🚀",
   "keywords": [
     "lithia",
