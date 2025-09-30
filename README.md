@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/lithia-framework/lithia">
-    <img alt="Lithia logo" src=".github/assets/logo.svg" height="128">
+    <img alt="Lithia logo" src="https://raw.githubusercontent.com/lithia-framework/lithia/canary/.github/assets/logo.svg" height="128">
   </a>
   <h1>Lithia</h1>
   <p><strong>The Node.js framework that makes API development feel like magic</strong></p>
@@ -159,7 +159,7 @@ export default async (req, res) => {
 
 #### Real-time Dashboard
 
-![Lithia Studio Dashboard](.github/assets/studio-overview.png)
+![Lithia Studio Dashboard](https://raw.githubusercontent.com/lithia-framework/lithia/canary/.github/assets/studio-overview.png)
 
 Monitor your server's health at a glance:
 
@@ -170,7 +170,7 @@ Monitor your server's health at a glance:
 
 #### Interactive Route Explorer
 
-![Lithia Studio Route Explorer](.github/assets/studio-route-explorer.png)
+![Lithia Studio Route Explorer](https://raw.githubusercontent.com/lithia-framework/lithia/canary/.github/assets/studio-route-explorer.png)
 
 Visualize and test your entire API:
 
@@ -181,7 +181,7 @@ Visualize and test your entire API:
 
 #### Visual Route Builder
 
-![Lithia Studio Route Builder](.github/assets/studio-route-builder.png)
+![Lithia Studio Route Builder](https://raw.githubusercontent.com/lithia-framework/lithia/canary/.github/assets/studio-route-builder.png)
 
 Create routes without touching code:
 
@@ -194,7 +194,7 @@ Create routes without touching code:
 
 #### Interactive Route Tester
 
-![Lithia Studio Route Tester](.github/assets/studio-route-tester.png)
+![Lithia Studio Route Tester](https://raw.githubusercontent.com/lithia-framework/lithia/canary/.github/assets/studio-route-tester.png)
 
 Test your API endpoints instantly:
 
@@ -205,7 +205,7 @@ Test your API endpoints instantly:
 
 #### Live Logs Viewer
 
-![Lithia Studio Live Logs Viewer](.github/assets/studio-logs.png)
+![Lithia Studio Live Logs Viewer](https://raw.githubusercontent.com/lithia-framework/lithia/canary/.github/assets/studio-logs.png)
 
 Never leave the browser:
 
@@ -216,7 +216,7 @@ Never leave the browser:
 
 #### Live Configuration Viewer
 
-![Lithia Studio Live Configuration Viewer](.github/assets/studio-configuration-viewer.png)
+![Lithia Studio Live Configuration Viewer](https://raw.githubusercontent.com/lithia-framework/lithia/canary/.github/assets/studio-configuration-viewer.png)
 
 See your server configuration in real-time:
 
