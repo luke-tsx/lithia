@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/lithia-framework/lithia">
-    <img alt="Lithia logo" src="https://raw.githubusercontent.com/lithia-framework/lithia/main/studio/public/logo.svg" height="128">
+    <img alt="Lithia logo" src=".github/assets/logo.svg" height="128">
   </a>
   <h1>Lithia</h1>
   <p><strong>The Node.js framework that makes API development feel like magic</strong></p>
@@ -8,7 +8,7 @@
 <a href="https://github.com/lithia-framework/lithia"><img alt="GitHub repository" src="https://img.shields.io/badge/GITHUB-000000.svg?style=for-the-badge&logo=GitHub&labelColor=000"></a>
 <a href="https://www.npmjs.com/package/lithia"><img alt="NPM version" src="https://img.shields.io/npm/v/lithia.svg?style=for-the-badge&labelColor=000000"></a>
 <a href="https://github.com/lithia-framework/lithia/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/lithia.svg?style=for-the-badge&labelColor=000000"></a>
-<a href="https://opencollective.com/lithia-framework"><img alt="Support Lithia" src="https://img.shields.io/badge/Support%20Lithia-blueviolet.svg?style=for-the-badge&logo=OpenCollective&labelColor=000000&logoWidth=20"></a>
+<a href="https://opencollective.com/lithiajs"><img alt="Support Lithia" src="https://img.shields.io/badge/Support%20Lithia-blueviolet.svg?style=for-the-badge&logo=OpenCollective&labelColor=000000&logoWidth=20"></a>
 
 </div>
 
@@ -155,15 +155,11 @@ export default async (req, res) => {
 
 **The game-changer.** Lithia Studio is a complete development environment in your browser.
 
-> 🎯 **Note:** Add screenshots here when available
->
-> - Screenshot of the dashboard showing real-time metrics
-> - GIF of hot reload in action
-> - Image of the route explorer interface
-
 ### What Lithia Studio Gives You:
 
 #### Real-time Dashboard
+
+![Lithia Studio Dashboard](.github/assets/studio-overview.png)
 
 Monitor your server's health at a glance:
 
@@ -174,6 +170,8 @@ Monitor your server's health at a glance:
 
 #### Interactive Route Explorer
 
+![Lithia Studio Route Explorer](.github/assets/studio-route-explorer.png)
+
 Visualize and test your entire API:
 
 - See all routes in a tree structure
@@ -181,7 +179,33 @@ Visualize and test your entire API:
 - View request/response in real-time
 - Inspect headers, body, and status codes
 
+#### Visual Route Builder
+
+![Lithia Studio Route Builder](.github/assets/studio-route-builder.png)
+
+Create routes without touching code:
+
+- Visual interface to build new routes
+- Choose HTTP methods (GET, POST, PUT, DELETE)
+- Set up dynamic parameters with `[id]` syntax
+- Generate route files automatically
+- Preview route structure before creation
+- Edit the code before creating the route
+
+#### Interactive Route Tester
+
+![Lithia Studio Route Tester](.github/assets/studio-route-tester.png)
+
+Test your API endpoints instantly:
+
+- Send requests with custom headers and body
+- Test different HTTP methods
+- View real-time responses
+- Debug request/response flow
+
 #### Live Logs Viewer
+
+![Lithia Studio Live Logs Viewer](.github/assets/studio-logs.png)
 
 Never leave the browser:
 
@@ -191,6 +215,8 @@ Never leave the browser:
 - Search and export logs
 
 #### Live Configuration Viewer
+
+![Lithia Studio Live Configuration Viewer](.github/assets/studio-configuration-viewer.png)
 
 See your server configuration in real-time:
 
@@ -421,7 +447,7 @@ We love contributions! Before getting started, please read our [Contributing Gui
 - [**GitHub Discussions**](https://github.com/lithia-framework/lithia/discussions) - Ask questions, share ideas
 - [**GitHub Issues**](https://github.com/lithia-framework/lithia/issues) - Report bugs
 - [**Email**](mailto:support@lithiajs.com) - Direct contact
-- [**OpenCollective**](https://opencollective.com/lithia-framework) - Support the project
+- [**OpenCollective**](https://opencollective.com/lithiajs) - Support the project
 
 ---
 
@@ -431,7 +457,7 @@ If Lithia makes your life easier, consider supporting it:
 
 - **Star** this repository
 - **Share** on social media
-- **Sponsor** via [OpenCollective](https://opencollective.com/lithia-framework)
+- **Sponsor** via [OpenCollective](https://opencollective.com/lithiajs)
 - **Report bugs** and suggest improvements
 - **Improve documentation**
 
@@ -448,7 +474,7 @@ Lithia is [MIT licensed](LICENSE). Free for personal and commercial use.
   <p>
     <a href="https://github.com/lithia-framework/lithia">GitHub</a> •
     <a href="https://lithiajs.com">Documentation</a> •
-    <a href="https://opencollective.com/lithia-framework">OpenCollective</a> •
+    <a href="https://opencollective.com/lithiajs">OpenCollective</a> •
     <a href="https://github.com/lithia-framework/lithia/discussions">Discussions</a>
   </p>
 </div>
