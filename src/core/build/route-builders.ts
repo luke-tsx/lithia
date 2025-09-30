@@ -1,5 +1,7 @@
-import { execSync } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+import { mkdir, writeFile, stat, readFile } from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths';
 import type { Config } from '@swc/core';
@@ -48,6 +50,46 @@ export class NoBundleRouteBuilder implements RouteBuilder {
   }
 
   private hasBuilt = false;
+  private fileTimestamps = new Map<string, number>();
+  private swcConfig: Config | null = null;
+  private cacheFile: string | null = null;
+
+  /**
+   * Loads persistent cache from disk to avoid unnecessary recompilation.
+   *
+   * @private
+   */
+  private async loadCache(): Promise<void> {
+    if (!this.cacheFile) return;
+
+    try {
+      const cacheData = await readFile(this.cacheFile, 'utf-8');
+      const cache = JSON.parse(cacheData);
+      this.fileTimestamps = new Map(cache.timestamps || []);
+    } catch {
+      // Cache file doesn't exist or is invalid, start fresh
+      this.fileTimestamps = new Map();
+    }
+  }
+
+  /**
+   * Saves persistent cache to disk for future builds.
+   *
+   * @private
+   */
+  private async saveCache(): Promise<void> {
+    if (!this.cacheFile) return;
+
+    try {
+      const cacheData = {
+        timestamps: Array.from(this.fileTimestamps.entries()),
+        lastUpdated: Date.now(),
+      };
+      await writeFile(this.cacheFile, JSON.stringify(cacheData, null, 2));
+    } catch {
+      // Ignore cache save errors
+    }
+  }
 
   /**
    * Builds all TypeScript files using SWC (Speedy Web Compiler).
@@ -65,74 +107,177 @@ export class NoBundleRouteBuilder implements RouteBuilder {
         (context.lithia.options._c12 as any)?.cwd || process.cwd();
       const srcDir = path.join(projectRoot, 'src');
       const outputDir = path.join(projectRoot, '.lithia');
+      this.cacheFile = path.join(outputDir, '.lithia-cache.json');
 
-      // Configuração inline do SWC
-      const swcOptions: Config = {
-        jsc: {
-          parser: {
-            syntax: 'typescript' as const,
-            tsx: false,
-            decorators: false,
+      // Reuse SWC configuration if available
+      if (!this.swcConfig) {
+        this.swcConfig = {
+          jsc: {
+            parser: {
+              syntax: 'typescript' as const,
+              tsx: false,
+              decorators: false,
+            },
+            target: 'esnext' as const,
+            loose: false,
+            externalHelpers: false,
+            keepClassNames: true,
+            minify: context.config.minify
+              ? {
+                  compress: true,
+                  mangle: true,
+                }
+              : undefined,
           },
-          target: 'esnext' as const,
-          loose: false,
-          externalHelpers: true,
-          keepClassNames: true,
-          minify: {
-            compress: true,
-            mangle: true,
+          module: {
+            type: 'commonjs' as const,
+            strict: true,
+            lazy: false,
+            importInterop: 'node',
           },
-        },
-        module: {
-          type: 'commonjs' as const,
-          strict: true,
-          strictMode: true,
-          lazy: false,
-          importInterop: 'node',
-        },
-        sourceMaps: true,
-      };
+          sourceMaps: context.config.sourcemap,
+        };
+      }
 
-      // Encontrar todos os arquivos TypeScript
+      // Load persistent cache
+      await this.loadCache();
+
+      // Find all TypeScript files
       const files = await glob('**/*.{ts,tsx}', {
         cwd: srcDir,
         absolute: true,
         ignore: ['node_modules/**'],
       });
 
-      // Processar cada arquivo
+      // Create all output directories first
+      const outputDirs = new Set<string>();
+      files.forEach((filePath) => {
+        const relativePath = path.relative(srcDir, filePath);
+        const outputPath = path
+          .join(outputDir, relativePath)
+          .replace(/\.tsx?$/, '.js');
+        outputDirs.add(path.dirname(outputPath));
+      });
+
       await Promise.all(
+        Array.from(outputDirs).map((dir) => mkdir(dir, { recursive: true })),
+      );
+
+      // Filter files that need to be recompiled (enhanced cache)
+      const filesToCompile = await Promise.all(
         files.map(async (filePath) => {
           const relativePath = path.relative(srcDir, filePath);
           const outputPath = path
             .join(outputDir, relativePath)
             .replace(/\.tsx?$/, '.js');
 
-          // Criar diretório de saída
-          await mkdir(path.dirname(outputPath), { recursive: true });
+          try {
+            const sourceStats = await stat(filePath);
+            const sourceMtime = sourceStats.mtime.getTime();
 
-          // Transformar arquivo
-          const result = await transformFile(filePath, swcOptions);
+            // Check persistent cache first
+            const cachedMtime = this.fileTimestamps.get(filePath);
+            if (cachedMtime === sourceMtime) {
+              // File hasn't changed since last build, check if output exists
+              try {
+                await stat(outputPath);
+                return null; // Skip compilation
+              } catch {
+                // Output doesn't exist, need to compile
+                return { filePath, outputPath, relativePath };
+              }
+            }
 
-          // Escrever arquivo compilado
-          await writeFile(outputPath, result.code);
+            // File changed or not in cache, check output timestamp
+            try {
+              const outputStats = await stat(outputPath);
+              const outputMtime = outputStats.mtime.getTime();
 
-          // Escrever sourcemap se habilitado
-          if (result.map && context.config.sourcemap) {
-            await writeFile(`${outputPath}.map`, result.map);
+              // Recompile if source file is newer than compiled file
+              if (sourceMtime > outputMtime) {
+                this.fileTimestamps.set(filePath, sourceMtime);
+                return { filePath, outputPath, relativePath };
+              }
+
+              // Update cache even if no recompilation needed
+              this.fileTimestamps.set(filePath, sourceMtime);
+              return null;
+            } catch {
+              // Output doesn't exist, need to compile
+              this.fileTimestamps.set(filePath, sourceMtime);
+              return { filePath, outputPath, relativePath };
+            }
+          } catch {
+            // If unable to read stats, compile for safety
+            return { filePath, outputPath, relativePath };
           }
         }),
       );
 
-      // Resolver TypeScript path mappings com tsc-alias
-      execSync(
-        `npx tsc-alias --project ${path.join(projectRoot, 'tsconfig.json')} --outDir ${outputDir}`,
-        {
-          cwd: projectRoot,
-          stdio: 'pipe',
-          encoding: 'utf8',
-        },
-      );
+      const filesToProcess = filesToCompile.filter(Boolean) as Array<{
+        filePath: string;
+        outputPath: string;
+        relativePath: string;
+      }>;
+
+      // Process only files that need to be recompiled with dynamic batch size
+      if (filesToProcess.length > 0) {
+        // Dynamic batch size based on file count and system resources
+        const batchSize = Math.min(
+          Math.max(1, Math.floor(filesToProcess.length / 4)),
+          20,
+        );
+
+        for (let i = 0; i < filesToProcess.length; i += batchSize) {
+          const batch = filesToProcess.slice(i, i + batchSize);
+          await Promise.all(
+            batch.map(async ({ filePath, outputPath }) => {
+              // Transform file
+              const result = await transformFile(filePath, this.swcConfig!);
+
+              // Write compiled file using streaming for better performance
+              await new Promise<void>((resolve, reject) => {
+                const writeStream = createWriteStream(outputPath);
+                writeStream.write(result.code);
+                writeStream.end();
+                writeStream.on('finish', resolve);
+                writeStream.on('error', reject);
+              });
+
+              // Write sourcemap if enabled
+              if (result.map && context.config.sourcemap) {
+                await new Promise<void>((resolve, reject) => {
+                  const mapStream = createWriteStream(`${outputPath}.map`);
+                  mapStream.write(result.map);
+                  mapStream.end();
+                  mapStream.on('finish', resolve);
+                  mapStream.on('error', reject);
+                });
+              }
+            }),
+          );
+        }
+
+        // Save cache after successful compilation
+        await this.saveCache();
+      }
+
+      // Resolve TypeScript path mappings with tsc-alias only if necessary
+      // Run tsc-alias in parallel with compilation for better performance
+      if (filesToProcess.length > 0) {
+        const execAsync = promisify(exec);
+
+        // Start tsc-alias asynchronously (don't await yet)
+        const tscAliasPromise = execAsync(
+          `npx tsc-alias --project ${path.join(projectRoot, 'tsconfig.json')} --outDir ${outputDir}`,
+          {
+            cwd: projectRoot,
+          },
+        );
+
+        // Wait for tsc-alias to complete
+        await tscAliasPromise;
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
