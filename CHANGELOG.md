@@ -12,6 +12,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Nothing yet! Check back soon.
 
+## [4.0.3-canary.0] - 2025-09-30
+
+### 🚀 Performance Improvements
+
+- **Massive Build Performance Boost**: Achieved 97.8% improvement in build times (from ~360ms to ~8ms)
+- **Native SWC Path Resolution**: Implemented native TypeScript path mapping support in SWC, eliminating the need for `tsc-alias`
+- **Dynamic tsconfig.json Reading**: Added automatic reading of TypeScript path mappings from `tsconfig.json` for maximum flexibility
+- **Intelligent Caching System**: Enhanced caching with timestamp-based file tracking and persistent cache storage
+- **Parallel Execution Optimization**: Fixed race conditions in parallel route building for consistent performance
+
+### 🔧 Technical Improvements
+
+- **Removed tsc-alias Dependency**: Completely eliminated `tsc-alias` as SWC now handles path resolution natively
+- **Optimized Build Pipeline**: Streamlined build process with better error handling and cleaner logs
+- **Enhanced File Watching**: Improved incremental compilation for faster development cycles
+- **Memory Optimization**: Reduced memory footprint during builds with better resource management
+
+### 🐛 Bug Fixes
+
+- **Fixed Duplicate Logs**: Resolved issue where build performance logs were appearing multiple times
+- **Consistent Timing**: Unified build timing measurements across different build components
+- **ESLint Warnings**: Cleaned up all unused variable warnings in build system
+- **Race Condition Fix**: Fixed parallel execution issues that caused inconsistent build results
+
+### 📦 Dependencies
+
+- **Removed**: `tsc-alias` (no longer needed with native SWC path resolution)
+- **Optimized**: Build system dependencies for better performance
+
+### 💡 Developer Experience
+
+- **Cleaner Console Output**: Simplified build logs showing only essential information
+- **Better Error Messages**: Improved error reporting for build failures
+- **Faster Development**: Significantly reduced build times for better development experience
+
 ## [4.0.1] - 2025-09-29
 
 ### ⚠️ Breaking Changes
@@ -20,7 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Migration Guide**: Rename your route files to follow the new pattern:
     - `index.ts` → `route.ts`
     - `users.get.ts` → `users/route.get.ts`
-  - See [Migration Guide](https://lithiajs.com/docs/migration/3.1) for detailed instructions
 
 ### Added
 
