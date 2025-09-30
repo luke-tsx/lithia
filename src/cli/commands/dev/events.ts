@@ -8,6 +8,7 @@
 export interface DevServerEvent {
   type: string;
   timestamp: number;
+  filePath?: string;
   data?: any;
 }
 

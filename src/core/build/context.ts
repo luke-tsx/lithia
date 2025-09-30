@@ -1,8 +1,8 @@
 import type { Lithia, Route } from 'lithia/types';
-import type { BuildModeConfig } from './modes';
+import type { BuildBuilderConfig } from './modes';
 
 /**
- * Build configuration options for esbuild.
+ * Build configuration options for SWC.
  *
  * @interface
  */
@@ -21,8 +21,8 @@ export interface BuildConfig {
   packages: 'external' | 'bundle';
   /** Whether to bundle dependencies */
   bundle: boolean;
-  /** Build mode configuration */
-  mode: BuildModeConfig;
+  /** Build builder configuration */
+  builder: BuildBuilderConfig;
 }
 
 /**
@@ -101,10 +101,9 @@ export class BuildContext {
       format: 'cjs',
       platform: 'node',
       packages: 'external',
-      bundle: buildConfig.mode === 'full-bundle',
-      mode: {
-        mode: buildConfig.mode,
-        externalPackages: buildConfig.externalPackages,
+      bundle: false, // Always no-bundle with new builders
+      builder: {
+        builder: buildConfig.builder,
       },
     };
   }

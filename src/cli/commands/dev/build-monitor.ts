@@ -2,6 +2,12 @@ import { buildLithia, prepare } from 'lithia/core';
 import type { Lithia } from 'lithia/types';
 import { type DevServerEventEmitter, DevServerEventType } from './events';
 import { NodeCacheManager } from './node-cache-manager';
+import {
+  SWCRouteBuilder,
+  BuildContext,
+  scanServerRoutes,
+  RouterManager,
+} from 'lithia/core';
 
 /**
  * Build statistics for monitoring.
@@ -55,10 +61,10 @@ export class BuildMonitor {
    *
    * @param reason - Reason for the build (for logging)
    */
-  async build(reason = 'Manual build'): Promise<boolean> {
+  async build(reason = 'Manual build', filePath?: string): Promise<boolean> {
     return new Promise((resolve) => {
       this.buildQueue.push(async () => {
-        const result = await this.performBuild(reason);
+        const result = await this.performBuild(reason, filePath);
         resolve(result);
       });
 
@@ -99,9 +105,13 @@ export class BuildMonitor {
    *
    * @private
    * @param reason - Reason for the build
+   * @param filePath - Optional specific file that changed (for incremental builds)
    * @returns Whether the build was successful
    */
-  private async performBuild(reason: string): Promise<boolean> {
+  private async performBuild(
+    reason: string,
+    filePath?: string,
+  ): Promise<boolean> {
     if (this.isBuilding) {
       return false;
     }
@@ -119,7 +129,11 @@ export class BuildMonitor {
 
       // Prepare and build
       await prepare();
-      const result = await buildLithia(this.lithia);
+
+      // Use incremental build if filePath is provided
+      const result = filePath
+        ? await this.performIncrementalBuild(filePath)
+        : await buildLithia(this.lithia);
 
       const buildTime = Date.now() - startTime;
       this.updateStats(buildTime, result.success);
@@ -175,6 +189,45 @@ export class BuildMonitor {
       return false;
     } finally {
       this.isBuilding = false;
+    }
+  }
+
+  /**
+   * Perform incremental build for a specific file.
+   *
+   * @private
+   * @param filePath - Path to the file that changed
+   * @returns Build result
+   */
+  private async performIncrementalBuild(
+    filePath: string,
+  ): Promise<{ success: boolean; routesBuilt: number; errors: Error[] }> {
+    try {
+      // Get routes (this will use the cached routes if available)
+      const routes = await scanServerRoutes(this.lithia);
+      const context = new BuildContext(this.lithia, routes, 'development');
+
+      // Create SWCRouteBuilder instance
+      const routeBuilder = new SWCRouteBuilder();
+
+      // Compile only the specific file that changed
+      await routeBuilder.compileSingleFile(context, filePath);
+
+      // Create manifest (this will use incremental manifest cache)
+      const routerManager = new RouterManager(this.lithia);
+      await routerManager.createRoutesManifest(routes);
+
+      return {
+        success: true,
+        routesBuilt: routes.length,
+        errors: [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        routesBuilt: 0,
+        errors: [error instanceof Error ? error : new Error(String(error))],
+      };
     }
   }
 

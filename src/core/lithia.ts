@@ -40,7 +40,7 @@ export function registerHooksFromConfig(
  * ```typescript
  * const lithia = await createLithia({
  *   server: { port: 3000 },
- *   build: { mode: 'no-bundle' }
+ *   build: { builder: 'swc' }
  * });
  *
  * // Use hooks for extensibility

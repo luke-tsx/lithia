@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import type { Lithia, Route } from 'lithia/types';
 import { getOutputPath } from '../../_utils';
@@ -12,6 +13,7 @@ import { getOutputPath } from '../../_utils';
  */
 export class ManifestManager {
   private lithia: Lithia;
+  private lastRoutesHash: string | null = null;
 
   constructor(lithia: Lithia) {
     this.lithia = lithia;
@@ -19,11 +21,23 @@ export class ManifestManager {
 
   /**
    * Creates a routes manifest file by writing the provided routes to a JSON file.
+   * Uses intelligent caching to avoid unnecessary file writes when routes haven't changed.
    * @param {Route[]} routes - An array of Route objects to include in the manifest.
    */
   async createManifest(routes: Route[]): Promise<void> {
+    // Generate hash of routes to detect changes
+    const routesHash = this.generateRoutesHash(routes);
+
+    // Check if routes have changed
+    if (this.lastRoutesHash === routesHash && this.manifestExists()) {
+      return; // No changes, skip manifest creation
+    }
+
     const updatedRoutes = this.updateFilePaths(routes);
     await this.writeRoutesToFile(updatedRoutes);
+
+    // Update hash after successful write
+    this.lastRoutesHash = routesHash;
   }
 
   /**
@@ -59,6 +73,23 @@ export class ManifestManager {
   }
 
   /**
+   * Generates a hash of the routes array to detect changes.
+   *
+   * @private
+   * @param {Route[]} routes - An array of Route objects to hash
+   * @returns {string} - A hash string representing the routes
+   */
+  private generateRoutesHash(routes: Route[]): string {
+    // Create a stable string representation of routes
+    const routesString = routes
+      .map((route) => `${route.method}:${route.path}:${route.filePath}`)
+      .sort()
+      .join('|');
+
+    return createHash('md5').update(routesString).digest('hex');
+  }
+
+  /**
    * Updates the `filePath` property of each route to reflect the output path.
    * Preserves the `sourceFilePath` as the original TypeScript file path.
    * @private
@@ -75,12 +106,16 @@ export class ManifestManager {
 
   /**
    * Writes the routes array to a JSON file in the specified output directory.
+   * Uses optimized JSON serialization for better performance.
    * @private
    * @param {Route[]} routes - An array of Route objects to write to the file.
    */
   private async writeRoutesToFile(routes: Route[]): Promise<void> {
     const outputPath = path.join('.lithia', 'routes.json');
-    await writeFile(outputPath, JSON.stringify(routes, null, 2));
+
+    // Use compact JSON format for better performance
+    const jsonContent = JSON.stringify(routes);
+    await writeFile(outputPath, jsonContent);
   }
 
   /**

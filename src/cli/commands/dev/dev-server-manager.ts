@@ -205,13 +205,13 @@ export class DevServerManager {
   /**
    * Perform a soft reload (rebuild only).
    */
-  async softReload(): Promise<void> {
+  async softReload(filePath?: string): Promise<void> {
     if (!this.isRunning || !this.buildMonitor) {
       return;
     }
 
     try {
-      await this.buildMonitor.build('File change detected');
+      await this.buildMonitor.build('File change detected', filePath);
     } catch (error) {
       this.lithia.logger.error('Soft reload failed:', error);
     }
@@ -466,21 +466,21 @@ export class DevServerManager {
    */
   private setupEventHandlers(): void {
     // File change events
-    this.eventEmitter.on(DevServerEventType.FILE_CHANGED, async () => {
+    this.eventEmitter.on(DevServerEventType.FILE_CHANGED, async (event) => {
       if (this.autoReload) {
-        await this.softReload();
+        await this.softReload(event.filePath);
       }
     });
 
-    this.eventEmitter.on(DevServerEventType.FILE_ADDED, async () => {
+    this.eventEmitter.on(DevServerEventType.FILE_ADDED, async (event) => {
       if (this.autoReload) {
-        await this.softReload();
+        await this.softReload(event.filePath);
       }
     });
 
-    this.eventEmitter.on(DevServerEventType.FILE_DELETED, async () => {
+    this.eventEmitter.on(DevServerEventType.FILE_DELETED, async (event) => {
       if (this.autoReload) {
-        await this.softReload();
+        await this.softReload(event.filePath);
       }
     });
 

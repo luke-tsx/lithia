@@ -111,7 +111,7 @@ async function buildLithia() {
     target: 'esnext',
     platform: 'node',
     bundle: true,
-    external: [...subpaths.map((subpath) => `lithia/${subpath}`), 'esbuild'],
+    external: [...subpaths.map((subpath) => `lithia/${subpath}`)],
     dts: true,
     minify: false,
     treeshake: { preset: 'recommended' },

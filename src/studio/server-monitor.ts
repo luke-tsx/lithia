@@ -49,8 +49,6 @@ export class ServerMonitor extends EventEmitter {
     this.intervalId = setInterval(() => {
       this.emitStats();
     }, intervalMs);
-
-    this.lithia.logger.info('Server monitoring started');
   }
 
   /**
@@ -65,7 +63,6 @@ export class ServerMonitor extends EventEmitter {
     }
 
     this.isRunning = false;
-    this.lithia.logger.info('Server monitoring stopped');
   }
 
   /**

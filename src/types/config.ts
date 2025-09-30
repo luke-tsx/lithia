@@ -53,8 +53,7 @@ export interface LithiaOptions {
 
   // Build
   build: {
-    mode: 'no-bundle' | 'full-bundle';
-    externalPackages: string[];
+    builder: 'swc';
   };
 
   // Hooks configuration

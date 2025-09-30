@@ -32,8 +32,7 @@ const DEFAULT_SERVER_CONFIG = {
  * @internal
  */
 const DEFAULT_BUILD_CONFIG = {
-  mode: 'no-bundle' as const,
-  externalPackages: [] as string[],
+  builder: 'swc' as const,
 } as const;
 
 /**
@@ -72,7 +71,7 @@ const DEFAULT_CORS_CONFIG = {
  * - Server configuration (host, port, request parsing)
  * - CORS configuration (origin, methods, headers, credentials)
  * - Logger configuration (colors, timestamps, log level)
- * - Build configuration (mode, external packages)
+ * - Build configuration (builder)
  * - Hooks configuration
  * - Studio configuration
  *

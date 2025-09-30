@@ -1,9 +1,10 @@
 import type { Lithia } from 'lithia/types';
+import { performance } from 'node:perf_hooks';
 import { scanServerRoutes } from '../routing/index';
 import { RouterManager } from '../server/routing';
 import { BuildContext, type BuildResult } from './context';
-import { BuildModeFactory } from './modes';
-import { ParallelRouteBuilder } from './route-builder';
+import { BuildBuilderFactory } from './modes';
+import { ParallelRouteExecutor } from './parallel-executor';
 
 /**
  * Interface for build strategy implementations.
@@ -47,10 +48,14 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
     const errors: Error[] = [];
 
     try {
+      // Scan routes
       const routes = await scanServerRoutes(lithia);
       const context = new BuildContext(lithia, routes, 'development');
 
+      // Build routes
       await this.buildRoutes(context);
+
+      // Create manifest
       await this.createManifest(context);
 
       return context.createBuildResult(true, errors);
@@ -58,7 +63,6 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
       const errorObj =
         error instanceof Error ? error : new Error(String(error));
       lithia.logger.error(errorObj.message);
-
       lithia.logger.wait(
         'Lithia.js server will not be down, but it will not be able to serve any routes until the issue is resolved.',
       );
@@ -85,11 +89,11 @@ export class DevelopmentBuildStrategy implements BuildStrategy {
     }
 
     // Create route builder based on context configuration
-    const routeBuilder = BuildModeFactory.createBuilder(
-      context.config.mode.mode,
+    const routeBuilder = BuildBuilderFactory.createBuilder(
+      context.config.builder.builder,
     );
 
-    const parallelBuilder = new ParallelRouteBuilder(routeBuilder, 5);
+    const parallelBuilder = new ParallelRouteExecutor(routeBuilder, 5);
 
     await parallelBuilder.buildRoutes(context, context.routes);
   }
@@ -130,6 +134,8 @@ export class ProductionBuildStrategy implements BuildStrategy {
     try {
       lithia.logger.wait('Building your Lithia app for production...');
 
+      const buildStartTime = performance.now();
+
       const routes = await scanServerRoutes(lithia);
       const context = new BuildContext(lithia, routes, 'production');
 
@@ -137,8 +143,10 @@ export class ProductionBuildStrategy implements BuildStrategy {
       await this.createManifest(context);
       await this.printBuildSummary(context);
 
+      const totalTime = Math.round(performance.now() - buildStartTime);
+
       lithia.logger.ready(
-        `Production build completed successfully! Run ${lithia.logger.success('lithia start')} to start your app.`,
+        `Production build completed successfully in ${totalTime}ms! Run ${lithia.logger.success('lithia start')} to start your app.`,
       );
 
       return context.createBuildResult(true);
@@ -163,11 +171,11 @@ export class ProductionBuildStrategy implements BuildStrategy {
     }
 
     // Create route builder based on context configuration
-    const routeBuilder = BuildModeFactory.createBuilder(
-      context.config.mode.mode,
+    const routeBuilder = BuildBuilderFactory.createBuilder(
+      context.config.builder.builder,
     );
 
-    const parallelBuilder = new ParallelRouteBuilder(routeBuilder, 10);
+    const parallelBuilder = new ParallelRouteExecutor(routeBuilder, 10);
 
     await parallelBuilder.buildRoutes(context, context.routes);
   }

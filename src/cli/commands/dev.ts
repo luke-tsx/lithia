@@ -14,8 +14,7 @@ export default defineCommand({
     });
 
     // Setup process event handlers
-    const handleShutdown = async (signal: string) => {
-      console.log(`\nReceived ${signal}. Shutting down gracefully...`);
+    const handleShutdown = async () => {
       try {
         await devServer.cleanup();
         process.exit(0);
@@ -35,8 +34,8 @@ export default defineCommand({
       process.exit(1);
     };
 
-    process.on('SIGINT', () => handleShutdown('SIGINT'));
-    process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+    process.on('SIGINT', () => handleShutdown());
+    process.on('SIGTERM', () => handleShutdown());
     process.on('uncaughtException', handleError);
     process.on('unhandledRejection', handleError);
 

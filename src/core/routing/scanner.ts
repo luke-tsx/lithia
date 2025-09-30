@@ -1,4 +1,6 @@
 import type { Lithia, Route } from 'lithia/types';
+import { readFile, stat } from 'node:fs/promises';
+import path from 'node:path';
 import {
   DefaultFileSystemScanner,
   type FileSystemScanner,
@@ -52,6 +54,9 @@ export interface ScannerOptions {
 export class DefaultFileScanner implements FileScanner {
   private fileSystemScanner: FileSystemScanner;
   private routeProcessor: RouteProcessor;
+  private routesCache: Map<string, { routes: Route[]; timestamp: number }> =
+    new Map();
+  private cacheFile: string | null = null;
 
   /**
    * Creates a new DefaultFileScanner instance.
@@ -73,13 +78,101 @@ export class DefaultFileScanner implements FileScanner {
    *
    * This method coordinates between the filesystem scanner and route processor
    * to discover route files and convert them into the internal Route format
-   * used by the routing system.
+   * used by the routing system. Uses intelligent caching to avoid unnecessary
+   * filesystem operations.
    *
    * @param lithia - The Lithia instance containing configuration
    * @returns Promise that resolves to an array of discovered Route objects
    */
   async scanRoutes(lithia: Lithia): Promise<Route[]> {
-    const files = await this.fileSystemScanner.scanDirectory();
-    return files.map((file) => this.routeProcessor.processFile(file, lithia));
+    const routesDir = path.join(process.cwd(), 'src', 'routes');
+    const cacheKey = routesDir;
+
+    // Initialize cache file path
+    if (!this.cacheFile) {
+      this.cacheFile = path.join(
+        process.cwd(),
+        '.lithia',
+        '.routes-cache.json',
+      );
+    }
+
+    // Load persistent cache
+    await this.loadRoutesCache();
+
+    try {
+      // Check if routes directory has changed
+      const routesDirStats = await stat(routesDir);
+      const routesDirMtime = routesDirStats.mtime.getTime();
+
+      // Check cache first
+      const cached = this.routesCache.get(cacheKey);
+      if (cached && cached.timestamp === routesDirMtime) {
+        return cached.routes;
+      }
+
+      // Directory changed or cache miss, rescan
+      const files = await this.fileSystemScanner.scanDirectory();
+      const routes = files.map((file) =>
+        this.routeProcessor.processFile(file, lithia),
+      );
+
+      // Update cache
+      this.routesCache.set(cacheKey, { routes, timestamp: routesDirMtime });
+      await this.saveRoutesCache();
+
+      return routes;
+    } catch (error) {
+      // If directory doesn't exist or other error, return empty array
+      if (error instanceof Error && error.message.includes('ENOENT')) {
+        return [];
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Loads routes cache from persistent storage.
+   *
+   * @private
+   */
+  private async loadRoutesCache(): Promise<void> {
+    if (!this.cacheFile) return;
+
+    try {
+      const cacheData = await readFile(this.cacheFile, 'utf-8');
+      const cache = JSON.parse(cacheData);
+
+      // Convert array format back to Map
+      this.routesCache = new Map(cache.routes || []);
+    } catch {
+      // Cache file doesn't exist or is invalid, start fresh
+      this.routesCache = new Map();
+    }
+  }
+
+  /**
+   * Saves routes cache to persistent storage.
+   *
+   * @private
+   */
+  private async saveRoutesCache(): Promise<void> {
+    if (!this.cacheFile) return;
+
+    try {
+      const cacheData = {
+        routes: Array.from(this.routesCache.entries()),
+        lastUpdated: Date.now(),
+      };
+
+      // Ensure .lithia directory exists
+      const { mkdir } = await import('node:fs/promises');
+      await mkdir(path.dirname(this.cacheFile), { recursive: true });
+
+      const { writeFile } = await import('node:fs/promises');
+      await writeFile(this.cacheFile, JSON.stringify(cacheData, null, 2));
+    } catch {
+      // Ignore cache save errors
+    }
   }
 }

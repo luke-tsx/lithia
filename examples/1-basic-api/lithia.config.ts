@@ -5,7 +5,7 @@ const config: LithiaConfig = {
   debug: false,
   server: {
     host: '0.0.0.0',
-    port: 3000,
+    port: 3001,
     request: {
       queryParser: {
         array: {
@@ -22,9 +22,6 @@ const config: LithiaConfig = {
       maxBodySize: 1048576,
     },
   },
-  build: {
-    mode: 'no-bundle',
-  },
   studio: {
     enabled: true,
   },
@@ -32,6 +29,9 @@ const config: LithiaConfig = {
     exposedHeaders: ['X-Powered-By'],
   },
   hooks: {},
+  build: {
+    builder: 'swc',
+  },
 };
 
 export default defineLithiaConfig(config);
