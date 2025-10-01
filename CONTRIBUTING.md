@@ -21,16 +21,16 @@ This project and everyone participating in it is governed by respect, profession
 
 ## Branch Strategy
 
-Lithia uses a **Canary-style branching model** similar to Next.js and other modern frameworks:
+Lithia uses a **canary development model** with release branches:
 
 ### Branch Overview
 
 ```
 canary (default) → Active development, bleeding edge features
   ↓
-main → Stable releases only
+v*.*.* → Release branches (e.g., v4.0.4)
   ↓
-v1.x, v2.x → Long-term support branches
+v*.*.* → Stable releases (tags)
 ```
 
 ### Branches Explained
@@ -42,16 +42,17 @@ v1.x, v2.x → Long-term support branches
   - May contain bugs or breaking changes
   - Published as `lithia@canary` on npm
 
-- **`main`**
-  - Stable, production-ready code only
-  - Merged from `canary` during releases
+- **`v*.*.*`** (release branches)
+  - Stable, production-ready code
+  - Created from `canary` during releases
+  - Used for final testing and bug fixes before release
+  - Example: `v4.0.4` branch for version 4.0.4
+
+- **`v*.*.*`** (tags)
+  - Final stable releases
+  - Created from release branches
   - Published as `lithia@latest` on npm
   - This is what users install by default
-
-- **`v1.x`, `v2.x`, etc.**
-  - Long-term support for major versions
-  - Only critical bug fixes and security patches
-  - Created when a new major version is released
 
 ### For Contributors
 
@@ -89,9 +90,11 @@ npm install lithia@canary
 
 1. Development happens on `canary`
 2. Features are tested by early adopters using `lithia@canary`
-3. When stable, `canary` is merged into `main`
-4. A new version is published from `main` (e.g., `v1.5.0`)
-5. Users get the update via `npm install lithia@latest`
+3. When stable, a release branch is created from `canary` (e.g., `v4.0.4`)
+4. Final testing and bug fixes happen on the release branch
+5. A tag is created from the release branch (e.g., `v4.0.4`)
+6. The tagged version is published to npm as `lithia@latest`
+7. Users get the update via `npm install lithia@latest`
 
 ## How Can I Contribute?
 
@@ -278,13 +281,13 @@ npm link lithia
    git push origin feature/amazing-feature
    ```
 
-6. **Open a Pull Request** against **`canary`** (not `main`!)
+6. **Open a Pull Request** against **`canary`** (the main development branch!)
 
 7. **Wait for review** - maintainers will review your PR and may request changes
 
 ### Pull Request Requirements
 
-- **Target `canary` branch** - All PRs must go to canary
+- **Target `canary` branch** - All PRs must go to canary (the main development branch)
 - **Clear description** of what the PR does
 - **Reference related issues** (e.g., "Fixes #123")
 - **All checks passing** (lint, format, type-check)
@@ -686,4 +689,4 @@ By contributing to Lithia, you agree that your contributions will be licensed un
 
 Every contribution, no matter how small, helps make Lithia better for everyone. We appreciate your time and effort in making this project great.
 
-**Remember:** All PRs go to `canary`, not `main`!
+**Remember:** All PRs go to `canary` - the main development branch!
