@@ -72,7 +72,9 @@ export class DefaultFileSystemScanner implements FileSystemScanner {
 
     return fileNames
       .map((fullPath) => {
-        const path = nodePath.relative(normalizedName, fullPath);
+        const path = nodePath
+          .relative(normalizedName, fullPath)
+          .replace(/\\/g, '/');
         return {
           fullPath,
           path,
