@@ -439,6 +439,7 @@ export class _LithiaResponse implements LithiaResponse {
 
       // Stream the file
       const stream = createReadStream(fullPath);
+
       stream.pipe(this.res);
 
       stream.on('error', () => {
@@ -446,6 +447,8 @@ export class _LithiaResponse implements LithiaResponse {
       });
     } catch {
       this.status(404).send({ error: 'File not found' });
+    } finally {
+      this._ended = true;
     }
   }
 
@@ -493,6 +496,7 @@ export class _LithiaResponse implements LithiaResponse {
 
       // Stream the file
       const stream = createReadStream(fullPath);
+
       stream.pipe(this.res);
 
       stream.on('error', () => {
@@ -500,6 +504,8 @@ export class _LithiaResponse implements LithiaResponse {
       });
     } catch {
       this.status(404).send({ error: 'File not found' });
+    } finally {
+      this._ended = true;
     }
   }
 
